@@ -2962,11 +2962,11 @@ buffhds_first_it:
 		}
 	}
 	snprintf(common->inquiry_string, sizeof common->inquiry_string,
-		 "%-8s%-16s%04x", cfg->vendor_name ?: "Newman",
+		 "%-8s%-16s%04x", cfg->vendor_name ?: "BQ",
 		 /* Assume product name dependent on the first LUN */
 		 cfg->product_name ?: (common->luns->cdrom
 				     ? "File-Stor Gadget"
-				     : "N1"),
+				     : "Aquaris-4.5"),
 		 i);
 
 	/*
