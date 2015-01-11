@@ -1,0 +1,34 @@
+=========================================================
+= 3.4.67 kernel source code for BQ Aquaris 4.5 (MT6577) =
+=========================================================
+
+*************************************
+* NOTE: This kernel is for KK 4.4.2 *
+*************************************
+
+In order to get kernel compilation working, make sure you follow one of these steps:
+
+- You have 3 folders: kernel, mediatek and prebuilts.
+  - kernel folder is the basic one, with the linux kernel sources.
+  - mediatek folder contains dependences that are necessary to build for MTK platform.
+  - prebuilts folder contains the appropriate cross-compiler.
+
+
+- In Terminal, cd to kernel folder:
+  -- Edit build.sh (line 13) and set the path to your CROSS_COMPILE if different
+
+- To begin with the build process:
+  -- Go back to project root folder
+  -- Run command: ./mk -t bq_4.5_kk n k
+
+- Once finished, you will find:
+  -- The new kernel file in the folder "/out/Download/flash/"
+  -- Rename the new kernel file "kernel_bq_4.5_kk.bin" to "kernel"
+
+- Create new boot.img:
+  -- Repack the new generated kernel file with ramdisk.
+
+
+Visit the official thread at XDA: 
+
+Enjoy!
