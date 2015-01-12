@@ -1,38 +1,3 @@
-/* Copyright Statement:
- *
- * This software/firmware and related documentation ("MediaTek Software") are
- * protected under relevant copyright laws. The information contained herein
- * is confidential and proprietary to MediaTek Inc. and/or its licensors.
- * Without the prior written permission of MediaTek inc. and/or its licensors,
- * any reproduction, modification, use or disclosure of MediaTek Software,
- * and information contained herein, in whole or in part, shall be strictly prohibited.
- */
-/* MediaTek Inc. (C) 2010. All rights reserved.
- *
- * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
- * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
- * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
- * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
- * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
- * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
- * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
- * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
- * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
- * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
- * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
- * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
- * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
- * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
- * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
- * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
- *
- * The following software/firmware and/or related documentation ("MediaTek Software")
- * have been modified by MediaTek Inc. All revisions are subject to any receiver's
- * applicable license agreements with MediaTek Inc.
- */
-
 /*
  * MD218A voice coil motor driver
  *
@@ -48,34 +13,22 @@
 #include <asm/atomic.h>
 #include "FM50AF.h"
 #include "../camera/kd_camera_hw.h"
-//#include "kd_cust_lens.h"
 
-//#include <mach/mt6573_pll.h>
-//#include <mach/mt6573_gpt.h>
-//#include <mach/mt6573_gpio.h>
+#define LENS_I2C_BUSNUM 1
+static struct i2c_board_info __initdata kd_lens_dev={ I2C_BOARD_INFO("FM50AF", 0x18)};
 
 
 #define FM50AF_DRVNAME "FM50AF"
 #define FM50AF_VCM_WRITE_ID           0x18
 
-//#define FM50AF_DEBUG
+#define FM50AF_DEBUG
 #ifdef FM50AF_DEBUG
-//#define FM50AFDB printk
-#define FM50AFDB(fmt, args...) printk(KERN_ERR"[FM50AF]%s %d : "fmt, __FUNCTION__, __LINE__, ##args)
+#define FM50AFDB printk
 #else
 #define FM50AFDB(x,...)
 #endif
 
 static spinlock_t g_FM50AF_SpinLock;
-/* Kirby: remove old-style driver
-static unsigned short g_pu2Normal_FM50AF_i2c[] = {FM50AF_VCM_WRITE_ID , I2C_CLIENT_END};
-static unsigned short g_u2Ignore_FM50AF = I2C_CLIENT_END;
-
-static struct i2c_client_address_data g_stFM50AF_Addr_data = {
-    .normal_i2c = g_pu2Normal_FM50AF_i2c,
-    .probe = &g_u2Ignore_FM50AF,
-    .ignore = &g_u2Ignore_FM50AF
-};*/
 
 static struct i2c_client * g_pstFM50AF_I2Cclient = NULL;
 
@@ -86,25 +39,24 @@ static struct class *actuator_class = NULL;
 static int  g_s4FM50AF_Opened = 0;
 static long g_i4MotorStatus = 0;
 static long g_i4Dir = 0;
-static long g_i4Position = 0;
 static unsigned long g_u4FM50AF_INF = 0;
 static unsigned long g_u4FM50AF_MACRO = 1023;
 static unsigned long g_u4TargetPosition = 0;
 static unsigned long g_u4CurrPosition   = 0;
-//static struct work_struct g_stWork;     // --- Work queue ---
-//static XGPT_CONFIG	g_GPTconfig;		// --- Interrupt Config ---
 
+static int g_sr = 3;
 
+#if 0
 extern s32 mt_set_gpio_mode(u32 u4Pin, u32 u4Mode);
 extern s32 mt_set_gpio_out(u32 u4Pin, u32 u4PinOut);
 extern s32 mt_set_gpio_dir(u32 u4Pin, u32 u4Dir);
-
+#endif
 
 static int s4FM50AF_ReadReg(unsigned short * a_pu2Result)
 {
     int  i4RetValue = 0;
     char pBuff[2];
-	FM50AFDB("test");
+
     i4RetValue = i2c_master_recv(g_pstFM50AF_I2Cclient, pBuff , 2);
 
     if (i4RetValue < 0) 
@@ -122,11 +74,11 @@ static int s4FM50AF_WriteReg(u16 a_u2Data)
 {
     int  i4RetValue = 0;
 
-    char puSendCmd[2] = {(char)(a_u2Data >> 4) , (char)(((a_u2Data & 0xF) << 4)+0xF)};
-	FM50AFDB("test");
-	//mt_set_gpio_out(97,1);
+    char puSendCmd[2] = {(char)(a_u2Data >> 4) , (char)(((a_u2Data & 0xF) << 4)+g_sr)};
+
+    //FM50AFDB("[FM50AF] g_sr %d, write %d \n", g_sr, a_u2Data);
+    g_pstFM50AF_I2Cclient->ext_flag |= I2C_A_FILTER_MSG;
     i4RetValue = i2c_master_send(g_pstFM50AF_I2Cclient, puSendCmd, 2);
-	//mt_set_gpio_out(97,0);
 	
     if (i4RetValue < 0) 
     {
@@ -140,15 +92,16 @@ static int s4FM50AF_WriteReg(u16 a_u2Data)
 inline static int getFM50AFInfo(__user stFM50AF_MotorInfo * pstMotorInfo)
 {
     stFM50AF_MotorInfo stMotorInfo;
-	FM50AFDB("test");
     stMotorInfo.u4MacroPosition   = g_u4FM50AF_MACRO;
     stMotorInfo.u4InfPosition     = g_u4FM50AF_INF;
     stMotorInfo.u4CurrentPosition = g_u4CurrPosition;
-	if (g_i4MotorStatus == 1)	{stMotorInfo.bIsMotorMoving = TRUE;}
-	else						{stMotorInfo.bIsMotorMoving = FALSE;}
+    stMotorInfo.bIsSupportSR      = TRUE;
 
-	if (g_s4FM50AF_Opened >= 1)	{stMotorInfo.bIsMotorOpen = TRUE;}
-	else						{stMotorInfo.bIsMotorOpen = FALSE;}
+	if (g_i4MotorStatus == 1)	{stMotorInfo.bIsMotorMoving = 1;}
+	else						{stMotorInfo.bIsMotorMoving = 0;}
+
+	if (g_s4FM50AF_Opened >= 1)	{stMotorInfo.bIsMotorOpen = 1;}
+	else						{stMotorInfo.bIsMotorOpen = 0;}
 
     if(copy_to_user(pstMotorInfo , &stMotorInfo , sizeof(stFM50AF_MotorInfo)))
     {
@@ -158,105 +111,131 @@ inline static int getFM50AFInfo(__user stFM50AF_MotorInfo * pstMotorInfo)
     return 0;
 }
 
+#ifdef LensdrvCM3
+inline static int getFM50AFMETA(__user stFM50AF_MotorMETAInfo * pstMotorMETAInfo)
+{
+    stFM50AF_MotorMETAInfo stMotorMETAInfo;
+    stMotorMETAInfo.Aperture=2.8;      //fn
+	stMotorMETAInfo.Facing=1;   
+	stMotorMETAInfo.FilterDensity=1;   //X
+	stMotorMETAInfo.FocalDistance=1.0;  //diopters
+	stMotorMETAInfo.FocalLength=34.0;  //mm
+	stMotorMETAInfo.FocusRange=1.0;    //diopters
+	stMotorMETAInfo.InfoAvalibleApertures=2.8;
+	stMotorMETAInfo.InfoAvalibleFilterDensity=1;
+	stMotorMETAInfo.InfoAvalibleFocalLength=34.0;
+	stMotorMETAInfo.InfoAvalibleHypeDistance=1.0;
+	stMotorMETAInfo.InfoAvalibleMinFocusDistance=1.0;
+	stMotorMETAInfo.InfoAvalibleOptStabilization=0;
+	stMotorMETAInfo.OpticalAxisAng[0]=0.0;
+	stMotorMETAInfo.OpticalAxisAng[1]=0.0;
+	stMotorMETAInfo.Position[0]=0.0;
+	stMotorMETAInfo.Position[1]=0.0;
+	stMotorMETAInfo.Position[2]=0.0;
+	stMotorMETAInfo.State=0;
+	stMotorMETAInfo.u4OIS_Mode=0;
+	
+	if(copy_to_user(pstMotorMETAInfo , &stMotorMETAInfo , sizeof(stFM50AF_MotorMETAInfo)))
+	{
+		FM50AFDB("[FM50AF] copy to user failed when getting motor information \n");
+	}
+
+    return 0;
+}
+#endif
+
 inline static int moveFM50AF(unsigned long a_u4Position)
 {
-	FM50AFDB("test");
+    int ret = 0;
+    
     if((a_u4Position > g_u4FM50AF_MACRO) || (a_u4Position < g_u4FM50AF_INF))
     {
         FM50AFDB("[FM50AF] out of range \n");
         return -EINVAL;
     }
 
-	if (g_s4FM50AF_Opened == 1)
-	{
-		unsigned short InitPos;
-	
-		if(s4FM50AF_ReadReg(&InitPos) == 0)
-		{
-			FM50AFDB("[FM50AF] Init Pos %6d \n", InitPos);
+    if (g_s4FM50AF_Opened == 1)
+    {
+        unsigned short InitPos;
+        ret = s4FM50AF_ReadReg(&InitPos);
+	    
+        if(ret == 0)
+        {
+            FM50AFDB("[FM50AF] Init Pos %6d \n", InitPos);
+			
+			spin_lock(&g_FM50AF_SpinLock);
+            g_u4CurrPosition = (unsigned long)InitPos;
+			spin_unlock(&g_FM50AF_SpinLock);
+			
+        }
+        else
+        {		
+			spin_lock(&g_FM50AF_SpinLock);
+            g_u4CurrPosition = 0;
+			spin_unlock(&g_FM50AF_SpinLock);
+        }
+
+		spin_lock(&g_FM50AF_SpinLock);
+        g_s4FM50AF_Opened = 2;
+        spin_unlock(&g_FM50AF_SpinLock);
+    }
+
+    if (g_u4CurrPosition < a_u4Position)
+    {
+        spin_lock(&g_FM50AF_SpinLock);	
+        g_i4Dir = 1;
+        spin_unlock(&g_FM50AF_SpinLock);	
+    }
+    else if (g_u4CurrPosition > a_u4Position)
+    {
+        spin_lock(&g_FM50AF_SpinLock);	
+        g_i4Dir = -1;
+        spin_unlock(&g_FM50AF_SpinLock);			
+    }
+    else										{return 0;}
+
+    spin_lock(&g_FM50AF_SpinLock);    
+    g_u4TargetPosition = a_u4Position;
+    spin_unlock(&g_FM50AF_SpinLock);	
+
+    //FM50AFDB("[FM50AF] move [curr] %d [target] %d\n", g_u4CurrPosition, g_u4TargetPosition);
+
+            spin_lock(&g_FM50AF_SpinLock);
+            g_sr = 3;
+            g_i4MotorStatus = 0;
+            spin_unlock(&g_FM50AF_SpinLock);	
 		
-			g_u4CurrPosition = (unsigned long)InitPos;
-		}
-		else
-		{
-			g_u4CurrPosition = 0;
-		}
-		
-		g_s4FM50AF_Opened = 2;
-	}
-
-	if      (g_u4CurrPosition < a_u4Position)	{g_i4Dir = 1;}
-	else if (g_u4CurrPosition > a_u4Position)	{g_i4Dir = -1;}
-	else										{return 0;}
-
-	if (1)
-	{
-		g_i4Position = (long)g_u4CurrPosition;
-		g_u4TargetPosition = a_u4Position;
-
-		if (g_i4Dir == 1)
-		{
-			//if ((g_u4TargetPosition - g_u4CurrPosition)<60)
-			{		
-				g_i4MotorStatus = 0;
-				if(s4FM50AF_WriteReg((unsigned short)g_u4TargetPosition) == 0)
-				{
-					g_u4CurrPosition = (unsigned long)g_u4TargetPosition;
-				}
-				else
-				{
-					FM50AFDB("[FM50AF] set I2C failed when moving the motor \n");
-					g_i4MotorStatus = -1;
-				}
-			}
-			//else
-			//{
-			//	g_i4MotorStatus = 1;
-			//}
-		}
-		else if (g_i4Dir == -1)
-		{
-			//if ((g_u4CurrPosition - g_u4TargetPosition)<60)
-			{
-				g_i4MotorStatus = 0;		
-				if(s4FM50AF_WriteReg((unsigned short)g_u4TargetPosition) == 0)
-				{
-					g_u4CurrPosition = (unsigned long)g_u4TargetPosition;
-				}
-				else
-				{
-					FM50AFDB("[FM50AF] set I2C failed when moving the motor \n");
-					g_i4MotorStatus = -1;
-				}
-			}
-			//else
-			//{
-			//	g_i4MotorStatus = 1;		
-			//}
-		}
-	}
-	else
-	{
-	g_i4Position = (long)g_u4CurrPosition;
-	g_u4TargetPosition = a_u4Position;
-	g_i4MotorStatus = 1;
-	}
+            if(s4FM50AF_WriteReg((unsigned short)g_u4TargetPosition) == 0)
+            {
+                spin_lock(&g_FM50AF_SpinLock);		
+                g_u4CurrPosition = (unsigned long)g_u4TargetPosition;
+                spin_unlock(&g_FM50AF_SpinLock);				
+            }
+            else
+            {
+                FM50AFDB("[FM50AF] set I2C failed when moving the motor \n");			
+                spin_lock(&g_FM50AF_SpinLock);
+                g_i4MotorStatus = -1;
+                spin_unlock(&g_FM50AF_SpinLock);				
+            }
 
     return 0;
 }
 
 inline static int setFM50AFInf(unsigned long a_u4Position)
 {
-	FM50AFDB("test");
-	g_u4FM50AF_INF = a_u4Position;
-	return 0;
+    spin_lock(&g_FM50AF_SpinLock);
+    g_u4FM50AF_INF = a_u4Position;
+    spin_unlock(&g_FM50AF_SpinLock);	
+    return 0;
 }
 
 inline static int setFM50AFMacro(unsigned long a_u4Position)
 {
-	FM50AFDB("test");
-	g_u4FM50AF_MACRO = a_u4Position;
-	return 0;	
+    spin_lock(&g_FM50AF_SpinLock);
+    g_u4FM50AF_MACRO = a_u4Position;
+    spin_unlock(&g_FM50AF_SpinLock);	
+    return 0;	
 }
 
 ////////////////////////////////////////////////////////////////
@@ -266,69 +245,38 @@ unsigned int a_u4Command,
 unsigned long a_u4Param)
 {
     long i4RetValue = 0;
-	FM50AFDB("test");
+
     switch(a_u4Command)
     {
         case FM50AFIOC_G_MOTORINFO :
             i4RetValue = getFM50AFInfo((__user stFM50AF_MotorInfo *)(a_u4Param));
         break;
-
+		#ifdef LensdrvCM3
+        case FM50AFIOC_G_MOTORMETAINFO :
+            i4RetValue = getFM50AFMETA((__user stFM50AF_MotorMETAInfo *)(a_u4Param));
+        break;
+		#endif
         case FM50AFIOC_T_MOVETO :
             i4RetValue = moveFM50AF(a_u4Param);
         break;
  
- 		case FM50AFIOC_T_SETINFPOS :
-			 i4RetValue = setFM50AFInf(a_u4Param);
-		break;
+        case FM50AFIOC_T_SETINFPOS :
+            i4RetValue = setFM50AFInf(a_u4Param);
+        break;
 
- 		case FM50AFIOC_T_SETMACROPOS :
-			 i4RetValue = setFM50AFMacro(a_u4Param);
-		break;
+        case FM50AFIOC_T_SETMACROPOS :
+            i4RetValue = setFM50AFMacro(a_u4Param);
+        break;
 		
         default :
-      	     FM50AFDB("[FM50AF] No CMD \n");
+      	    FM50AFDB("[FM50AF] No CMD \n");
             i4RetValue = -EPERM;
         break;
     }
 
     return i4RetValue;
 }
-/*
-static void FM50AF_WORK(struct work_struct *work)
-{
-    g_i4Position += (25 * g_i4Dir);
 
-    if ((g_i4Dir == 1) && (g_i4Position >= (long)g_u4TargetPosition))
-	{
-        g_i4Position = (long)g_u4TargetPosition;
-        g_i4MotorStatus = 0;
-    }
-
-    if ((g_i4Dir == -1) && (g_i4Position <= (long)g_u4TargetPosition))
-    {
-        g_i4Position = (long)g_u4TargetPosition;
-        g_i4MotorStatus = 0; 		
-    }
-	
-    if(s4FM50AF_WriteReg((unsigned short)g_i4Position) == 0)
-    {
-        g_u4CurrPosition = (unsigned long)g_i4Position;
-    }
-    else
-    {
-        FM50AFDB("[FM50AF] set I2C failed when moving the motor \n");
-        g_i4MotorStatus = -1;
-    }
-}
-
-static void FM50AF_ISR(UINT16 a_input)
-{
-	if (g_i4MotorStatus == 1)
-	{	
-		schedule_work(&g_stWork);		
-	}
-}
-*/
 //Main jobs:
 // 1.check for device-specified errors, device not ready.
 // 2.Initialize the device if it is opened for the first time.
@@ -337,39 +285,20 @@ static void FM50AF_ISR(UINT16 a_input)
 //CAM_RESET
 static int FM50AF_Open(struct inode * a_pstInode, struct file * a_pstFile)
 {
-    spin_lock(&g_FM50AF_SpinLock);
-	FM50AFDB("test");
+    FM50AFDB("[FM50AF] FM50AF_Open - Start\n");
+
+
     if(g_s4FM50AF_Opened)
     {
-        spin_unlock(&g_FM50AF_SpinLock);
         FM50AFDB("[FM50AF] the device is opened \n");
         return -EBUSY;
     }
 
+    spin_lock(&g_FM50AF_SpinLock);
     g_s4FM50AF_Opened = 1;
-		
     spin_unlock(&g_FM50AF_SpinLock);
 
-	// --- Config Interrupt ---
-	//g_GPTconfig.num = XGPT7;
-	//g_GPTconfig.mode = XGPT_REPEAT;
-	//g_GPTconfig.clkDiv = XGPT_CLK_DIV_1;//32K
-	//g_GPTconfig.u4Compare = 32*2; // 2ms
-	//g_GPTconfig.bIrqEnable = TRUE;
-	
-	//XGPT_Reset(g_GPTconfig.num);	
-	//XGPT_Init(g_GPTconfig.num, FM50AF_ISR);
-
-	//if (XGPT_Config(g_GPTconfig) == FALSE)
-	//{
-        //FM50AFDB("[FM50AF] ISR Config Fail\n");	
-	//	return -EPERM;
-	//}
-
-	//XGPT_Start(g_GPTconfig.num);		
-
-	// --- WorkQueue ---	
-	//INIT_WORK(&g_stWork,FM50AF_WORK);
+    FM50AFDB("[FM50AF] FM50AF_Open - End\n");
 
     return 0;
 }
@@ -381,29 +310,24 @@ static int FM50AF_Open(struct inode * a_pstInode, struct file * a_pstFile)
 // Q1 : Try release multiple times.
 static int FM50AF_Release(struct inode * a_pstInode, struct file * a_pstFile)
 {
-	unsigned int cnt = 0;
+    FM50AFDB("[FM50AF] FM50AF_Release - Start\n");
 
-	if (g_s4FM50AF_Opened)
-	{
-		moveFM50AF(g_u4FM50AF_INF);
+    if (g_s4FM50AF_Opened)
+    {
+        FM50AFDB("[FM50AF] feee \n");
+        g_sr = 5;
+	    s4FM50AF_WriteReg(200);
+        msleep(10);
+	    s4FM50AF_WriteReg(100);
+        msleep(10);
+            	            	    	    
+        spin_lock(&g_FM50AF_SpinLock);
+        g_s4FM50AF_Opened = 0;
+        spin_unlock(&g_FM50AF_SpinLock);
 
-		while(g_i4MotorStatus)
-		{
-			msleep(1);
-			cnt++;
-			if (cnt>1000)	{break;}
-		}
-		
-    	spin_lock(&g_FM50AF_SpinLock);
+    }
 
-	    g_s4FM50AF_Opened = 0;
-
-    	spin_unlock(&g_FM50AF_SpinLock);
-
-    	//hwPowerDown(CAMERA_POWER_VCAM_A,"kd_camera_hw");
-
-		//XGPT_Stop(g_GPTconfig.num);
-	}
+    FM50AFDB("[FM50AF] FM50AF_Release - End\n");
 
     return 0;
 }
@@ -419,6 +343,8 @@ static const struct file_operations g_stFM50AF_fops =
 inline static int Register_FM50AF_CharDrv(void)
 {
     struct device* vcm_device = NULL;
+
+    FM50AFDB("[FM50AF] Register_FM50AF_CharDrv - Start\n");
 
     //Allocate char driver no.
     if( alloc_chrdev_region(&g_FM50AF_devno, 0, 1,FM50AF_DRVNAME) )
@@ -469,11 +395,14 @@ inline static int Register_FM50AF_CharDrv(void)
         return -EIO;
     }
     
+    FM50AFDB("[FM50AF] Register_FM50AF_CharDrv - End\n");    
     return 0;
 }
 
 inline static void Unregister_FM50AF_CharDrv(void)
 {
+    FM50AFDB("[FM50AF] Unregister_FM50AF_CharDrv - Start\n");
+
     //Release char driver
     cdev_del(g_pFM50AF_CharDrv);
 
@@ -482,28 +411,15 @@ inline static void Unregister_FM50AF_CharDrv(void)
     device_destroy(actuator_class, g_FM50AF_devno);
 
     class_destroy(actuator_class);
+
+    FM50AFDB("[FM50AF] Unregister_FM50AF_CharDrv - End\n");    
 }
 
 //////////////////////////////////////////////////////////////////////
-/* Kirby: remove old-style driver
-static int FM50AF_i2c_attach(struct i2c_adapter * a_pstAdapter);
-static int FM50AF_i2c_detach_client(struct i2c_client * a_pstClient);
-static struct i2c_driver FM50AF_i2c_driver = {
-    .driver = {
-    .name = FM50AF_DRVNAME,
-    },
-    //.attach_adapter = FM50AF_i2c_attach,
-    //.detach_client = FM50AF_i2c_detach_client
-};*/
 
-/* Kirby: add new-style driver { */
-//static int FM50AF_i2c_detect(struct i2c_client *client, int kind, struct i2c_board_info *info);
 static int FM50AF_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int FM50AF_i2c_remove(struct i2c_client *client);
 static const struct i2c_device_id FM50AF_i2c_id[] = {{FM50AF_DRVNAME,0},{}};   
-//static unsigned short force[] = {IMG_SENSOR_I2C_GROUP_ID, FM50AF_VCM_WRITE_ID, I2C_CLIENT_END, I2C_CLIENT_END};   
-//static const unsigned short * const forces[] = { force, NULL };              
-//static struct i2c_client_address_data addr_data = { .forces = forces,}; 
 struct i2c_driver FM50AF_i2c_driver = {                       
     .probe = FM50AF_i2c_probe,                                   
     .remove = FM50AF_i2c_remove,                           
@@ -520,61 +436,25 @@ static int FM50AF_i2c_detect(struct i2c_client *client, int kind, struct i2c_boa
 static int FM50AF_i2c_remove(struct i2c_client *client) {
     return 0;
 }
-/* Kirby: } */
 
-
-/* Kirby: remove old-style driver
-int FM50AF_i2c_foundproc(struct i2c_adapter * a_pstAdapter, int a_i4Address, int a_i4Kind)
-*/
 /* Kirby: add new-style driver {*/
 static int FM50AF_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
-/* Kirby: } */
 {
     int i4RetValue = 0;
 
-    FM50AFDB("[FM50AF] Attach I2C \n");
+    FM50AFDB("[FM50AF] FM50AF_i2c_probe\n");
 
-    /* Kirby: remove old-style driver
-    //Check I2C driver capability
-    if (!i2c_check_functionality(a_pstAdapter, I2C_FUNC_SMBUS_BYTE_DATA))
-    {
-        FM50AFDB("[FM50AF] I2C port cannot support the format \n");
-        return -EPERM;
-    }
-
-    if (!(g_pstFM50AF_I2Cclient = kzalloc(sizeof(struct i2c_client), GFP_KERNEL)))
-    {
-        return -ENOMEM;
-    }
-
-    g_pstFM50AF_I2Cclient->addr = a_i4Address;
-    g_pstFM50AF_I2Cclient->adapter = a_pstAdapter;
-    g_pstFM50AF_I2Cclient->driver = &FM50AF_i2c_driver;
-    g_pstFM50AF_I2Cclient->flags = 0;
-
-    strncpy(g_pstFM50AF_I2Cclient->name, FM50AF_DRVNAME, I2C_NAME_SIZE);
-
-    if(i2c_attach_client(g_pstFM50AF_I2Cclient))
-    {
-        kfree(g_pstFM50AF_I2Cclient);
-    }
-    */
     /* Kirby: add new-style driver { */
     g_pstFM50AF_I2Cclient = client;
     
     g_pstFM50AF_I2Cclient->addr = g_pstFM50AF_I2Cclient->addr >> 1;
     
-    /* Kirby: } */
-
     //Register char driver
     i4RetValue = Register_FM50AF_CharDrv();
 
     if(i4RetValue){
 
         FM50AFDB("[FM50AF] register char device failed!\n");
-
-        /* Kirby: remove old-style driver
-        kfree(g_pstFM50AF_I2Cclient); */
 
         return i4RetValue;
     }
@@ -585,38 +465,6 @@ static int FM50AF_i2c_probe(struct i2c_client *client, const struct i2c_device_i
 
     return 0;
 }
-
-/* Kirby: remove old-style driver
-static int FM50AF_i2c_attach(struct i2c_adapter * a_pstAdapter)
-{
-
-    if(a_pstAdapter->id == 0)
-    {
-    	 return i2c_probe(a_pstAdapter, &g_stFM50AF_Addr_data ,  FM50AF_i2c_foundproc);
-    }
-
-    return -1;
-
-}
-
-static int FM50AF_i2c_detach_client(struct i2c_client * a_pstClient)
-{
-    int i4RetValue = 0;
-
-    Unregister_FM50AF_CharDrv();
-
-    //detach client
-    i4RetValue = i2c_detach_client(a_pstClient);
-    if(i4RetValue)
-    {
-        dev_err(&a_pstClient->dev, "Client deregistration failed, client not detached.\n");
-        return i4RetValue;
-    }
-
-    kfree(i2c_get_clientdata(a_pstClient));
-
-    return 0;
-}*/
 
 static int FM50AF_probe(struct platform_device *pdev)
 {
@@ -631,21 +479,11 @@ static int FM50AF_remove(struct platform_device *pdev)
 
 static int FM50AF_suspend(struct platform_device *pdev, pm_message_t mesg)
 {
-//    int retVal = 0;
-//    retVal = hwPowerDown(MT6516_POWER_VCAM_A,FM50AF_DRVNAME);
-
     return 0;
 }
 
 static int FM50AF_resume(struct platform_device *pdev)
 {
-/*
-    if(TRUE != hwPowerOn(MT6516_POWER_VCAM_A, VOL_2800,FM50AF_DRVNAME))
-    {
-        FM50AFDB("[FM50AF] failed to resume FM50AF\n");
-        return -EIO;
-    }
-*/
     return 0;
 }
 
@@ -663,7 +501,8 @@ static struct platform_driver g_stFM50AF_Driver = {
 
 static int __init FM50AF_i2C_init(void)
 {
-	FM50AFDB("FM50AF_i2C_init\n");
+    i2c_register_board_info(LENS_I2C_BUSNUM, &kd_lens_dev, 1);
+	
     if(platform_driver_register(&g_stFM50AF_Driver)){
         FM50AFDB("failed to register FM50AF driver\n");
         return -ENODEV;
@@ -681,7 +520,5 @@ module_init(FM50AF_i2C_init);
 module_exit(FM50AF_i2C_exit);
 
 MODULE_DESCRIPTION("FM50AF lens module driver");
-MODULE_AUTHOR("Gipi Lin <Gipi.Lin@Mediatek.com>");
+MODULE_AUTHOR("KY Chen <ky.chen@Mediatek.com>");
 MODULE_LICENSE("GPL");
-
-
