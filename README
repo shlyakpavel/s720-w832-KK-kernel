@@ -19,11 +19,11 @@ In order to get kernel compilation working, make sure you follow one of these st
 
 - To begin with the build process:
   -- Go back to project root folder
-  -- Run command: ./mk -t bq_4.5_kk n k
+  -- Run command: ./mk -t ztenj77_sz_cu_kk n k
 
 - Once finished, you will find:
   -- The new kernel file in the folder "/out/Download/flash/"
-  -- Rename the new kernel file "kernel_bq_4.5_kk.bin" to "kernel"
+  -- Rename the new kernel file "kernel_ztenj77_sz_cu_kk.bin" to "kernel"
 
 - Create new boot.img:
   -- Repack the new generated kernel file with ramdisk.

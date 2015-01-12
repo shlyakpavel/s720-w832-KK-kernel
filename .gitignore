@@ -83,6 +83,7 @@ GTAGS
 *.orig
 *~
 \#*#
+/kernel/Download
 out/
 build_result/
 kernelFile
@@ -91,3 +92,4 @@ vmlinux
 System.map
 Module.markers
 Module.symvers
+/kernel/mediatek/custom/out
