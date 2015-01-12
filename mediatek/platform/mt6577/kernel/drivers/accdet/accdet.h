@@ -61,6 +61,12 @@ IOCTL
 #define KEY_CALL	KEY_SEND
 #define KEY_ENDCALL	KEY_HANGEUL
 
+//<2015/01/08-lingfude. It can be answer a call when ring tone.
+#if defined(P175A20)
+#define KEY_ANSWER_CALL KEY_PLAYPAUSE //KEY_STOPCD //KEY_CALL
+#endif
+//<2015/01/08-lingfude
+
 /****************************************************
 globle ACCDET variables
 ****************************************************/
