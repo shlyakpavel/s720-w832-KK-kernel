@@ -1,22 +1,3 @@
-/* drivers/input/touchscreen/gt813_827_828_update.c
- *
- * 2010 - 2012 Goodix Technology.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be a reference
- * to you, when you are integrating the GOODiX's CTP IC into your system,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * Version:1.2
- *      V1.0:2012/08/31,first release.
- *      V1.2:2012/10/15,add force update,GT9110P pid map
- */
 #include "tpd.h"
 #include <linux/interrupt.h>
 #include <cust_eint.h>
@@ -1748,7 +1729,7 @@ static u8 gup_download_fw_ss51(struct i2c_client *client)
     ret = gup_set_ic_msg(guitar_client, _bRW_MISCTL__SRAM_BANK, 0x00);
     ret = gup_set_ic_msg(guitar_client, _bRW_MISCTL__MEM_CD_EN, 0x01);
 
-    //ret = i2c_write_bytes_9xx(client, 0xC000, fw_ss51, FW_DOWNLOAD_LENGTH);   // write the first bank
+    ret = i2c_write_bytes_9xx(client, 0xC000, fw_ss51, FW_DOWNLOAD_LENGTH);   // write the first bank
 
     if (ret == -1)
     {
@@ -1758,7 +1739,10 @@ static u8 gup_download_fw_ss51(struct i2c_client *client)
 
     ret = gup_set_ic_msg(guitar_client, _bRW_MISCTL__SRAM_BANK, 0x01);
     ret = gup_set_ic_msg(guitar_client, _bRW_MISCTL__MEM_CD_EN, 0x01);
-    //ret = i2c_write_bytes_9xx(client, 0xC000, &fw_ss51[FW_DOWNLOAD_LENGTH], FW_DOWNLOAD_LENGTH);  // write the second bank
+    ret = i2c_write_bytes_9xx(client,
+                          0xC000,
+                          &fw_ss51[FW_DOWNLOAD_LENGTH],
+                          FW_DOWNLOAD_LENGTH);  // write the second bank
 
     if (ret == -1)
     {
@@ -1839,7 +1823,10 @@ static u8 gup_download_fw_dsp(struct i2c_client *client)
         goto exit_download_fw_dsp;
     }
 
-    //ret = i2c_write_bytes_9xx(client, 0xC000, fw_dsp, FW_DSP_LENGTH); // write the second bank
+    ret = i2c_write_bytes_9xx(client,
+                          0xC000,
+                          fw_dsp,
+                          FW_DSP_LENGTH); // write the second bank
 
     ret = SUCCESS;
 

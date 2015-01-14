@@ -31,22 +31,19 @@
 
 #ifdef MT6577
 #include "tpd_custom_GT813.h"
-//#include <mach/mt6577_pm_ldo.h>
-//#include <mach/mt6577_typedefs.h>
-//#include <mach/mt6577_boot.h>
-//#include <mach/mt6577_gpt.h>
 #include <mach/mt_pm_ldo.h>
 #include <mach/mt_typedefs.h>
 #include <mach/mt_boot.h>
-
+#include <mach/mt_gpt.h>
 #endif
+
 #include "tpd.h"
 #include <cust_eint.h>
 #include <linux/jiffies.h>
 
-//#ifndef TPD_NO_GPIO 
+#ifndef TPD_NO_GPIO 
 #include "cust_gpio_usage.h"
-//#endif
+#endif
 
 extern struct tpd_device *tpd;
 
@@ -113,8 +110,8 @@ extern void mt65xx_eint_registration(kal_uint8 eintno, kal_bool Dbounce_En,
 
 #define CREATE_WR_NODE//zhaoshaopeng add this 201209828
 #ifdef CREATE_WR_NODE
-//extern s32 init_wr_node(struct i2c_client*);
-//extern void uninit_wr_node(void);
+extern s32 init_wr_node(struct i2c_client*);
+extern void uninit_wr_node(void);
 #endif
 
 
@@ -419,7 +416,7 @@ static void tpd_esd_check_func(struct work_struct *work)
 
     if(tpd_halt)
     {
-		//mt65xx_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
+		mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
     }
 	else
 	{
@@ -728,9 +725,9 @@ static int tpd_i2c_probe(struct i2c_client *client, const struct i2c_device_id *
 	cfg_data = cfg_data_version_OFG;
 	cfg_data_with_charger = cfg_data_version_OFG;
     #endif
-//#ifdef CREATE_WR_NODE
-//    init_wr_node(client);
-//#endif
+#ifdef CREATE_WR_NODE
+    init_wr_node(client);
+#endif
   
     #if 0//zhaoshaopeng delete this def TPD_HAVE_BUTTON
     for(retry =0; retry < 3; retry ++)
@@ -773,11 +770,11 @@ static int tpd_i2c_probe(struct i2c_client *client, const struct i2c_device_id *
     mt_set_gpio_pull_enable(GPIO_CTP_EINT_PIN, GPIO_PULL_DISABLE);
     //mt_set_gpio_pull_select(GPIO_CTP_EINT_PIN, GPIO_PULL_UP);
 
-    //mt65xx_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
-    //mt65xx_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
+    mt_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
+    mt_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
     //mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_TOUCH_PANEL_POLARITY, tpd_eint_interrupt_handler, 1);
-    //mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_POLARITY_HIGH, tpd_eint_interrupt_handler, 1);
-    //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+    mt_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, EINTF_TRIGGER_RISING, tpd_eint_interrupt_handler, 1);
+    mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
 
 
     tpd_load_status = 1;
@@ -802,9 +799,9 @@ static void tpd_eint_interrupt_handler(void)
 static int tpd_i2c_remove(struct i2c_client *client)
 {
     
-//#ifdef CREATE_WR_NODE
-//    uninit_wr_node();
-//#endif
+#ifdef CREATE_WR_NODE
+    uninit_wr_node();
+#endif
 
 #ifdef ESD_PROTECT
     destroy_workqueue(tpd_esd_check_workqueue);
@@ -1463,7 +1460,7 @@ static void tpd_suspend( struct early_suspend *h )
   //  i2c_write_dummy( i2c_client, TPD_HANDSHAKING_START_REG );
     i2c_write_bytes( i2c_client, TPD_POWER_MODE_REG, &mode, 1 );
     i2c_write_dummy( i2c_client, TPD_HANDSHAKING_END_REG );    
-    //mt65xx_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
+    mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
 
 
 #ifdef MT6575
@@ -1519,7 +1516,7 @@ static void tpd_resume( struct early_suspend *h )
     mt_set_gpio_mode(GPIO_CTP_EINT_PIN, GPIO_CTP_EINT_PIN_M_EINT);
     mt_set_gpio_dir(GPIO_CTP_EINT_PIN, GPIO_DIR_IN);
 
-    //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
+    mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
 
     tpd_halt = 0;
     TPD_DMESG(TPD_DEVICE " tpd_resume end \n" ); 	    

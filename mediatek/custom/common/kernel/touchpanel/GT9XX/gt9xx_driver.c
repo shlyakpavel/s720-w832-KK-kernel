@@ -53,10 +53,10 @@ extern void mt65xx_eint_registration(kal_uint8 eintno, kal_bool Dbounce_En,
                                      kal_bool auto_umask);
 #endif
 
-//#if GTP_CREATE_WR_NODE
-//extern s32 init_wr_node_9xx(struct i2c_client *);
-//extern void uninit_wr_node_9xx(void);
-//#endif
+#if GTP_CREATE_WR_NODE
+extern s32 init_wr_node_9xx(struct i2c_client *);
+extern void uninit_wr_node_9xx(void);
+#endif
 
 #if GTP_ESD_PROTECT
 #define TPD_ESD_CHECK_CIRCLE        2000
@@ -851,7 +851,11 @@ reset_proc:
     hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
     //hwPowerOn(MT65XX_POWER_LDO_VGP, VOL_1800, "TP");//zhaoshaopeng delete this for k504
 #endif
-
+#ifdef MT6589
+    //power on, need confirm with SA
+    hwPowerOn(MT65XX_POWER_LDO_VGP4, VOL_2800, "TP");
+    hwPowerOn(MT65XX_POWER_LDO_VGP5, VOL_1800, "TP");
+#endif
     gtp_reset_guitar(client, 20);
 
     ret = gtp_i2c_test(client);
@@ -869,6 +873,11 @@ reset_proc:
             //power on, need confirm with SA
             hwPowerDown(MT65XX_POWER_LDO_VGP2, "TP");
             //hwPowerOn(MT65XX_POWER_LDO_VGP, VOL_1800, "TP");//zhaoshaopeng delete this for k504
+        #endif
+        #ifdef MT6589
+            //power on, need confirm with SA
+            hwPowerDown(MT65XX_POWER_LDO_VGP4,"TP");
+            hwPowerDown(MT65XX_POWER_LDO_VGP5,"TP");
         #endif
 	  msleep(5);
         //zhaoshaopeng end
@@ -962,9 +971,9 @@ static s32 tpd_i2c_probe(struct i2c_client *client, const struct i2c_device_id *
         gt91xx_config_proc->write_proc = gt91xx_config_write_proc;
     }
 
-//#if GTP_CREATE_WR_NODE
-//    init_wr_node_9xx(client);
-//#endif
+#if GTP_CREATE_WR_NODE
+    init_wr_node_9xx(client);
+#endif
 
     thread = kthread_run(touch_event_handler, 0, TPD_DEVICE);
 
@@ -1004,19 +1013,19 @@ static s32 tpd_i2c_probe(struct i2c_client *client, const struct i2c_device_id *
     //mt_set_gpio_pull_select(GPIO_CTP_EINT_PIN, GPIO_PULL_UP);
     msleep(50);
 
-	  //mt65xx_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
-	  //mt65xx_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
+	  mt_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
+	  mt_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
 
     if (!int_type)
     {
-        //mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_POLARITY_HIGH, tpd_eint_interrupt_handler, 1);
+        mt_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, EINTF_TRIGGER_RISING, tpd_eint_interrupt_handler, 1);
     }
     else
     {
-        //mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_POLARITY_LOW, tpd_eint_interrupt_handler, 1);
+        mt_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, EINTF_TRIGGER_RISING, tpd_eint_interrupt_handler, 1);
     }
 
-	  //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+	  mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
     printk("zhuoshineng tpd_load_status=%d\n",tpd_load_status);
     
 #ifdef TPD_PROXIMITY
@@ -1050,9 +1059,9 @@ static void tpd_eint_interrupt_handler(void)
 }
 static int tpd_i2c_remove(struct i2c_client *client)
 {
-//#if GTP_CREATE_WR_NODE
-//    uninit_wr_node_9xx();
-//#endif
+#if GTP_CREATE_WR_NODE
+    uninit_wr_node_9xx();
+#endif
 
 #if GTP_ESD_PROTECT
     destroy_workqueue(gtp_esd_check_workqueue);
@@ -1074,6 +1083,15 @@ static void force_reset_guitar(void)
     hwPowerDown(MT65XX_POWER_LDO_VGP2, "TP");
     msleep(30);
     hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
+    msleep(30);
+
+#elif defined(mt6589)
+    hwPowerDown(MT65XX_POWER_LDO_VGP4, "TP");
+    hwPowerDown(MT65XX_POWER_LDO_VGP5, "TP");    
+    msleep(30);
+    //Power on TP
+    hwPowerOn(MT65XX_POWER_LDO_VGP4, VOL_2800, "TP");
+    hwPowerOn(MT65XX_POWER_LDO_VGP5, VOL_1800, "TP");    
     msleep(30);
 #else
     //Power off TP
@@ -1583,7 +1601,7 @@ static void tpd_suspend(struct early_suspend *h)
     {
         GTP_ERROR("GTP early suspend failed.");
     }
-    //mt65xx_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
+    mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
 }
 
 /* Function to manage power-on resume */
@@ -1606,7 +1624,7 @@ static void tpd_resume(struct early_suspend *h)
         GTP_ERROR("GTP later resume failed.");
     }
 
-    //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+    mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
     tpd_halt = 0;
 
 #if GTP_ESD_PROTECT
