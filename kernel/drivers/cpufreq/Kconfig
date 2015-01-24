@@ -127,7 +127,7 @@ config CPU_FREQ_DEFAULT_GOV_SMARTASS2
 config CPU_FREQ_DEFAULT_GOV_SAKURACTIVE
        bool "sakuractive"
        select CPU_FREQ_GOV_SAKURACTIVE
-       elect CPU_FREQ_GOV_PERFORMANCE
+       select CPU_FREQ_GOV_PERFORMANCE
 
 config CPU_FREQ_DEFAULT_GOV_BALANCE
 	bool "balance"
