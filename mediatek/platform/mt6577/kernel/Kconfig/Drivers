@@ -481,7 +481,7 @@ config MTK_TOUCHPANEL # TOUCHSCREEN_MT6516 TOUCHSCREEN_MT6573
 
 #backlight driver
 config MTK_EXTBACKLIGHT # backlight driver
-        bool "Mediatek external backlight
+        bool "Mediatek external backlight"
         default n
 
 # USB # TODO Check Choice

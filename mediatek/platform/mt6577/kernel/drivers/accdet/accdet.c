@@ -868,7 +868,7 @@ static int sendKeyEvent(void *unuse)
         if(PLUG_OUT !=accdet_status)
         {
             //send key event
-    //<2014/11/10-qus1
+    //<2015/01/08-lingfude
         #if defined(P175A20)
             if(ACC_ANSWER_CALL == accdet_key_event)
             {
@@ -878,7 +878,7 @@ static int sendKeyEvent(void *unuse)
                 input_sync(kpd_accdet_dev);
             }
         #endif
-    //>2014/11/10-qus1
+    //>2015/01/08-lingfude
             if(ACC_MEDIA_PLAYPAUSE == accdet_key_event)
             {
                 ACCDET_DEBUG("[Accdet] PLAY_PAUSE !\n");
