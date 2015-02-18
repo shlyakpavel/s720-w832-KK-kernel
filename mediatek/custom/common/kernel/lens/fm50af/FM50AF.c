@@ -46,11 +46,10 @@ static unsigned long g_u4CurrPosition   = 0;
 
 static int g_sr = 3;
 
-#if 0
-extern s32 mt_set_gpio_mode(u32 u4Pin, u32 u4Mode);
-extern s32 mt_set_gpio_out(u32 u4Pin, u32 u4PinOut);
-extern s32 mt_set_gpio_dir(u32 u4Pin, u32 u4Dir);
-#endif
+//extern s32 mt_set_gpio_mode(u32 u4Pin, u32 u4Mode);
+//extern s32 mt_set_gpio_out(u32 u4Pin, u32 u4PinOut);
+//extern s32 mt_set_gpio_dir(u32 u4Pin, u32 u4Dir);
+
 
 static int s4FM50AF_ReadReg(unsigned short * a_pu2Result)
 {
@@ -77,7 +76,6 @@ static int s4FM50AF_WriteReg(u16 a_u2Data)
     char puSendCmd[2] = {(char)(a_u2Data >> 4) , (char)(((a_u2Data & 0xF) << 4)+g_sr)};
 
     //FM50AFDB("[FM50AF] g_sr %d, write %d \n", g_sr, a_u2Data);
-    g_pstFM50AF_I2Cclient->ext_flag |= I2C_A_FILTER_MSG;
     i4RetValue = i2c_master_send(g_pstFM50AF_I2Cclient, puSendCmd, 2);
 	
     if (i4RetValue < 0) 
@@ -111,39 +109,6 @@ inline static int getFM50AFInfo(__user stFM50AF_MotorInfo * pstMotorInfo)
     return 0;
 }
 
-#ifdef LensdrvCM3
-inline static int getFM50AFMETA(__user stFM50AF_MotorMETAInfo * pstMotorMETAInfo)
-{
-    stFM50AF_MotorMETAInfo stMotorMETAInfo;
-    stMotorMETAInfo.Aperture=2.8;      //fn
-	stMotorMETAInfo.Facing=1;   
-	stMotorMETAInfo.FilterDensity=1;   //X
-	stMotorMETAInfo.FocalDistance=1.0;  //diopters
-	stMotorMETAInfo.FocalLength=34.0;  //mm
-	stMotorMETAInfo.FocusRange=1.0;    //diopters
-	stMotorMETAInfo.InfoAvalibleApertures=2.8;
-	stMotorMETAInfo.InfoAvalibleFilterDensity=1;
-	stMotorMETAInfo.InfoAvalibleFocalLength=34.0;
-	stMotorMETAInfo.InfoAvalibleHypeDistance=1.0;
-	stMotorMETAInfo.InfoAvalibleMinFocusDistance=1.0;
-	stMotorMETAInfo.InfoAvalibleOptStabilization=0;
-	stMotorMETAInfo.OpticalAxisAng[0]=0.0;
-	stMotorMETAInfo.OpticalAxisAng[1]=0.0;
-	stMotorMETAInfo.Position[0]=0.0;
-	stMotorMETAInfo.Position[1]=0.0;
-	stMotorMETAInfo.Position[2]=0.0;
-	stMotorMETAInfo.State=0;
-	stMotorMETAInfo.u4OIS_Mode=0;
-	
-	if(copy_to_user(pstMotorMETAInfo , &stMotorMETAInfo , sizeof(stFM50AF_MotorMETAInfo)))
-	{
-		FM50AFDB("[FM50AF] copy to user failed when getting motor information \n");
-	}
-
-    return 0;
-}
-#endif
-
 inline static int moveFM50AF(unsigned long a_u4Position)
 {
     int ret = 0;
@@ -159,23 +124,16 @@ inline static int moveFM50AF(unsigned long a_u4Position)
         unsigned short InitPos;
         ret = s4FM50AF_ReadReg(&InitPos);
 	    
+        spin_lock(&g_FM50AF_SpinLock);
         if(ret == 0)
         {
             FM50AFDB("[FM50AF] Init Pos %6d \n", InitPos);
-			
-			spin_lock(&g_FM50AF_SpinLock);
             g_u4CurrPosition = (unsigned long)InitPos;
-			spin_unlock(&g_FM50AF_SpinLock);
-			
         }
         else
         {		
-			spin_lock(&g_FM50AF_SpinLock);
             g_u4CurrPosition = 0;
-			spin_unlock(&g_FM50AF_SpinLock);
         }
-
-		spin_lock(&g_FM50AF_SpinLock);
         g_s4FM50AF_Opened = 2;
         spin_unlock(&g_FM50AF_SpinLock);
     }
@@ -251,11 +209,7 @@ unsigned long a_u4Param)
         case FM50AFIOC_G_MOTORINFO :
             i4RetValue = getFM50AFInfo((__user stFM50AF_MotorInfo *)(a_u4Param));
         break;
-		#ifdef LensdrvCM3
-        case FM50AFIOC_G_MOTORMETAINFO :
-            i4RetValue = getFM50AFMETA((__user stFM50AF_MotorMETAInfo *)(a_u4Param));
-        break;
-		#endif
+
         case FM50AFIOC_T_MOVETO :
             i4RetValue = moveFM50AF(a_u4Param);
         break;
@@ -285,20 +239,18 @@ unsigned long a_u4Param)
 //CAM_RESET
 static int FM50AF_Open(struct inode * a_pstInode, struct file * a_pstFile)
 {
-    FM50AFDB("[FM50AF] FM50AF_Open - Start\n");
-
+    spin_lock(&g_FM50AF_SpinLock);
 
     if(g_s4FM50AF_Opened)
     {
+        spin_unlock(&g_FM50AF_SpinLock);
         FM50AFDB("[FM50AF] the device is opened \n");
         return -EBUSY;
     }
 
-    spin_lock(&g_FM50AF_SpinLock);
     g_s4FM50AF_Opened = 1;
+		
     spin_unlock(&g_FM50AF_SpinLock);
-
-    FM50AFDB("[FM50AF] FM50AF_Open - End\n");
 
     return 0;
 }
@@ -310,8 +262,6 @@ static int FM50AF_Open(struct inode * a_pstInode, struct file * a_pstFile)
 // Q1 : Try release multiple times.
 static int FM50AF_Release(struct inode * a_pstInode, struct file * a_pstFile)
 {
-    FM50AFDB("[FM50AF] FM50AF_Release - Start\n");
-
     if (g_s4FM50AF_Opened)
     {
         FM50AFDB("[FM50AF] feee \n");
@@ -327,8 +277,6 @@ static int FM50AF_Release(struct inode * a_pstInode, struct file * a_pstFile)
 
     }
 
-    FM50AFDB("[FM50AF] FM50AF_Release - End\n");
-
     return 0;
 }
 
@@ -343,8 +291,6 @@ static const struct file_operations g_stFM50AF_fops =
 inline static int Register_FM50AF_CharDrv(void)
 {
     struct device* vcm_device = NULL;
-
-    FM50AFDB("[FM50AF] Register_FM50AF_CharDrv - Start\n");
 
     //Allocate char driver no.
     if( alloc_chrdev_region(&g_FM50AF_devno, 0, 1,FM50AF_DRVNAME) )
@@ -395,14 +341,11 @@ inline static int Register_FM50AF_CharDrv(void)
         return -EIO;
     }
     
-    FM50AFDB("[FM50AF] Register_FM50AF_CharDrv - End\n");    
     return 0;
 }
 
 inline static void Unregister_FM50AF_CharDrv(void)
 {
-    FM50AFDB("[FM50AF] Unregister_FM50AF_CharDrv - Start\n");
-
     //Release char driver
     cdev_del(g_pFM50AF_CharDrv);
 
@@ -411,8 +354,6 @@ inline static void Unregister_FM50AF_CharDrv(void)
     device_destroy(actuator_class, g_FM50AF_devno);
 
     class_destroy(actuator_class);
-
-    FM50AFDB("[FM50AF] Unregister_FM50AF_CharDrv - End\n");    
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -442,7 +383,7 @@ static int FM50AF_i2c_probe(struct i2c_client *client, const struct i2c_device_i
 {
     int i4RetValue = 0;
 
-    FM50AFDB("[FM50AF] FM50AF_i2c_probe\n");
+    FM50AFDB("[FM50AF] Attach I2C \n");
 
     /* Kirby: add new-style driver { */
     g_pstFM50AF_I2Cclient = client;
@@ -522,3 +463,5 @@ module_exit(FM50AF_i2C_exit);
 MODULE_DESCRIPTION("FM50AF lens module driver");
 MODULE_AUTHOR("KY Chen <ky.chen@Mediatek.com>");
 MODULE_LICENSE("GPL");
+
+

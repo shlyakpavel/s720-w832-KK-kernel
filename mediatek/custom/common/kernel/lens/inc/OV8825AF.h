@@ -55,6 +55,7 @@ unsigned long u4InfPosition;
 bool          bIsMotorMoving;
 //Motor Open?
 bool          bIsMotorOpen;
+bool          bIsSupportSR;
 } stOV8825AF_MotorInfo;
 
 //Control commnad
