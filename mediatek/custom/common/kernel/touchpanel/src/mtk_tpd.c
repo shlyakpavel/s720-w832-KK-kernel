@@ -121,11 +121,11 @@ static struct miscdevice tpd_misc_device =
 static int __init  tpd_device_init(void);
 static void __exit tpd_device_exit(void);
 static int         tpd_probe(struct platform_device *pdev);
-static int tpd_remove(struct platform_device *pdev);
+static int         tpd_remove(struct platform_device *pdev);
 
 extern void        tpd_suspend(struct early_suspend *h);
 extern void        tpd_resume(struct early_suspend *h);
-extern void tpd_button_init(void);
+extern void        tpd_button_init(void);
 
 //int tpd_load_status = 0; //0: failed, 1: sucess
 int tpd_register_flag=0;
@@ -175,12 +175,12 @@ int tpd_driver_add(struct tpd_driver_t *tpd_drv)
 	/* R-touch */
 	if(strcmp(tpd_drv->tpd_device_name, "generic") == 0)
 	{
-			tpd_driver_list[0].tpd_device_name = tpd_drv->tpd_device_name;
-			tpd_driver_list[0].tpd_local_init = tpd_drv->tpd_local_init;
-			tpd_driver_list[0].suspend = tpd_drv->suspend;
-			tpd_driver_list[0].resume = tpd_drv->resume;
-			tpd_driver_list[0].tpd_have_button = tpd_drv->tpd_have_button;
-			return 0;
+		tpd_driver_list[0].tpd_device_name = tpd_drv->tpd_device_name;
+		tpd_driver_list[0].tpd_local_init = tpd_drv->tpd_local_init;
+		tpd_driver_list[0].suspend = tpd_drv->suspend;
+		tpd_driver_list[0].resume = tpd_drv->resume;
+		tpd_driver_list[0].tpd_have_button = tpd_drv->tpd_have_button;
+		return 0;
 	}
 	for(i = 1; i < TP_DRV_MAX_COUNT; i++)
 	{
@@ -192,6 +192,7 @@ int tpd_driver_add(struct tpd_driver_t *tpd_drv)
 			tpd_driver_list[i].suspend = tpd_drv->suspend;
 			tpd_driver_list[i].resume = tpd_drv->resume;
 			tpd_driver_list[i].tpd_have_button = tpd_drv->tpd_have_button;
+			tpd_driver_list[i].attrs = tpd_drv->attrs;
 			#if 0
 			if(tpd_drv->tpd_local_init()==0)
 			{
@@ -230,6 +231,14 @@ int tpd_driver_remove(struct tpd_driver_t *tpd_drv)
 	return 0;
 }
 
+static void tpd_create_attributes(struct device *dev, struct tpd_attrs *attrs)
+{
+	int num = attrs->num;
+
+	for (; num>0;)
+		device_create_file(dev, attrs->attr[--num]);
+}
+
 /* touch panel probe */
 static int tpd_probe(struct platform_device *pdev) {
 		int  touch_type = 1; // 0:R-touch, 1: Cap-touch
@@ -252,14 +261,22 @@ static int tpd_probe(struct platform_device *pdev) {
     register_early_suspend(&MTK_TS_early_suspend_handler);
     #endif
     #endif
+
+    if (misc_register(&tpd_misc_device))
+    {
+	printk("mtk_tpd: tpd_misc_device register failed\n");
+    }
+	
     if((tpd=(struct tpd_device*)kmalloc(sizeof(struct tpd_device), GFP_KERNEL))==NULL) return -ENOMEM;
     memset(tpd, 0, sizeof(struct tpd_device));
 
     /* allocate input device */
     if((tpd->dev=input_allocate_device())==NULL) { kfree(tpd); return -ENOMEM; }
   
-    TPD_RES_X = simple_strtoul(LCM_WIDTH, NULL, 0);
-    TPD_RES_Y = simple_strtoul(LCM_HEIGHT, NULL, 0);
+  	//TPD_RES_X = simple_strtoul(LCM_WIDTH, NULL, 0);
+  	//TPD_RES_Y = simple_strtoul(LCM_HEIGHT, NULL, 0);
+  	TPD_RES_X = DISP_GetScreenWidth();
+    TPD_RES_Y = DISP_GetScreenHeight();
 
     printk("mtk_tpd: TPD_RES_X = %d, TPD_RES_Y = %d\n", TPD_RES_X, TPD_RES_Y);
   
@@ -312,50 +329,50 @@ static int tpd_probe(struct platform_device *pdev) {
 #endif	  
 
 //#ifdef TPD_TYPE_CAPACITIVE
-		/* TPD_TYPE_CAPACITIVE handle */
-		if(touch_type == 1){
+	/* TPD_TYPE_CAPACITIVE handle */
+	if(touch_type == 1){
 		
 		set_bit(ABS_MT_TRACKING_ID, tpd->dev->absbit);
-    	set_bit(ABS_MT_TOUCH_MAJOR, tpd->dev->absbit);
-    	set_bit(ABS_MT_TOUCH_MINOR, tpd->dev->absbit);
-    	set_bit(ABS_MT_POSITION_X, tpd->dev->absbit);
-    	set_bit(ABS_MT_POSITION_Y, tpd->dev->absbit);
-#if 0 // linux kernel update from 2.6.35 --> 3.0
-    	tpd->dev->absmax[ABS_MT_POSITION_X] = TPD_RES_X;
-    	tpd->dev->absmin[ABS_MT_POSITION_X] = 0;
-    	tpd->dev->absmax[ABS_MT_POSITION_Y] = TPD_RES_Y;
-    	tpd->dev->absmin[ABS_MT_POSITION_Y] = 0;
-    	tpd->dev->absmax[ABS_MT_TOUCH_MAJOR] = 100;
-    	tpd->dev->absmin[ABS_MT_TOUCH_MINOR] = 0;
-#else
-		input_set_abs_params(tpd->dev, ABS_MT_POSITION_X, 0, TPD_RES_X, 0, 0);
-		input_set_abs_params(tpd->dev, ABS_MT_POSITION_Y, 0, TPD_RES_Y, 0, 0);
-		input_set_abs_params(tpd->dev, ABS_MT_TOUCH_MAJOR, 0, 100, 0, 0);
-		input_set_abs_params(tpd->dev, ABS_MT_TOUCH_MINOR, 0, 100, 0, 0); 	
-#endif
-    	TPD_DMESG("Cap touch panel driver\n");
+    		set_bit(ABS_MT_TOUCH_MAJOR, tpd->dev->absbit);
+    		set_bit(ABS_MT_TOUCH_MINOR, tpd->dev->absbit);
+    		set_bit(ABS_MT_POSITION_X, tpd->dev->absbit);
+    		set_bit(ABS_MT_POSITION_Y, tpd->dev->absbit);
+			#if 0 // linux kernel update from 2.6.35 --> 3.0
+    				tpd->dev->absmax[ABS_MT_POSITION_X] = TPD_RES_X;
+    				tpd->dev->absmin[ABS_MT_POSITION_X] = 0;
+    				tpd->dev->absmax[ABS_MT_POSITION_Y] = TPD_RES_Y;
+    				tpd->dev->absmin[ABS_MT_POSITION_Y] = 0;
+    				tpd->dev->absmax[ABS_MT_TOUCH_MAJOR] = 100;
+    				tpd->dev->absmin[ABS_MT_TOUCH_MINOR] = 0;
+			#else
+				input_set_abs_params(tpd->dev, ABS_MT_POSITION_X, 0, TPD_RES_X, 0, 0);
+				input_set_abs_params(tpd->dev, ABS_MT_POSITION_Y, 0, TPD_RES_Y, 0, 0);
+				input_set_abs_params(tpd->dev, ABS_MT_TOUCH_MAJOR, 0, 100, 0, 0);
+				input_set_abs_params(tpd->dev, ABS_MT_TOUCH_MINOR, 0, 100, 0, 0); 	
+			#endif
+    		TPD_DMESG("Cap touch panel driver\n");
   	}
 //#endif
     #if 0 //linux kernel update from 2.6.35 --> 3.0
-    tpd->dev->absmax[ABS_X] = TPD_RES_X;
-    tpd->dev->absmin[ABS_X] = 0;
-    tpd->dev->absmax[ABS_Y] = TPD_RES_Y;
-    tpd->dev->absmin[ABS_Y] = 0;
+    	tpd->dev->absmax[ABS_X] = TPD_RES_X;
+    	tpd->dev->absmin[ABS_X] = 0;
+    	tpd->dev->absmax[ABS_Y] = TPD_RES_Y;
+    	tpd->dev->absmin[ABS_Y] = 0;
 	
-    tpd->dev->absmax[ABS_PRESSURE] = 255;
-    tpd->dev->absmin[ABS_PRESSURE] = 0;
+    	tpd->dev->absmax[ABS_PRESSURE] = 255;
+    	tpd->dev->absmin[ABS_PRESSURE] = 0;
     #else
-		input_set_abs_params(tpd->dev, ABS_X, 0, TPD_RES_X, 0, 0);
-		input_set_abs_params(tpd->dev, ABS_Y, 0, TPD_RES_Y, 0, 0);
-		input_abs_set_res(tpd->dev, ABS_X, TPD_RES_X);
-		input_abs_set_res(tpd->dev, ABS_Y, TPD_RES_Y);
-		input_set_abs_params(tpd->dev, ABS_PRESSURE, 0, 255, 0, 0);
+	input_set_abs_params(tpd->dev, ABS_X, 0, TPD_RES_X, 0, 0);
+	input_set_abs_params(tpd->dev, ABS_Y, 0, TPD_RES_Y, 0, 0);
+	input_abs_set_res(tpd->dev, ABS_X, TPD_RES_X);
+	input_abs_set_res(tpd->dev, ABS_Y, TPD_RES_Y);
+	input_set_abs_params(tpd->dev, ABS_PRESSURE, 0, 255, 0, 0);
 
     #endif
     if(input_register_device(tpd->dev))
         TPD_DMESG("input_register_device failed.(tpd)\n");
     else
-			tpd_register_flag = 1;
+	tpd_register_flag = 1;
 
     /* init R-Touch */
     #if 0
@@ -369,16 +386,19 @@ static int tpd_probe(struct platform_device *pdev) {
     	tpd_button_init();
     }
 
+	if (g_tpd_drv->attrs.num)
+		tpd_create_attributes(&pdev->dev, &g_tpd_drv->attrs);
+
     return 0;
 }
 
 static int tpd_remove(struct platform_device *pdev)
 {
-	   input_unregister_device(tpd->dev);
-    #ifdef CONFIG_HAS_EARLYSUSPEND
-    unregister_early_suspend(&MTK_TS_early_suspend_handler);
-    #endif
-    return 0;
+	input_unregister_device(tpd->dev);
+	#ifdef CONFIG_HAS_EARLYSUSPEND
+		unregister_early_suspend(&MTK_TS_early_suspend_handler);
+	#endif
+    	return 0;
 }
 
 /* called when loaded into kernel */
