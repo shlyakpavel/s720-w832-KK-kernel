@@ -58,7 +58,7 @@ CUSTOM_KERNEL_RTC = rtc
 CUSTOM_KERNEL_SOUND = amp_6329pmic_spk
 CUSTOM_KERNEL_SSW = 
 CUSTOM_KERNEL_SUB_LENS = dummy_lens
-CUSTOM_KERNEL_TOUCHPANEL = GT9XX GT813 ft5306_tm
+CUSTOM_KERNEL_TOUCHPANEL = GT9XX_LF GT813 ft5306_tm
 CUSTOM_KERNEL_USB = mt6577
 CUSTOM_KERNEL_VIBRATOR = vibrator
 CUSTOM_LK_LCM = otm9608a_tm nt35516_tm nt35516_truly
@@ -649,6 +649,9 @@ DUALDB_SUPPORTED_IN_JB = yes
 CONFIG_MTK_USB_UNIQUE_SERIAL = yes
 
 # Aquaris_4.5_kk {
+# For defining partition table file. Expected values are hynix for hinyx and empty for kingston
+#FLASH_IC=hynix
+#FLASH_IC=
 MTK_BATTARY_NTC_ID=yes
 P175A20 = yes
 TARGET_BUILD_VARIANT=user
