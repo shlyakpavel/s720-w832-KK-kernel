@@ -1,3 +1,11 @@
+/*
+ * 
+ * Copyright (C) 2011 Goodix, Inc.
+ * 
+ * Author: Scott
+ * Date: 2012.01.05
+ */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -66,20 +74,20 @@
 
 #pragma pack(1)
 typedef struct{
-    u8  wr;         //读写标志位，0:R  1:W  2:PID 3:
-    u8  flag;       //0:不需要标志位/中断 1: 需要标志位  2:需要中断
-    u8 flag_addr[ADDR_MAX_LENGTH];  //标志位地址
-    u8  flag_val;   //标志位值
-    u8  flag_relation;  //标志位地址处的值与标志位值关系 0:不等于 1:相等 2:大于 3:小于
-    u16 circle;     //轮询周期
-    u8  times;      //轮询次数
-    u8  retry;      //I2C通信重试次数
-    u16 delay;      //读前延时、写后延时
-    u16 data_len;   //数据长度
-    u8  addr_len;   //地址长度
-    u8  addr[ADDR_MAX_LENGTH];    //地址
-    u8  res[3];     //保留
-    u8* data;       //数据指针
+    u8  wr;         //write read flag 0:R  1:W  2:PID 3:
+    u8  flag;       //0:no need flag/int 1: need flag 2:need int
+    u8 flag_addr[ADDR_MAX_LENGTH];  //flag address
+    u8  flag_val;   //flag val
+    u8  flag_relation;  //flag_val:flag 0:not equal 1:equal 2:> 3:<
+    u16 circle;     //polling cycle
+    u8  times;      //plling times
+    u8  retry;      //I2C retry times
+    u16 delay;      //delay befor read or after write
+    u16 data_len;   //data length
+    u8  addr_len;   //address length
+    u8  addr[ADDR_MAX_LENGTH];    //address
+    u8  res[3];     //reserved
+    u8* data;       //data pointer
 }st_cmd_head;
 #pragma pack()
 st_cmd_head cmd_head;
@@ -307,14 +315,14 @@ static s32 tool_i2c_read_no_extra(u8* buf, u16 len)
 //    DEBUG("[I2C READ:]");
 //    DEBUG_ARRAY(buf, len + cmd_head.addr_len);
 
-    //发送写地址
-    msgs[0].flags = !I2C_M_RD; //写消息
+    //Send the write address
+    msgs[0].flags = !I2C_M_RD; //Write a message
     msgs[0].addr  = gt_client->addr;
     msgs[0].len   = cmd_head.addr_len;
     msgs[0].buf   = &buf[0];
     
-    //接收数据
-    msgs[1].flags = I2C_M_RD;//读消息
+    //Receive Data
+    msgs[1].flags = I2C_M_RD;//Reading message
     msgs[1].addr  = gt_client->addr;
     msgs[1].len   = len;
     msgs[1].buf   = &buf[ADDR_MAX_LENGTH];
@@ -360,8 +368,8 @@ static s32 tool_i2c_write_no_extra(u8* buf, u16 len)
 
 //    DEBUG("[I2C WRITE:]");
 //    DEBUG_ARRAY(buf, len);
-    //发送设备地址
-    msg.flags = !I2C_M_RD;//写消息
+    //Send the device address
+    msg.flags = !I2C_M_RD;//Write message
     msg.addr  = gt_client->addr;
     msg.len   = len;
     msg.buf   = buf;

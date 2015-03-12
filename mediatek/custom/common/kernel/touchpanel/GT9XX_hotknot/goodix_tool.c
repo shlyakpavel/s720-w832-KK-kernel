@@ -39,15 +39,15 @@
 #pragma pack(1)
 typedef struct 
 {
-    u8  wr;         //write read flag£¬0:R  1:W  2:PID 3:
+    u8  wr;         //write read flag 0:R  1:W  2:PID 3:
     u8  flag;       //0:no need flag/int 1: need flag  2:need int
     u8 flag_addr[2];  //flag address 
     u8  flag_val;   //flag val
     u8  flag_relation;  //flag_val:flag 0:not equal 1:equal 2:> 3:<
     u16 circle;     //polling cycle
-    u8  times;      //plling times
+    u8  times;      //polling times
     u8  retry;      //I2C retry times
-    u16 delay;      //delay befor read or after write
+    u16 delay;      //delay before read or after write
     u16 data_len;   //data length
     u8  addr_len;   //address length
     u8  addr[2];    //address

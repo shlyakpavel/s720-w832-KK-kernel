@@ -40,7 +40,7 @@
 //#ifdef AUTO_UPDATE_GUITAR
 
 
-//****************************升级模块参数******************************************
+//********************************************************************************
 #define SEARCH_FILE_TIMES      50
 #define UPDATE_FILE_PATH_2   "/data/goodix/_goodix_update_.bin"
 #define UPDATE_FILE_PATH_1   "/sdcard/goodix/_goodix_update_.bin"

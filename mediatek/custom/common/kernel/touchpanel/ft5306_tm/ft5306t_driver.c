@@ -454,9 +454,9 @@ static  void tpd_up(int x, int y,int *count) {
  
 	 do
 	 {
-	  //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
-	//	 set_current_state(TASK_INTERRUPTIBLE); 
-	//	  wait_event_interruptible(waiter,tpd_flag!=0);
+	  	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
+		set_current_state(TASK_INTERRUPTIBLE); 
+		wait_event_interruptible(waiter,tpd_flag!=0);
 						 
 			 tpd_flag = 0;
 			 
@@ -575,10 +575,10 @@ reset_proc:
     mt_set_gpio_pull_enable(GPIO_CTP_EINT_PIN, GPIO_PULL_ENABLE);
     mt_set_gpio_pull_select(GPIO_CTP_EINT_PIN, GPIO_PULL_UP);
  
-	  //mt65xx_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
-	  //mt65xx_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
+	  mt_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
+	  mt_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
 	  //mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_TOUCH_PANEL_POLARITY, tpd_eint_interrupt_handler, 1); 
-	  //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+	  mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
  
 	msleep(100);
  
@@ -721,7 +721,7 @@ reset_proc:
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
     msleep(3);
 #endif
-   //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);  
+    mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);  
 	
 	 return retval;
  }
@@ -732,7 +732,7 @@ reset_proc:
 	 static char data = 0x3;
  
 	 TPD_DEBUG("TPD enter sleep\n");
-	 //mt65xx_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
+	 mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
 #ifdef TPD_CLOSE_POWER_IN_SLEEP	
 	hwPowerDown(TPD_POWER_SOURCE,"TP");
 #else
