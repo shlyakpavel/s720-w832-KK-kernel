@@ -140,6 +140,8 @@
 #define S5K5CAGX_SENSOR_ID                      0x05ca
 #define S5K4ECGX_SENSOR_ID                      0x4EC0
 #define S5K3H2YX_SENSOR_ID                      0x382b
+#define S5K8AAYX_SENSOR_ID			0x08aa
+
 //zhaoshaopeng add
 #define S5K4E1FX_SENSOR_ID                      0x4E10
 //zhaoshaopeng add
@@ -185,6 +187,8 @@
 #define OV8830_SENSOR_ID			0x8830
 #define OV9726_SENSOR_ID                        0x9726
 #define A5141MIPI_SENSOR_ID                     0x4800
+#define OV3660_SENSOR_ID			0x3660
+#define OV9740MIPI_SENSOR_ID                     0x9740
 
 /* CAMERA DRIVER NAME */
 #define CAMERA_HW_DEVNAME            "kd_camera_hw"
@@ -246,6 +250,10 @@
 #define SENSOR_DRVNAME_S5K5CAGX_MIPI_YUV    "s5k5cagxmipiyuv"
 #define SENSOR_DRVNAME_OV8825_MIPI_RAW   "ov8825mipiraw"
 #define SENSOR_DRVNAME_S5K3H2YX_MIPI_RAW   "s5k3h2yxmipiraw"
+#define SENSOR_DRVNAME_OV3660_YUV "ov3660yuv"
+#define SENSOR_DRVNAME_OV9740_MIPI_YUV     "ov9740mipiyuv"
+#define SENSOR_DRVNAME_S5K8AAYX_YUV          "s5k8aayxyuv"
+
 
 /*******************************************************************************
 *

@@ -33,6 +33,10 @@
  * applicable license agreements with MediaTek Inc.
  */
 
+
+//Pavel:
+#define TINNO_ANDROID_S8121
+
 #ifndef TOUCHPANEL_H
 #define TOUCHPANEL_H
 

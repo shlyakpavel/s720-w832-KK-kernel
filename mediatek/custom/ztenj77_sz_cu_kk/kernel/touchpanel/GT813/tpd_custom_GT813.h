@@ -39,14 +39,14 @@
 /* Pre-defined definition */
 #define TPD_TYPE_CAPACITIVE
 #define TPD_TYPE_RESISTIVE
-#define TPD_POWER_SOURCE         MT6575_POWER_VGP2
+//#define TPD_POWER_SOURCE         MT6575_POWER_VGP2
 #define TPD_I2C_NUMBER           0
 #define TPD_WAKEUP_TRIAL         60
 #define TPD_WAKEUP_DELAY         100
 
 #define TPD_DELAY                (2*HZ/100)
-//#define TPD_RES_X                480
-//#define TPD_RES_Y                800
+#define TPD_RES_X                540
+#define TPD_RES_Y                960
 #define TPD_CALIBRATION_MATRIX  {962,0,0,0,1600,0,0,0};
 
 //#define TPD_HAVE_CALIBRATION
@@ -54,13 +54,13 @@
 #define TPD_HAVE_TREMBLE_ELIMINATION
 
 #define TPD_NO_GPIO
-#define TPD_RESET_PIN_ADDR   (PERICFG_BASE + 0xC000)
-#define TPD_DITO_SENSOR
+//#define TPD_RESET_PIN_ADDR   (PERICFG_BASE + 0xC000)
+//#define TPD_DITO_SENSOR
 #define TPD_CONDITION_SWITCH
 #define TPD_RESET_ISSUE_WORKAROUND
 #define TPD_MAX_RESET_COUNT 3
-//#define TPD_X_RES (480)
-//#define TPD_Y_RES (800)
+#define TPD_X_RES (540)
+#define TPD_Y_RES (960)
 //#define TPD_WARP_Y(y) (y)//( TPD_Y_RES - 1 - y ) zhaoshaopeng 
 //#define TPD_WARP_X(x) ( x )
 

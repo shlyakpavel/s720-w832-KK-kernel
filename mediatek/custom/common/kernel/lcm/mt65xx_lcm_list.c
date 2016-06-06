@@ -171,9 +171,9 @@ extern LCM_DRIVER it6151_fhd_edp_dsi_video_auo_lcm_drv;
 extern LCM_DRIVER tf070mc_rgb_v18_mt6571_lcm_drv;
 extern LCM_DRIVER zs070ih5015b3h6_mt6571_lcm_drv;
 //zhuoshineng add 
-extern LCM_DRIVER nt35516_tm_lcm_drv;
+extern LCM_DRIVER nt35516_ips_lcm_drv;
 extern LCM_DRIVER nt35516_truly_lcm_drv;
-extern LCM_DRIVER otm9608a_tm_lcm_drv;
+extern LCM_DRIVER otm9608a_lcm_drv;
 extern LCM_DRIVER hx8369_dsi_ld_lcm_drv;
 //zhuoshineng end
 LCM_DRIVER* lcm_driver_list[] = 
@@ -541,15 +541,15 @@ LCM_DRIVER* lcm_driver_list[] =
 #endif 
 
 //zhuoshineng add
-#if defined(NT35516_TM)
-	&nt35516_tm_lcm_drv,
+#if defined(NT35516_IPS)
+	&nt35516_ips_lcm_drv,
 #endif
 #if defined(NT35516_TRULY)
 	&nt35516_truly_lcm_drv,
 #endif
 
-#if defined(OTM9608A_TM)
-	&otm9608a_tm_lcm_drv,
+#if defined(OTM9608A)
+	&otm9608a_lcm_drv,
 #endif
 
 #if defined(NT35516_QHD_DSI_CMD_IPSBOE)

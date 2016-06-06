@@ -19,7 +19,7 @@
 #include <cust_eint.h>
 
 
-#define IC_TYPE_NAME        "GT813"
+#define IC_TYPE_NAME        "GT827"
 #define DATA_LENGTH_UINT    512
 #define CMD_HEAD_LENGTH     (sizeof(st_cmd_head) - sizeof(u8*))
 #define GOODIX_ENTRY_NAME   "goodix_tool"

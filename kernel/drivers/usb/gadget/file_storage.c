@@ -1583,7 +1583,7 @@ static int do_inquiry(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 
 	static char vendor_id[] = "BQ   ";
 	static char product_disk_id[] = "File-Stor Gadget";
-	static char product_cdrom_id[] = "Aquaris-4.5  ";
+	static char product_cdrom_id[] = "Lenovo S720";
 
 	if (!fsg->curlun) {		// Unsupported LUNs are okay
 		fsg->bad_lun_okay = 1;
