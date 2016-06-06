@@ -1,5 +1,5 @@
 =========================================================
-= 3.4.67 kernel source code for BQ Aquaris 4.5 (MT6577) =
+= 3.4.67 kernel source code for Lenovo s720 (MT6577) =
 =========================================================
 
 *************************************
@@ -27,8 +27,5 @@ In order to get kernel compilation working, make sure you follow one of these st
 
 - Create new boot.img:
   -- Repack the new generated kernel file with ramdisk.
-
-
-Visit the official thread at XDA: 
 
 Enjoy!
