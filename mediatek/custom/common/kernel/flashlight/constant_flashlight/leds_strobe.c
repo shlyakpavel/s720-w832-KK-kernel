@@ -17,8 +17,6 @@
 #include "kd_flashlight.h"
 #include <asm/io.h>
 #include <asm/uaccess.h>
-#include <mach/mt_gpt.h>
-#include "leds-lm3554.h"
 #include "kd_camera_hw.h"
 /******************************************************************************
  * Definition
@@ -73,6 +71,7 @@
 #define PK_ERR(a,...)
 #endif
 
+#define LENOVO_PROJECT_SEATTLE
 /*******************************************************************************
 * structure & enumeration
 *******************************************************************************/
@@ -136,10 +135,82 @@ static const MUINT32 strobeLevelLUT[32] = {1,2,3,4,5,6,7,8,9,10,11,12,12,12,12,1
 /*****************************************************************************
 Functions
 *****************************************************************************/
+#if 0
+#define GPIO_CAMERA_FLASH_MODE GPIO95
+#define GPIO_CAMERA_FLASH_MODE_M_GPIO  GPIO_MODE_00
+    /*CAMERA-FLASH-T/F
+           H:flash mode
+           L:torch mode*/
+#define GPIO_CAMERA_FLASH_EN GPIO46
+#define GPIO_CAMERA_FLASH_EN_M_GPIO  GPIO_MODE_00
+    /*CAMERA-FLASH-EN */
+
+
+ssize_t gpio_FL_Init(void)
+{
+    /*set torch mode*/
+    if(mt_set_gpio_mode(GPIO_CAMERA_FLASH_MODE,GPIO_CAMERA_FLASH_MODE_M_GPIO)){PK_DBG("[constant_flashlight] set gpio mode failed!! \n");}
+    if(mt_set_gpio_dir(GPIO_CAMERA_FLASH_MODE,GPIO_DIR_OUT)){PK_DBG("[constant_flashlight] set gpio dir failed!! \n");}
+    if(mt_set_gpio_out(GPIO_CAMERA_FLASH_MODE,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!! \n");}
+    /*Init. to disable*/
+    if(mt_set_gpio_mode(GPIO_CAMERA_FLASH_EN,GPIO_CAMERA_FLASH_MODE_M_GPIO)){PK_DBG("[constant_flashlight] set gpio mode failed!! \n");}
+    if(mt_set_gpio_dir(GPIO_CAMERA_FLASH_EN,GPIO_DIR_OUT)){PK_DBG("[constant_flashlight] set gpio dir failed!! \n");}
+    if(mt_set_gpio_out(GPIO_CAMERA_FLASH_EN,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!! \n");}
+    return 0;
+}
+
+ssize_t gpio_FL_Uninit(void)
+{
+    /*Uninit. to disable*/
+    if(mt_set_gpio_mode(GPIO_CAMERA_FLASH_EN,GPIO_CAMERA_FLASH_MODE_M_GPIO)){PK_DBG("[constant_flashlight] set gpio mode failed!! \n");}
+    if(mt_set_gpio_dir(GPIO_CAMERA_FLASH_EN,GPIO_DIR_OUT)){PK_DBG("[constant_flashlight] set gpio dir failed!! \n");}
+    if(mt_set_gpio_out(GPIO_CAMERA_FLASH_EN,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!! \n");}
+    return 0;
+}
+
+ssize_t gpio_FL_Enable(void)
+{
+    /*Enable*/
+    if(mt_set_gpio_out(GPIO_CAMERA_FLASH_EN,GPIO_OUT_ONE)){PK_DBG("[constant_flashlight] set gpio failed!! \n");}
+    return 0;
+}
+
+ssize_t gpio_FL_Disable(void)
+{
+    /*Enable*/
+    if(mt_set_gpio_out(GPIO_CAMERA_FLASH_EN,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!! \n");}
+    return 0;
+}
+
+ssize_t gpio_FL_dim_duty(kal_uint8 duty)
+{
+    /*N/A*/
+    
+    return 0;
+}
+
+/* abstract interface */
+#define FL_Init gpio_FL_Init
+#define FL_Uninit gpio_FL_Uninit
+#define FL_Enable gpio_FL_Enable
+#define FL_Disable gpio_FL_Disable
+#define FL_dim_duty gpio_FL_dim_duty
+
+#elif 1
+#if defined(LENOVO_PROJECT_SEATTLE)||defined(LENOVO_PROJECT_SPAIN)||defined(LENOVO_PROJECT_PORTUGAL)
+/*  lenovo seattle board flash led config  -- liaoxl.lenovo 6.12.2012 start */
+#if defined(LENOVO_PROJECT_SEATTLE)||defined(LENOVO_PROJECT_PORTUGAL)
+#define LM3554_TORCH_PIN  47
+#define LM3554_FLASH_PIN  104
+#define LM3554_EN_PIN     106
+#elif defined(LENOVO_PROJECT_SPAIN)
+/* lenovo-sw zhouwl, 2012-07-18, for spain config */
 #define LM3554_EN_PIN     47  //HWEN
 #define LM3554_FLASH_PIN  104 //STROBE
 #define LM3554_TORCH_PIN  106
 #define LM3554_ENVM_PIN   107 //ENVM
+#endif
+
 
 static struct i2c_client *lm3554_i2c_client = NULL;
 static int lm3554_torch_config(u8 brightness);
@@ -243,7 +314,85 @@ int FL_HighCurrent_Setting(void)  /*  high current setting fuction*/
 
     return 0;
 }
+/* lenovo seattle board flash led config  -- liaoxl.lenovo 6.12.2012 end */
+#else
+extern void hwBacklightFlashlightTuning(kal_uint32 duty, kal_uint32 mode);
+extern void hwBacklightFlashlightTurnOn(void);
+extern void hwBacklightFlashlightTurnOff(void);
+extern void upmu_flash_step_sel(kal_uint32 val);
+extern void upmu_flash_mode_select(kal_uint32 val);
+extern void upmu_flash_dim_duty(kal_uint32 val);
 
+/* abstract interface */
+    
+/*  cotta-- modified for high current solution */
+int FL_Init(void)   /* Low current setting fuction*/
+{
+    upmu_flash_dim_duty(12); 
+    
+    spin_lock(&g_strobeSMPLock);    /* cotta-- SMP proection */
+    
+    g_WDTTimeout_ms = FLASH_LIGHT_WDT_DISABLE;  /* disable WDT */
+    
+    spin_unlock(&g_strobeSMPLock);
+    
+    PK_DBG(" Low current mode\n");
+    return 0;
+}
+
+int FL_Uninit(void)
+{    
+    return 0;
+}
+
+int FL_Enable(void) /* turn on strobe */
+{
+    hwBacklightFlashlightTurnOn();    
+    return 0;
+}
+
+int FL_Disable(void)    /* turn off strobe */
+{
+    hwBacklightFlashlightTurnOff();   
+    return 0;
+}
+
+int FL_dim_duty(kal_uint32 duty)    /* adjust duty */
+{
+    PK_DBG(" strobe duty : %u\n",duty);
+   
+    upmu_flash_step_sel(7);  
+    upmu_flash_dim_duty(duty); 
+
+    /*upmu_flash_mode_select(1);   register mode */
+    /*hwBacklightFlashlightTuning(duty,0x0); */
+    return 0;
+}
+
+/*  cotta-- added for high current solution */
+int FL_HighCurrent_Setting(void)  /*  high current setting fuction*/
+{    
+    upmu_flash_step_sel(7);      /* max current */
+    upmu_flash_dim_duty(0x1F);   /* max duty */   
+    spin_lock(&g_strobeSMPLock);        /* cotta-- SMP proection */
+    
+    g_WDTTimeout_ms = FLASH_LIGHT_WDT_TIMEOUT_MS;   /* enable WDT */
+    
+    spin_unlock(&g_strobeSMPLock);
+
+    PK_DBG(" High current mode\n");
+
+    /* upmu_flash_mode_select(1);    register mode */
+    /* hwBacklightFlashlightTuning(0x1F,0x0); */
+    
+    return 0;
+}
+
+#endif
+
+#else
+    #error "unknown arch"
+#endif
 
 
 /*****************************************************************************
@@ -916,7 +1065,7 @@ EXPORT_SYMBOL(strobe_StillExpEndIrqCbf);
 #include "leds-lm3554.h"
 
 
-#define USE_LM3554_ANDROID_APP //For LM3554 Android Application.
+//#define USE_LM3554_ANDROID_APP //For LM3554 Android Application.
 
 #define LM3554_REG_TORCH		(0xA0)
 #define LM3554_REG_FLASH		(0xB0)
