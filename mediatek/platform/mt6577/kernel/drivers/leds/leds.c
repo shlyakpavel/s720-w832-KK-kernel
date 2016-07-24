@@ -577,6 +577,11 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 			case MT65XX_LED_MODE_PMIC:
 			return mt_brightness_set_pmic(cust->data, level, bl_div_hal);
 				
+			case MT65XX_LED_MODE_CUST_LCM:
+				if(strcmp(cust->name,"lcd-backlight") == 0)
+				{
+			    bl_brightness_hal = level;
+				}
 			return ((cust_brightness_set)(cust->data))(level, bl_div_hal);
 				
 			case MT65XX_LED_MODE_NONE:
