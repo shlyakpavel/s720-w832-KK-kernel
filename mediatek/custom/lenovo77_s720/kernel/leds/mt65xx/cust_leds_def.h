@@ -32,7 +32,6 @@ struct PWM_config
 };
 typedef int (*cust_brightness_set)(int level, int div);
 typedef int (*cust_set_brightness)(int level);
-typedef int (*cust_breath_set)(int mode, unsigned  char color, int style);
 /*
  * name : must the same as lights HAL
  * mode : control mode
