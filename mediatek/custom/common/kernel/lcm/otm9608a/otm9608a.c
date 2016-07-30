@@ -956,9 +956,9 @@ LCM_DRIVER otm9608a_lcm_drv =
 	.resume         = lcm_resume,
 #if (LCM_DSI_CMD_MODE)
 	.update         = lcm_update,
-	//.set_backlight	= lcm_setbacklight,
-//	.set_pwm        = lcm_setpwm,
-//	.get_pwm        = lcm_getpwm,
+	.set_backlight	= lcm_setbacklight,
+	//.set_pwm        = lcm_setpwm,
+	//.get_pwm        = lcm_getpwm,
 	//.esd_check   = lcm_esd_check,
         //.esd_recover   = lcm_esd_recover,
 	.compare_id    = lcm_compare_id,

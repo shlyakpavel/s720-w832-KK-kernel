@@ -1480,7 +1480,7 @@ LCM_DRIVER nt35516_ips_lcm_drv =
 	.resume         = lcm_resume,
 #if (LCM_DSI_CMD_MODE)
 	.update         = lcm_update,
-	//.set_backlight	= lcm_setbacklight,
+	.set_backlight	= lcm_setbacklight,
 //	.set_pwm        = lcm_setpwm,
 //	.get_pwm        = lcm_getpwm,
 	//.esd_check   = lcm_esd_check,
