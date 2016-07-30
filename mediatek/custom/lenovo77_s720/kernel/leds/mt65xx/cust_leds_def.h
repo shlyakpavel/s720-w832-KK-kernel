@@ -19,7 +19,6 @@ enum mt65xx_led_pmic
 	MT65XX_LED_PMIC_LCD,
 	MT65XX_LED_PMIC_LCD_ISINK,
 	MT65XX_LED_PMIC_LCD_BOOST,
-	//MT65XX_LED_PMIC_NLED_ISINK3, //qus1, tinno77_s9091 doesnt need, conflict with red indication in charger!
 	MT65XX_LED_PMIC_NLED_ISINK4,
 	MT65XX_LED_PMIC_NLED_ISINK5
 };
@@ -33,7 +32,7 @@ struct PWM_config
 };
 typedef int (*cust_brightness_set)(int level, int div);
 typedef int (*cust_set_brightness)(int level);
-
+typedef int (*cust_breath_set)(int mode, unsigned  char color, int style);
 /*
  * name : must the same as lights HAL
  * mode : control mode
