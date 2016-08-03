@@ -28,8 +28,12 @@
 #define TPD_MAX_RESET_COUNT 3
 //#define TPD_X_RES (480)
 //#define TPD_Y_RES (800)
-//#define TPD_WARP_Y(y) (y)//( TPD_Y_RES - 1 - y ) zhaoshaopeng 
-//#define TPD_WARP_X(x) ( x )
+#define TPD_WARP_Y(y) y//( TPD_Y_RES - 1 - y ) zhaoshaopeng 
+#define TPD_WARP_X(x) x
+/*
+#define TPD_WARP_X(x)  (TPD_X_RES - 1 - x)
+#define TPD_WARP_Y(y)  y
+//(TPD_Y_RES - 1 - y)*/
 
 #define TPD_HAVE_BUTTON
 #define TPD_BUTTON_HEIGH        (100)//(100)

@@ -1362,7 +1362,7 @@ static void lcm_update(unsigned int x, unsigned int y,
 
 static void lcm_setbacklight(unsigned int level)
 {
-	unsigned int default_level = 145;
+	unsigned int default_level = 10;
 	unsigned int mapped_level = 0;
 
 	//for LGE backlight IC mapping table

@@ -102,8 +102,6 @@ extern void mt_eint_registration(kal_uint8 eintno, kal_bool Dbounce_En,
 #define TPD_X_RES           540
 #define TPD_Y_RES           960
 
-#define TPD_WARP_X(x)  (TPD_X_RES - 1 - x)
-#define TPD_WARP_Y(y)  (TPD_Y_RES - 1 - y)
 
 
 struct tpd_info_t

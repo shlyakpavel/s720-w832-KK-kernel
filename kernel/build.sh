@@ -10,7 +10,7 @@ makedefs="V=0"
 makejobs=${MAKEJOBS}
 curdir=`pwd`
 
-export CROSS_COMPILE=`pwd`/../prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7/bin/arm-linux-androideabi-
+export CROSS_COMPILE=`pwd`/../prebuilts/arm-cortex_a9-linux-gnueabihf-linaro_4.9.3-2015.01/bin/arm-cortex_a9-linux-gnueabihf-
 
 if [ "${KBUILD_OUTPUT_SUPPORT}" == "yes" ];then
   outdir=../${MTK_ROOT_OUT}/KERNEL_OBJ

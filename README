@@ -19,7 +19,7 @@ In order to get kernel compilation working, make sure you follow one of these st
 
 - To begin with the build process:
   -- Go back to project root folder
-  -- Run command: ./makeMtk lenovo77_s720 n k
+  -- Run command: ./makeMtk -o=TARGET_BUILD_VARIANT=user lenovo77_s720 n k
 
 - Once finished, you will find:
   -- The new kernel file in the folder "/out/Download/flash/"
