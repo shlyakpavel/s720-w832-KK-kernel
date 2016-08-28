@@ -36,11 +36,9 @@
 #ifndef TOUCHPANEL_H__
 #define TOUCHPANEL_H__
 
-#ifdef MT6572
 #include <mach/mt_pm_ldo.h>
 #include <mach/mt_typedefs.h>
 #include <mach/mt_boot.h>
-#endif
 
 #define TPD_SLIDE_WAKEUP                    1
 #define TPD_TYPE_CAPACITIVE
@@ -55,10 +53,10 @@
 #define TPD_POWER_SOURCE_CUSTOM	MT65XX_POWER_LDO_VGP2
 
 #define TPD_OK   0
-#define TPD_ICN85XX_SUPPORT_PROC_FS		0
-#define TPD_ICN85XX_SUPPORT_SYSFS		0
-#define TPD_ICN85XX_SUPPORT_FW_UPDATE		0
-#define TPD_ICN85XX_COMPILE_FW_WITH_DRIVER	0
+#define TPD_ICN85XX_SUPPORT_PROC_FS		0//1
+#define TPD_ICN85XX_SUPPORT_SYSFS		1
+#define TPD_ICN85XX_SUPPORT_FW_UPDATE		1
+#define TPD_ICN85XX_COMPILE_FW_WITH_DRIVER	1
 #define TPD_ICN85XX_FORCE_UPDATE_FW		0
 #define CTP_REPORT_PROTOCOL   0
 
@@ -70,16 +68,14 @@
 #define TPD_DELAY				(2 * HZ / 100)
 #define TPD_RES_X               480
 #define TPD_RES_Y                854
-#define TPD_CALIBRATION_MATRIX  {480,0,0,0,854,0,0,0};
+#define TPD_CALIBRATION_MATRIX			{962, 0, 0, 0, 1600, 0, 0, 0};
 
 
 #define TPD_HAVE_BUTTON
 #define TPD_KEY_COUNT	3
 #define TPD_KEYS		{KEY_MENU, KEY_HOMEPAGE, KEY_BACK}
 /* {button_center_x, button_center_y, button_width, button_height*/
-#define TPD_BUTTON_HEIGH        (40)
-#define TPD_KEYS_DIM            {{90,864,120,TPD_BUTTON_HEIGH},{270,864,120,TPD_BUTTON_HEIGH},{450,864,120,TPD_BUTTON_HEIGH}}
-
+#define TPD_KEYS_DIM	{{120, 1380, 60, 40},{360, 1380, 100, 40},{600, 1380, 60, 40}}
 
 
 #endif
