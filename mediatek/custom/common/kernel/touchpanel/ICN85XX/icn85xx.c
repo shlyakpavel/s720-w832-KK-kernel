@@ -151,7 +151,7 @@ extern void tpd_button(unsigned int x, unsigned int y, unsigned int down);
 
 static int  tpd_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int tpd_detect(struct i2c_client *client, int kind, struct i2c_board_info *info);
-static int  tpd_remove(struct i2c_client *client);
+int  tpd_remove(struct i2c_client *client);
 static int touch_event_handler(void *unused);
 static void tpd_eint_interrupt_handler(void);
 
@@ -2679,7 +2679,7 @@ static int  tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	return retval;
 }
 
-static int  tpd_remove(struct i2c_client *client)
+int  tpd_remove(struct i2c_client *client)
 {
 	TPD_DEBUG("TPD removed\n");
 #if TPD_ICN85XX_I2C_DMA_SUPPORT
@@ -2700,7 +2700,7 @@ static int  tpd_remove(struct i2c_client *client)
 	return 0;
 }
 
-static int tpd_local_init(void)
+int tpd_local_init(void)
 {
 	TPD_DMESG("ICN85XX I2C Touchscreen Driver (Built %s @ %s)\n", __DATE__, __TIME__);
 	tpd->dev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
@@ -2737,7 +2737,7 @@ static int tpd_local_init(void)
 	return 0;
 }
 
-static int tpd_resume(struct i2c_client *client)
+int tpd_resume(struct i2c_client *client)
 {
 	int retval = TPD_OK;
 	 suspend_status=0;
@@ -2761,7 +2761,7 @@ static int tpd_resume(struct i2c_client *client)
 	return retval;
 }
 
-static int tpd_suspend(struct i2c_client *client, pm_message_t message)
+int tpd_suspend(struct i2c_client *client, pm_message_t message)
 {
 	int retval = TPD_OK;
 
@@ -2802,7 +2802,7 @@ static struct tpd_driver_t tpd_device_driver = {
 };
 
 /* called when loaded into kernel */
-static int __init tpd_driver_init(void) {
+int __init tpd_driver_init(void) {
 	i2c_register_board_info(1, &icn85xx_i2c_tpd, 1);
 	if(tpd_driver_add(&tpd_device_driver) < 0)
 		TPD_DMESG("add ICN85XX driver failed\n");
@@ -2811,7 +2811,7 @@ static int __init tpd_driver_init(void) {
 }
 
 /* should never be called */
-static void __exit tpd_driver_exit(void) {
+void __exit tpd_driver_exit(void) {
 	TPD_DMESG("MediaTek ICN85XX touch panel driver exit\n");
 	tpd_driver_remove(&tpd_device_driver);
 }

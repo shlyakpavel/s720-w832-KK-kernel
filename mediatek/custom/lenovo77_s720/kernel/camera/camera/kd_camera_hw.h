@@ -15,7 +15,6 @@
 #define CAMERA_POWER_VCAM_A2 MT65XX_POWER_LDO_VCAM_AF
 #define CAMERA_POWER_VCAM_D2 MT65XX_POWER_LDO_VCAM_IO
 
-
 //FIXME, should defined in DCT tool 
 #ifndef GPIO_CAMERA_CMRST_PIN 
 #define GPIO_CAMERA_CMRST_PIN GPIO221
@@ -24,7 +23,7 @@
 #ifndef GPIO_CAMERA_CMRST_PIN_M_GPIO
 #define GPIO_CAMERA_CMRST_PIN_M_GPIO GPIO_MODE_00
 #endif 
-/*//
+//
 #ifndef GPIO_CAMERA_CMPDN_PIN 
 #define GPIO_CAMERA_CMPDN_PIN GPIO228
 #endif 
@@ -48,7 +47,7 @@
 #ifndef GPIO_CAMERA_CMPDN1_PIN_M_GPIO
 #define GPIO_CAMERA_CMPDN1_PIN_M_GPIO GPIO_MODE_00
 #endif
-//*/
+//
 #ifndef GPIO_CAMERA_2_CMRST_PIN 
 //fenggy mask #define GPIO_CAMERA_2_CMRST_PIN GPIO34
 #define GPIO_CAMERA_2_CMRST_PIN GPIO_CAMERA_INVALID
@@ -65,7 +64,7 @@
 //
 #ifndef GPIO_CAMERA_2_CMPDN_PIN_M_GPIO
 #define GPIO_CAMERA_2_CMPDN_PIN_M_GPIO  GPIO_MODE_00 
-#endif
+#endif 
 
 //i2c id for sensor device, MT6575_evb, the I2C is attached on 1
 #define IMG_SENSOR_I2C_GROUP_ID 1

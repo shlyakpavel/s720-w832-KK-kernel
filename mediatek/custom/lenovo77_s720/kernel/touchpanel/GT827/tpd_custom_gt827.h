@@ -6,7 +6,7 @@
 #define TPD_DEBUG_CODE
 #define TPD_TYPE_CAPACITIVE
 #define TPD_TYPE_RESISTIVE
-#define TPD_POWER_SOURCE         MT65XX_POWER_LDO_VGP2
+#define TPD_POWER_SOURCE         MT6575_POWER_VGP2
 #define TPD_I2C_NUMBER           0
 #define TPD_WAKEUP_TRIAL         60
 #define TPD_WAKEUP_DELAY         100

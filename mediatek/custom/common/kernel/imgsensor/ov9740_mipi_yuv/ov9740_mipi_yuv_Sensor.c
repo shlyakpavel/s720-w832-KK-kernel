@@ -833,8 +833,8 @@ UINT32 OV9740MIPIGetResolution(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *pSensorResolu
 	pSensorResolution->SensorFullHeight=OV9740MIPI_IMAGE_SENSOR_FULL_HEIGHT;
 	pSensorResolution->SensorPreviewWidth=OV9740MIPI_IMAGE_SENSOR_PV_WIDTH; 
 	pSensorResolution->SensorPreviewHeight=OV9740MIPI_IMAGE_SENSOR_PV_HEIGHT;
-	//pSensorResolution->SensorVideoWidth=OV9740MIPI_IMAGE_SENSOR_PV_WIDTH; 
-	//pSensorResolution->SensorVideoHeight=OV9740MIPI_IMAGE_SENSOR_PV_HEIGHT;
+	pSensorResolution->SensorVideoWidth=OV9740MIPI_IMAGE_SENSOR_PV_WIDTH; 
+	pSensorResolution->SensorVideoHeight=OV9740MIPI_IMAGE_SENSOR_PV_HEIGHT;
 	return ERROR_NONE;
 }	/* OV9740MIPIGetResolution() */
 
@@ -1569,8 +1569,8 @@ UINT32 OV9740MIPISetMaxFramerateByScenario(MSDK_SCENARIO_ID_ENUM scenarioId, MUI
 			break;		
         case MSDK_SCENARIO_ID_CAMERA_3D_PREVIEW: //added
             break;
-        //case MSDK_SCENARIO_ID_CAMERA_3D_VIDEO:
-	//		break;
+        case MSDK_SCENARIO_ID_CAMERA_3D_VIDEO:
+			break;
         case MSDK_SCENARIO_ID_CAMERA_3D_CAPTURE: //added   
 			break;		
 		default:
@@ -1593,7 +1593,7 @@ UINT32 OV9740MIPIGetDefaultFramerateByScenario(MSDK_SCENARIO_ID_ENUM scenarioId,
 			 *pframeRate = 300;
 			break;		
         case MSDK_SCENARIO_ID_CAMERA_3D_PREVIEW: //added
-        //case MSDK_SCENARIO_ID_CAMERA_3D_VIDEO:
+        case MSDK_SCENARIO_ID_CAMERA_3D_VIDEO:
         case MSDK_SCENARIO_ID_CAMERA_3D_CAPTURE: //added   
 			 *pframeRate = 300;
 			break;		
@@ -1722,7 +1722,7 @@ UINT32 OV9740MIPIFeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 			SENSORDB("EXIF addr = 0x%x\n",*pFeatureData32); 		 
 			OV9740MIPIGetExifInfo(*pFeatureData32);
 			break;
-		/*case SENSOR_FEATURE_SET_MAX_FRAME_RATE_BY_SCENARIO:
+		case SENSOR_FEATURE_SET_MAX_FRAME_RATE_BY_SCENARIO:
 			OV9740MIPISetMaxFramerateByScenario((MSDK_SCENARIO_ID_ENUM)*pFeatureData32, *(pFeatureData32+1));
 			break;
 		case SENSOR_FEATURE_GET_DEFAULT_FRAME_RATE_BY_SCENARIO:
@@ -1730,7 +1730,7 @@ UINT32 OV9740MIPIFeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 			break;
 		case SENSOR_FEATURE_GET_AE_AWB_LOCK_INFO:
 			OV9740MIPIGetAEAWBLock((*pFeatureData32),*(pFeatureData32+1));
-			break;	*/		
+			break;			
 		default:
 			break;			
 	}
