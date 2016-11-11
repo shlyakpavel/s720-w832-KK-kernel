@@ -131,10 +131,6 @@ static long int get_current_time_us(void)
     return (t.tv_sec & 0xFFF) * 1000000 + t.tv_usec;
 }
 #endif
-static void lcm_mdelay(UINT32 ms)
-{
-    udelay(1000 * ms);
-}
 
 #if ENABLE_DSI_INTERRUPT
 static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
@@ -251,7 +247,7 @@ static void _WaitForEngineNotBusy(void)
 				DSI_Reset();
             }
 			if(loop_cnt > 60){
-				printk("[DEBUG-->Zaikuo]DSI_WaitIdle counter is 60, %d\n",ret);
+				printk("[DEBUG-->Zaikuo]DSI_WaitIdle counter is 60, %ld\n",ret);
 				loop_cnt = 0;
 			}
         }
@@ -599,41 +595,19 @@ DSI_STATUS DSI_handle_TE(void)
 
 	unsigned int data_array;
 
-	//data_array=0x00351504;
-	//DSI_set_cmdq(&data_array, 1, 1);
-
-	//lcm_mdelay(10);
-
-	// RACT	
-	//data_array=1;
-	//OUTREG32(&DSI_REG->DSI_RACK, data_array);
-
 	// TE + BTA
 	data_array=0x24;
 	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI_handle_TE TE + BTA !! \n");
 	OUTREG32(&DSI_CMDQ_REG->data0, data_array);
-
-	//DSI_CMDQ_REG->data0.byte0=0x24;
-	//DSI_CMDQ_REG->data0.byte1=0;
-	//DSI_CMDQ_REG->data0.byte2=0;
-	//DSI_CMDQ_REG->data0.byte3=0;
-
 	DSI_REG->DSI_CMDQ_SIZE.CMDQ_SIZE=1;
 
 	DSI_REG->DSI_START.DSI_START=0;
 	DSI_REG->DSI_START.DSI_START=1;
-
-	// wait TE Trigger status
-//	do
-//	{
-		lcm_mdelay(10);
-
-		data_array=INREG32(&DSI_REG->DSI_INTSTA);
-		DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI INT state : %x !! \n", data_array);
-	
-		data_array=INREG32(&DSI_REG->DSI_TRIG_STA);
-		DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI TRIG TE status check : %x !! \n", data_array);
-//	} while(!(data_array&0x4));
+	mdelay(10);
+	data_array=INREG32(&DSI_REG->DSI_INTSTA);
+	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI INT state : %x !! \n", data_array);
+	data_array=INREG32(&DSI_REG->DSI_TRIG_STA);
+	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI TRIG TE status check : %x !! \n", data_array);
 
 	// RACT	
 	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI Set RACT !! \n");
@@ -914,10 +888,10 @@ void DSI_clk_ULP_mode(bool enter)
 
 		tmp_reg1.LC_HS_TX_EN=0;
 		OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 		tmp_reg1.LC_ULPM_EN=1;
 		OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 		//tmp_reg2.PLL_EN=0;
 		//OUTREG32(&DSI_PHY_REG->ANACON0, AS_UINT32(&tmp_reg2));
 
@@ -926,16 +900,16 @@ void DSI_clk_ULP_mode(bool enter)
 
 		//tmp_reg2.PLL_EN=1;
 		//OUTREG32(&DSI_PHY_REG->ANACON0, AS_UINT32(&tmp_reg2));
-		lcm_mdelay(1);
+		mdelay(1);
 		tmp_reg1.LC_ULPM_EN=0;
 		OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 		tmp_reg1.LC_WAKEUP_EN=1;
 		OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 		tmp_reg1.LC_WAKEUP_EN=0;
 		OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 
 	}
 }
@@ -948,12 +922,12 @@ void DSI_clk_HS_mode(bool enter)
 	if(enter && !DSI_clk_HS_state()) {
 		tmp_reg1.LC_HS_TX_EN=1;
 		OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&tmp_reg1));
-		//lcm_mdelay(1);
+		//mdelay(1);
 	}
 	else if (!enter && DSI_clk_HS_state()) {
 		tmp_reg1.LC_HS_TX_EN=0;
 		OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&tmp_reg1));
-		//lcm_mdelay(1);
+		//mdelay(1);
 
 	}
 }	
@@ -975,22 +949,22 @@ void DSI_lane0_ULP_mode(bool enter)
 		// suspend
 		tmp_reg1.L0_HS_TX_EN=0;
 		OUTREG32(&DSI_REG->DSI_PHY_LD0CON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 		tmp_reg1.L0_ULPM_EN=1;
 		OUTREG32(&DSI_REG->DSI_PHY_LD0CON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 	}
 	else {
 		// resume
 		tmp_reg1.L0_ULPM_EN=0;
 		OUTREG32(&DSI_REG->DSI_PHY_LD0CON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 		tmp_reg1.L0_WAKEUP_EN=1;
 		OUTREG32(&DSI_REG->DSI_PHY_LD0CON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 		tmp_reg1.L0_WAKEUP_EN=0;
 		OUTREG32(&DSI_REG->DSI_PHY_LD0CON, AS_UINT32(&tmp_reg1));
-		lcm_mdelay(1);
+		mdelay(1);
 	}
 }
 
@@ -1338,7 +1312,7 @@ void DSI_set_cmdq_V3(LCM_setting_table_V3 *para_tbl, unsigned int size, unsigned
 {
 	UINT32 i, layer, layer_state, lane_num;
 	UINT32 goto_addr, mask_para, set_para;
-	UINT32 fbPhysAddr, fbVirAddr;
+	//UINT32 fbPhysAddr, fbVirAddr;
 	DSI_T0_INS t0;	
 	DSI_T1_INS t1;	
 	DSI_T2_INS t2;	
@@ -2515,7 +2489,7 @@ DSI_STATUS Wait_ULPS_Mode(void)
 
 	while(((INREG32(DSI_BASE + 0x14C)>> 24) & 0xFF) != 0x04)
 	{
-		lcm_mdelay(5);
+		mdelay(5);
 #ifdef DDI_DRV_DEBUG_LOG_ENABLE
 		DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "DSI+%04x : 0x%08x \n", DSI_BASE, INREG32(DSI_BASE + 0x14C));
 #endif
@@ -2544,7 +2518,7 @@ DSI_STATUS Wait_WakeUp(void)
 	OUTREG32(&DSI_REG->DSI_PHY_LCCON, AS_UINT32(&lccon_reg));
 	OUTREG32(&DSI_REG->DSI_PHY_LD0CON, AS_UINT32(&ld0con));
 
-	lcm_mdelay(1);//Wait 1ms for LCM Spec
+	mdelay(1);//Wait 1ms for LCM Spec
 
 	lccon_reg.LC_WAKEUP_EN =1;
 	ld0con.L0_WAKEUP_EN=1;
@@ -2553,7 +2527,7 @@ DSI_STATUS Wait_WakeUp(void)
 
 	while(((INREG32(DSI_BASE + 0x148)>> 8) & 0xFF) != 0x01)
 	{
-		lcm_mdelay(5);
+		mdelay(5);
 #ifdef DDI_DRV_DEBUG_LOG_ENABLE
 		DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[soso]DSI+%04x : 0x%08x \n", DSI_BASE, INREG32(DSI_BASE + 0x148));
 #endif
