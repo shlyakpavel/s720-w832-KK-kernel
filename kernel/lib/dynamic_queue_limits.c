@@ -10,12 +10,7 @@
 #include <linux/jiffies.h>
 #include <linux/dynamic_queue_limits.h>
 
-//Update Patch from Google
-//https://android.googlesource.com/kernel/common/+/19d07e884b7fd22f92eb8939556dcbf55df1982c%5E..19d07e884b7fd22f92eb8939556dcbf55df1982c/#F0
-//#define POSDIFF(A, B) ((A) > (B) ? (A) - (B) : 0)
 #define POSDIFF(A, B) ((int)((A) - (B)) > 0 ? (A) - (B) : 0)
-//Update Patch from Google
-//https://android.googlesource.com/kernel/common/+/1414a53d956340ca8b1b27e05ab94ba63e82ed97%5E..1414a53d956340ca8b1b27e05ab94ba63e82ed97/#F0
 #define AFTER_EQ(A, B) ((int)((A) - (B)) >= 0)
 
 
@@ -23,11 +18,6 @@
 void dql_completed(struct dql *dql, unsigned int count)
 {
 	unsigned int inprogress, prev_inprogress, limit;
-//Update Patch from Google
-//https://android.googlesource.com/kernel/common/+/1414a53d956340ca8b1b27e05ab94ba63e82ed97%5E..1414a53d956340ca8b1b27e05ab94ba63e82ed97/#F0
-	//unsigned int ovlimit, all_prev_completed, completed;
-//Update Patch from Google
-//https://android.googlesource.com/kernel/common/+/4f4bdaeb40df95499c1ee7ea3fbca9d76174a59e%5E..4f4bdaeb40df95499c1ee7ea3fbca9d76174a59e/#F0
 	unsigned int ovlimit, completed,num_queued;
 	bool all_prev_completed;
 
@@ -39,15 +29,9 @@ void dql_completed(struct dql *dql, unsigned int count)
 
 	completed = dql->num_completed + count;
 	limit = dql->limit;
-//Update Patch from Google
-//https://android.googlesource.com/kernel/common/+/4f4bdaeb40df95499c1ee7ea3fbca9d76174a59e%5E..4f4bdaeb40df95499c1ee7ea3fbca9d76174a59e/#F0
-	//ovlimit = POSDIFF(dql->num_queued - dql->num_completed, limit);
-	//inprogress = dql->num_queued - completed;
 	ovlimit = POSDIFF(num_queued - dql->num_completed, limit);
 	inprogress = num_queued - completed;
 	prev_inprogress = dql->prev_num_queued - dql->num_completed;
-//Update Patch from Google//https://android.googlesource.com/kernel/common/+/1414a53d956340ca8b1b27e05ab94ba63e82ed97%5E..1414a53d956340ca8b1b27e05ab94ba63e82ed97/#F0
-	//all_prev_completed = POSDIFF(completed, dql->prev_num_queued);
 	all_prev_completed = AFTER_EQ(completed, dql->prev_num_queued);
 
 	if ((ovlimit && !inprogress) ||
@@ -126,9 +110,6 @@ void dql_completed(struct dql *dql, unsigned int count)
 	dql->prev_ovlimit = ovlimit;
 	dql->prev_last_obj_cnt = dql->last_obj_cnt;
 	dql->num_completed = completed;
-//Update Patch from Google
-//https://android.googlesource.com/kernel/common/+/4f4bdaeb40df95499c1ee7ea3fbca9d76174a59e%5E..4f4bdaeb40df95499c1ee7ea3fbca9d76174a59e/#F0
-	//dql->prev_num_queued = dql->num_queued;
 	dql->prev_num_queued = num_queued;
 }
 EXPORT_SYMBOL(dql_completed);

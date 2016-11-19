@@ -602,10 +602,7 @@ static void reset_config(struct usb_composite_dev *cdev)
 		bitmap_zero(f->endpoints, 32);
 	}
 	cdev->config = NULL;
-
-	//ALPS00802402
 	cdev->delayed_status = 0;
-	//ALPS00802402
 }
 
 static int set_config(struct usb_composite_dev *cdev,

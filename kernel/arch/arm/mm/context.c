@@ -17,15 +17,9 @@
 #include <linux/percpu.h>
 
 #include <asm/mmu_context.h>
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 #include <asm/smp_plat.h>
 #include <asm/tlbflush.h>
 
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 /*
  * On ARMv6, we have the following structure in the Context ID:
  *
@@ -43,18 +37,12 @@
 #define ASID_FIRST_VERSION	(1ULL << ASID_BITS)
 
 static DEFINE_RAW_SPINLOCK(cpu_asid_lock);
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 static u64 cpu_last_asid = ASID_FIRST_VERSION;
 
 static DEFINE_PER_CPU(u64, active_asids);
 static DEFINE_PER_CPU(u64, reserved_asids);
 static cpumask_t tlb_flush_pending;
 
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 #ifdef CONFIG_ARM_LPAE
 static void cpu_set_reserved_ttbr0(void)
 {
@@ -84,9 +72,6 @@ static void cpu_set_reserved_ttbr0(void)
 }
 #endif
 
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 static void flush_context(unsigned int cpu)
 {
 	int i;
@@ -106,9 +91,6 @@ static void flush_context(unsigned int cpu)
 		__flush_icache_all();
 }
 
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 static int is_reserved_asid(u64 asid, u64 mask)
 {
 	int cpu;
@@ -118,9 +100,6 @@ static int is_reserved_asid(u64 asid, u64 mask)
 	return 0;
 }
 
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 static void new_context(struct mm_struct *mm, unsigned int cpu)
 {
 	u64 asid = mm->context.id;
@@ -148,9 +127,6 @@ static void new_context(struct mm_struct *mm, unsigned int cpu)
 	mm->context.id = asid;
 }
 
-/*
- * apply kernel patch: b5466f8728527a05a493cc4abe9e6f034a1bbaab
- */
 void check_and_switch_context(struct mm_struct *mm, struct task_struct *tsk)
 {
 	unsigned long flags;

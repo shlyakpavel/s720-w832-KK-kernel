@@ -43,8 +43,6 @@
 #include <linux/sysctl.h>
 #include <linux/oom.h>
 #include <linux/prefetch.h>
-//Google Patch
-//https://android.googlesource.com/kernel/common/+/29b8a347fcba8a7df5478f746f1d2a422e294190%5E%21/#F0
 #include <linux/debugfs.h>
 
 #include <asm/tlbflush.h>
@@ -205,8 +203,6 @@ static unsigned long zone_nr_lru_pages(struct mem_cgroup_zone *mz,
 
 	return zone_page_state(mz->zone, NR_LRU_BASE + lru);
 }
-//Google Patch
-//https://android.googlesource.com/kernel/common/+/29b8a347fcba8a7df5478f746f1d2a422e294190%5E%21/#F0
 
 struct dentry *debug_file;
 
@@ -254,9 +250,6 @@ void register_shrinker(struct shrinker *shrinker)
 	up_write(&shrinker_rwsem);
 }
 EXPORT_SYMBOL(register_shrinker);
-
-//Google Patch
-//https://android.googlesource.com/kernel/common/+/29b8a347fcba8a7df5478f746f1d2a422e294190%5E%21/#F0
 
 static int __init add_shrinker_debug(void)
 {
@@ -2675,6 +2668,19 @@ static void age_active_anon(struct zone *zone, struct scan_control *sc,
 	} while (memcg);
 }
 
+static bool zone_balanced(struct zone *zone, int order,
+			  unsigned long balance_gap, int classzone_idx)
+{
+	if (!zone_watermark_ok_safe(zone, order, high_wmark_pages(zone) +
+				    balance_gap, classzone_idx, 0))
+		return false;
+
+	if (COMPACTION_BUILD && order && !compaction_suitable(zone, order))
+		return false;
+
+	return true;
+}
+
 /*
  * pgdat_balanced is used when checking if a node is balanced for high-order
  * allocations. Only zones that meet watermarks and are in a zone allowed
@@ -2734,8 +2740,7 @@ static bool sleeping_prematurely(pg_data_t *pgdat, int order, long remaining,
 			continue;
 		}
 
-		if (!zone_watermark_ok_safe(zone, order, high_wmark_pages(zone),
-							i, 0))
+		if (!zone_balanced(zone, order, 0, i))
 			all_zones_ok = false;
 		else
 			balanced += zone->present_pages;
@@ -2847,8 +2852,7 @@ loop_again:
 				break;
 			}
 
-			if (!zone_watermark_ok_safe(zone, order,
-					high_wmark_pages(zone), 0, 0)) {
+			if (!zone_balanced(zone, order, 0, 0)) {
 				end_zone = i;
 				break;
 			} else {
@@ -2923,9 +2927,8 @@ loop_again:
 				testorder = 0;
 
 			if ((buffer_heads_over_limit && is_highmem_idx(i)) ||
-				    !zone_watermark_ok_safe(zone, testorder,
-					high_wmark_pages(zone) + balance_gap,
-					end_zone, 0)) {
+			    !zone_balanced(zone, testorder,
+					   balance_gap, end_zone)) {
 				shrink_zone(priority, zone, &sc);
 
 				reclaim_state->reclaimed_slab = 0;
@@ -2952,8 +2955,7 @@ loop_again:
 				continue;
 			}
 
-			if (!zone_watermark_ok_safe(zone, testorder,
-					high_wmark_pages(zone), end_zone, 0)) {
+			if (!zone_balanced(zone, testorder, 0, end_zone)) {
 				all_zones_ok = 0;
 				/*
 				 * We are still under min water mark.  This
@@ -3235,7 +3237,10 @@ static int kswapd(void *p)
 		}
 	}
 
+	tsk->flags &= ~(PF_MEMALLOC | PF_SWAPWRITE | PF_KSWAPD);
 	current->reclaim_state = NULL;
+	lockdep_clear_current_reclaim_state();
+
 	return 0;
 }
 
@@ -3407,11 +3412,6 @@ int kswapd_run(int nid)
 	return ret;
 }
 
-        /*
-         * kernel patch
-         * commit: 0e343dbe08acb440f7914d989bcc32c1d1576735
-         * https://android.googlesource.com/kernel/common/+/0e343dbe08acb440f7914d989bcc32c1d1576735%5E!/#F0
-         */
 /*
  * Called by memory hotplug when all memory in a node is offlined.  Caller must
  * hold lock_memory_hotplug().

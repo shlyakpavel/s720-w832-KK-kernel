@@ -721,6 +721,7 @@ EXPORT_SYMBOL(kernel_thread);
 unsigned long get_wchan(struct task_struct *p)
 {
 	struct stackframe frame;
+	unsigned long stack_page;
 	unsigned long stack_top;
 	unsigned long stack_bottom;
 	int ret;
@@ -732,6 +733,7 @@ unsigned long get_wchan(struct task_struct *p)
 	frame.sp = thread_saved_sp(p);
 	frame.lr = 0;			/* recovered from the stack */
 	frame.pc = thread_saved_pc(p);
+	stack_page = (unsigned long)task_stack_page(p);
 	stack_top = frame.sp;
 	stack_bottom = ALIGN(stack_top, THREAD_SIZE);
 	do {
@@ -742,8 +744,9 @@ unsigned long get_wchan(struct task_struct *p)
 	    */
 	    return 0;
 	  }
-		ret = unwind_frame(&frame);
-		if (ret < 0)
+		if (frame.sp < stack_page ||
+		    frame.sp >= stack_page + THREAD_SIZE ||
+		    unwind_frame(&frame) < 0)
 			return 0;
 		if (!in_sched_functions(frame.pc))
 			return frame.pc;
