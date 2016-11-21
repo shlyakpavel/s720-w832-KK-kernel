@@ -138,11 +138,11 @@ struct alsps_context {
 
 //for auto detect
 extern int alsps_driver_add(struct alsps_init_info* obj) ;
-extern int ps_report_interrupt_data(int value);
-extern int als_data_report(struct input_dev *dev, int value,int status);
+extern void ps_report_interrupt_data(int value);
+extern void als_data_report(struct input_dev *dev, int value,int status);
 extern int als_register_control_path(struct als_control_path *ctl);
 extern int als_register_data_path(struct als_data_path *data);
-extern int ps_data_report(struct input_dev *dev, int value,int status);
+extern void ps_data_report(struct input_dev *dev, int value,int status);
 extern int ps_register_control_path(struct ps_control_path *ctl);
 extern int ps_register_data_path(struct ps_data_path *data);
 

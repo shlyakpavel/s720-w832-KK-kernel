@@ -79,7 +79,6 @@ static struct pt_info_x pi;
 static unsigned long long g_pt_addr_old = 0;
 static unsigned long long g_mpt_addr_old = 0;
 static int pt_next = 0;
-static int pmt_done = 0;
 extern int eMMC_rw_x(loff_t addr,u32 *buffer, int host_num, int iswrite, u32 totalsize, int transtype, Region part);
 extern void msdc_check_init_done(void);
 
@@ -92,7 +91,7 @@ msdos_magic_present(unsigned char *p)
 	return (p[0] == MSDOS_LABEL_MAGIC1 && p[1] == MSDOS_LABEL_MAGIC2);
 }
 
-
+#if 0
 static void init_storage_info(void)
 {
 	struct storage_info s_info = {0};
@@ -308,66 +307,12 @@ fail_malloc:
 
 	return reval;
 }
-
-#if 0
-int init_pmt(void)
-{
-	int err;
-    int i;
-
-#ifdef CONFIG_PMT_ENABLE
-    pmt_info("[%s]start...(CONFIG_PMT_ENABLE=y)\n", __func__);
-#else
-    pmt_info("[%s]start...(CONFIG_PMT_ENABLE=n)\n", __func__);
 #endif
-
-	if (pmt_done) {
-		pmt_info("[%s]skip since init already\n", __func__);
-		return 0;
-	}
-
-    init_storage_info();
-
-	last_part = kzalloc(PART_MAX_COUNT * sizeof(pt_resident), GFP_KERNEL);
-	if (!last_part) {
-		err = -ENOMEM;
-		pmt_err("[%s]fail to malloc last_part\n", __func__);
-		goto fail_malloc;
-	}
-
-    memset(&pi, 0, sizeof(pt_info));
-
-    err = load_pmt((u8 *)last_part);
-    if (err) { 
-       pmt_err("[%s]No pmt found and use default part info\n", __func__);
-    } else {
-       printk("find pt\n");
-       for (i = 0; i < PART_MAX_COUNT; i++) {  
-	   		if ((last_part[i].name[0] == 0x00) || (last_part[i].name[0] == 0xff)) {
-				break;
-            }
-            printk("part %s size %llx %llx\n", last_part[i].name, 
-                last_part[i].offset, last_part[i].size);
-			PartInfo[i].start_address = last_part[i].offset;
-			PartInfo[i].size= last_part[i].size;
-		    /*	if (last_part[i].size == 0)
-				break;*/
-        }
-	   printk("find pt %d\n",i);
-    }
-
-	pmt_done = 1;
-	err = 0;
-
-fail_malloc: 
-	return err;
-}
-#else
 int init_pmt(void)
 {
     return 0;
 }   
-#endif
+//#endif
 EXPORT_SYMBOL(init_pmt);
 
 

@@ -121,6 +121,7 @@ static int get_sys_battery_info(char* dev)
     return nRet;
 }
 
+#if defined(CONFIG_ARCH_MT6589)
 //*********************************************
 // Get Wifi Tx throughput
 //*********************************************
@@ -160,6 +161,7 @@ static int get_sys_wifi_throughput(char* dev, int nRetryNr)
 
     return nRet;
 }
+#endif
 
 //*********************************************
 // For get_sys_cpu_usage_info_ex()
@@ -191,7 +193,7 @@ struct gpu_index_st
 };
 
 static struct cpu_index_st cpu_index_list[4];   ///< 4-Core is maximum 
-static struct gpu_index_st gpu_index;
+//static struct gpu_index_st gpu_index;
 
 #if defined(CONFIG_ARCH_MT6577)
 #define NO_CPU_CORES (2)
@@ -538,9 +540,6 @@ int mtk_thermal_get_batt_info(
 
 #if defined (CONFIG_ARCH_MT6577)
 #define NO_EXTRA_THERMAL_ATTR (0) // None
-static char* extra_attr_names[1] = {0};
-static int extra_attr_values[1] = {0};
-static char* extra_attr_units[1] = {0};
 #endif
 
 int mtk_thermal_get_extra_info(

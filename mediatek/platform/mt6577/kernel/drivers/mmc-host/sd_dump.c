@@ -52,7 +52,7 @@ static  unsigned int clks[] = {200000000};
 #define NORMAL_SCLK        (25000000)
 #define MIN_SCLK           (260000)
 static u32 u_msdc_base[HOST_MAX_NUM] = {MSDC_0_BASE,MSDC_1_BASE,MSDC_2_BASE,MSDC_3_BASE};
-static struct msdc_hw *p_msdc_hw[HOST_MAX_NUM] = {NULL,NULL,NULL,NULL,NULL};
+static struct msdc_hw *p_msdc_hw[HOST_MAX_NUM] = {NULL,NULL,NULL,NULL};
 static struct simp_msdc_host g_msdc_host[2];
 static struct simp_msdc_card g_msdc_card[2];
 static struct simp_msdc_host *pmsdc_boot_host = &g_msdc_host[BOOT_STORAGE_ID];
@@ -934,7 +934,7 @@ static int simp_mmc_init_card(struct simp_mmc_host *host, unsigned int ocr,
     if (err)
         goto err;
 
-	err = simp_mmc_decode_csd(card);
+    err = simp_mmc_decode_csd(card);
     if (err)
         goto err;
 
@@ -950,16 +950,16 @@ static int simp_mmc_init_card(struct simp_mmc_host *host, unsigned int ocr,
     err = simp_mmc_select_card(host, card);
     if (err)
         goto err;
-	err = simp_mmc_read_ext_csd(host,card);
-	if (err)
-			goto err;
-	simp_mmc_decode_ext_csd(card);
-	simp_emmc_cal_offset(card);
-	if(simp_offset < 0)
-		goto err;
-	err = simp_emmc_switch_bus(host,card);
-	sdr_set_field(SDC_CFG, SDC_CFG_BUSWIDTH, 1);  /* 1: 4 bits mode */  
-	simp_msdc_config_clock(host->mtk_host, NORMAL_SCLK);
+    err = simp_mmc_read_ext_csd(host,card);
+    if (err)
+        goto err;
+    simp_mmc_decode_ext_csd(card);
+    simp_emmc_cal_offset(card);
+    if(simp_offset < 0)
+        goto err;
+    err = simp_emmc_switch_bus(host,card);
+    sdr_set_field(SDC_CFG, SDC_CFG_BUSWIDTH, 1);  /* 1: 4 bits mode */  
+    simp_msdc_config_clock(host->mtk_host, NORMAL_SCLK);
     return SIMP_SUCCESS;
 
 err:
@@ -1749,7 +1749,7 @@ static int emmc_dump_read(unsigned char* buf, unsigned int len, unsigned int off
         }
     }
 
-#if DEBUG_MMC_IOCTL
+#ifdef DEBUG_MMC_IOCTL
     printk("l_user_begin_num = %d l_dest_num = %d\n",l_user_begin_num,l_dest_num);
 #endif
 
@@ -1759,11 +1759,11 @@ static int emmc_dump_read(unsigned char* buf, unsigned int len, unsigned int off
     }
 
     if (PartInfo[l_dest_num].size < (len + offset)) {
-        printk("read operation oversize! size=%d, len=%d, offset=%d.\n", PartInfo[l_dest_num].size, len, offset);
+        printk("read operation oversize! size=%llu, len=%d, offset=%d.\n", PartInfo[l_dest_num].size, len, offset);
         return ret;
     }
 
-#if DEBUG_MMC_IOCTL
+#ifdef DEBUG_MMC_IOCTL
     printk("read start address=0x%llx\n", PartInfo[l_dest_num].start_address - PartInfo[l_user_begin_num].start_address);
 #endif 
     l_start_offset = offset + PartInfo[l_dest_num].start_address - PartInfo[l_user_begin_num].start_address;
@@ -1779,13 +1779,13 @@ static int emmc_dump_read(unsigned char* buf, unsigned int len, unsigned int off
         msdc_ctl.address = (l_start_offset >> 9) + i; //blk address
         msdc_ctl.buffer =(u32*)(buf + i * 512);
 
-#if DEBUG_MMC_IOCTL
+#ifdef DEBUG_MMC_IOCTL
         printk("l_start_offset = 0x%x\n", msdc_ctl.address);
 #endif        
         msdc_ctl.result = simple_sd_ioctl_rw(&msdc_ctl);
     }
     
-#if DEBUG_MMC_IOCTL
+#ifdef DEBUG_MMC_IOCTL
     printk("read data:");
     for (i = 0; i < 32; i++) {
         printk("0x%x", buf[i]);

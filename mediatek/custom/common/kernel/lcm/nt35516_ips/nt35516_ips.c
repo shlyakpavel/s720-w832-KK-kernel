@@ -1301,15 +1301,12 @@ static void lcm_get_params(LCM_PARAMS *params)
 
 static void lcm_init(void)
 {
-
-    unsigned char lcd_id =0;
-    SET_RESET_PIN(1);
-    MDELAY(10);	
-    SET_RESET_PIN(0);
-    MDELAY(150);
-    SET_RESET_PIN(1);
-    MDELAY(10);
-
+	SET_RESET_PIN(1);
+	MDELAY(10);	
+	SET_RESET_PIN(0);
+	MDELAY(150);
+	SET_RESET_PIN(1);
+	MDELAY(10);
 	push_table(lcm_initialization_setting, sizeof(lcm_initialization_setting) / sizeof(struct LCM_setting_table), 1);
 }
 
@@ -1434,7 +1431,6 @@ static unsigned int lcm_esd_recover(void)
 
 static unsigned int lcm_compare_id(void)
 {
-	volatile unsigned int id = 0;
 	volatile unsigned char buffer[3];
 	unsigned int array[16];
 	//zhaoshaopeng for tianma/baolongda lcd_id_det  hx8369 
@@ -1450,17 +1446,12 @@ static unsigned int lcm_compare_id(void)
 
 	array[0] = 0x00023700;
 	dsi_set_cmdq(array, 1, 1);
-//	id = read_reg(0xF4);
 	//read_reg_v2(0xF4, buffer, 2);
-	//id = buffer[0]; //we only need ID
 	//zhaoshaopeng for tianma/baolongda lcd_id_det  hx8369 
 	lcd_id =  mt_get_gpio_in(GPIO_LCD_ID);
-	//id1 = read_reg(0xc5);
-	//id2 = read_reg(0xc5);
-	//id3 = read_reg(0xc5);
 	read_reg_v2(0xc5, buffer, 3);	  
 #if defined(BUILD_UBOOT)
-       printf("%s, zhaoshaopeng buffer[0] = 0x%08x, buffer[1] = 0x%08x, id= 0x%08x, lcd_id=%d\n", __func__, buffer[0], buffer[1], id, lcd_id);
+       printf("%s, zhaoshaopeng buffer[0] = 0x%08x, buffer[1] = 0x%08x, lcd_id=%d\n", __func__, buffer[0], buffer[1], lcd_id);
 #endif
         if((buffer[0] ==0x55)&&(lcd_id==1)&&(buffer[1] ==0x16))
         return 1;

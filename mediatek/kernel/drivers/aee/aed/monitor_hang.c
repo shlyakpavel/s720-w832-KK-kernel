@@ -262,7 +262,7 @@ extern void show_stack(struct task_struct *tsk, unsigned long *sp);
 static void ShowStatus (void) {
 	struct task_struct * task ;
 	for_each_process(task) {
-		printk_sched("[Hang_Detect] %s found:%d.,RT[%lld]\n", task->comm, task->pid, sched_clock());
+		printk_deferred("[Hang_Detect] %s found:%d.,RT[%lld]\n", task->comm, task->pid, sched_clock());
 		show_stack(task,NULL) ;
 	}
 }
@@ -456,7 +456,7 @@ int aee_kernel_wdt_kick_api(int kinterval)
 	if(pwk_start_monitor &&(get_boot_mode()==NORMAL_BOOT)&&(FindTaskByName("system_server")!=-1) )
 	{
 		//Only in normal_boot!
-		printk_sched("Press powerkey!!	g_boot_mode=%d,wdt_kick_status=0x%x,tickTimes=0x%x,g_kinterval=%d,RT[%lld]\n",get_boot_mode(),wdt_kick_status,hwt_kick_times,kinterval,sched_clock());
+		printk_deferred("Press powerkey!!	g_boot_mode=%d,wdt_kick_status=0x%x,tickTimes=0x%x,g_kinterval=%d,RT[%lld]\n",get_boot_mode(),wdt_kick_status,hwt_kick_times,kinterval,sched_clock());
 		hwt_kick_times++;	
 		if((kinterval*hwt_kick_times	> 180))//only monitor 3 min
 		{
@@ -466,11 +466,11 @@ int aee_kernel_wdt_kick_api(int kinterval)
 			{	
 				#ifdef CONFIG_MT_ENG_BUILD
 					ShowStatus() ;//catch task kernel bt
-					printk_sched("[WDK] Powerkey Tick fail,kick_status 0x%08x,RT[%lld]\n ", wdt_kick_status,sched_clock());
+					printk_deferred("[WDK] Powerkey Tick fail,kick_status 0x%08x,RT[%lld]\n ", wdt_kick_status,sched_clock());
 					aee_kernel_warning("\nCR_DISPATCH_KEY:UI Hang(Powerkey)\n", "Powerkey Monitor");
 				#else
 					ShowStatus() ;//catch task kernel bt
-					printk_sched("[WDK] Powerkey Tick fail,kick_status 0x%08x,RT[%lld]\n ", wdt_kick_status,sched_clock());
+					printk_deferred("[WDK] Powerkey Tick fail,kick_status 0x%08x,RT[%lld]\n ", wdt_kick_status,sched_clock());
 					ret=WDT_PWK_HANG_FORCE_HWT;    //trigger HWT
 				#endif
 			}			
@@ -478,7 +478,7 @@ int aee_kernel_wdt_kick_api(int kinterval)
 		if( (wdt_kick_status& (WDT_SETBY_Display|WDT_SETBY_SF))== (WDT_SETBY_Display|WDT_SETBY_SF))
 		{
 			pwk_start_monitor=0;
-			printk_sched("[WDK] Powerkey Tick ok,kick_status 0x%08x,RT[%lld]\n ", wdt_kick_status,sched_clock());
+			printk_deferred("[WDK] Powerkey Tick ok,kick_status 0x%08x,RT[%lld]\n ", wdt_kick_status,sched_clock());
 		}
 			
 	}

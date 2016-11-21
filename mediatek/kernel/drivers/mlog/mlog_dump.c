@@ -52,7 +52,7 @@ static unsigned int mlog_poll(struct file *file, poll_table *wait)
     poll_wait(file, &mlog_wait, wait);
     if (mlog_unread())
         return POLLIN | POLLRDNORM;
-	return 0;
+       return 0;
 }
 
 static const struct file_operations proc_mlog_operations = {

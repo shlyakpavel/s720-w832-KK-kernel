@@ -8,7 +8,7 @@ static void alsps_early_suspend(struct early_suspend *h);
 static void alsps_late_resume(struct early_suspend *h);
 
 
-int als_data_report(struct input_dev *dev, int value, int status)
+void als_data_report(struct input_dev *dev, int value, int status)
 {
 	//ALSPS_LOG("+als_data_report! %d, %d\n",value,status);
   	input_report_abs(dev, EVENT_TYPE_ALS_VALUE, value);
@@ -17,7 +17,7 @@ int als_data_report(struct input_dev *dev, int value, int status)
 	return 0;
 }
 
-int ps_data_report(struct input_dev *dev, int value,int status)
+void ps_data_report(struct input_dev *dev, int value,int status)
 {
 	//ALSPS_LOG("+ps_data_report! %d, %d\n",value,status);
   	input_report_abs(dev, EVENT_TYPE_PS_VALUE, value);
@@ -30,12 +30,10 @@ static void als_work_func(struct work_struct *work)
 {
 
 	struct alsps_context *cxt = NULL;
-	int out_size;
 	//hwm_sensor_data sensor_data;
-	int value,status,div;
+	int value,status,err;
 	int64_t  nt;
-	struct timespec time; 
-	int err, idx;	
+	struct timespec time; 	
 
 	cxt  = alsps_context_obj;
 	
@@ -100,12 +98,10 @@ static void ps_work_func(struct work_struct *work)
 {
 
 	struct alsps_context *cxt = NULL;
-	int out_size;
 	//hwm_sensor_data sensor_data;
-	int value,status,div;
+	int value,status,err;
 	int64_t  nt;
-	struct timespec time; 
-	int err, idx;	
+	struct timespec time; 	
 
 	cxt  = alsps_context_obj;
 	
@@ -266,8 +262,7 @@ static int als_real_enable(int enable)
 }
 static int als_enable_data(int enable)
 {
-    struct alsps_context *cxt = NULL;
-	int err =0;
+	struct alsps_context *cxt = NULL;
 	cxt = alsps_context_obj;
 	if(NULL  == cxt->als_ctl.open_report_data)
 	{
@@ -353,8 +348,7 @@ static int ps_real_enable(int enable)
 }
 static int ps_enable_data(int enable)
 {
-    struct alsps_context *cxt = NULL;
-	int err =0;
+	struct alsps_context *cxt = NULL;
 	cxt = alsps_context_obj;
 	if(NULL  == cxt->ps_ctl.open_report_data)
 	{
@@ -403,7 +397,6 @@ static ssize_t als_store_active(struct device* dev, struct device_attribute *att
     ALSPS_LOG("als_store_active buf=%s\n",buf);
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
 	struct alsps_context *cxt = NULL;
-	int err =0;
 	cxt = alsps_context_obj;
 
     if (!strncmp(buf, "1", 1)) 
@@ -438,11 +431,10 @@ static ssize_t als_store_delay(struct device* dev, struct device_attribute *attr
 
 {
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
-    	struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
+    	//struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
     	int delay;
 	int mdelay=0;
 	struct alsps_context *cxt = NULL;
-	int err =0;
 	cxt = alsps_context_obj;
 	if(NULL == cxt->als_ctl.set_delay)
 	{
@@ -484,7 +476,6 @@ static ssize_t als_store_batch(struct device* dev, struct device_attribute *attr
     ALSPS_LOG("als_store_batch buf=%s\n",buf);
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
 	struct alsps_context *cxt = NULL;
-	int err =0;
 	cxt = alsps_context_obj;
 	if(cxt->als_ctl.is_support_batch){
 	    	if (!strncmp(buf, "1", 1)) 
@@ -518,7 +509,7 @@ static ssize_t als_store_flush(struct device* dev, struct device_attribute *attr
                                   const char *buf, size_t count)
 {
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
-    struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
+    //struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
 	//do read FIFO data function and report data immediately
 	mutex_unlock(&alsps_context_obj->alsps_op_mutex);
     return count;
@@ -543,7 +534,6 @@ static ssize_t ps_store_active(struct device* dev, struct device_attribute *attr
     	ALSPS_LOG("ps_store_active buf=%s\n",buf);
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
 	struct alsps_context *cxt = NULL;
-	int err =0;
 	cxt = alsps_context_obj;
 
     if (!strncmp(buf, "1", 1)) 
@@ -578,11 +568,10 @@ static ssize_t ps_store_delay(struct device* dev, struct device_attribute *attr,
 
 {
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
-    	struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
+    	//struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
     	int delay;
 	int mdelay=0;
 	struct alsps_context *cxt = NULL;
-	int err =0;
 	cxt = alsps_context_obj;
 	if(NULL == cxt->ps_ctl.set_delay)
 	{
@@ -624,7 +613,6 @@ static ssize_t ps_store_batch(struct device* dev, struct device_attribute *attr,
     ALSPS_LOG("ps_store_batch buf=%s\n",buf);
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
 	struct alsps_context *cxt = NULL;
-	int err =0;
 	cxt = alsps_context_obj;
 	if(cxt->ps_ctl.is_support_batch){
 	    	if (!strncmp(buf, "1", 1)) 
@@ -658,7 +646,7 @@ static ssize_t ps_store_flush(struct device* dev, struct device_attribute *attr,
                                   const char *buf, size_t count)
 {
 	mutex_lock(&alsps_context_obj->alsps_op_mutex);
-    struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
+    //struct alsps_context *devobj = (struct alsps_context*)dev_get_drvdata(dev);
 	//do read FIFO data function and report data immediately
 	mutex_unlock(&alsps_context_obj->alsps_op_mutex);
     return count;
@@ -700,7 +688,7 @@ static struct platform_driver als_ps_driver = {
 
 static int alsps_real_driver_init(void) 
 {
-    int i =0;
+	int i =0;
 	int err=0;
 	ALSPS_LOG(" alsps_real_driver_init +\n");
 	for(i = 0; i < MAX_CHOOSE_ALSPS_NUM; i++)
@@ -728,7 +716,7 @@ static int alsps_real_driver_init(void)
 
   int alsps_driver_add(struct alsps_init_info* obj) 
 {
-    int err=0;
+	int err=0;
 	int i =0;
 	
 	ALSPS_FUN();
@@ -760,14 +748,11 @@ static int alsps_real_driver_init(void)
 }
 EXPORT_SYMBOL_GPL(alsps_driver_add);
 
-int ps_report_interrupt_data(int value) 
+void ps_report_interrupt_data(int value) 
 {
 	struct alsps_context *cxt = NULL;
-	int err =0;
 	cxt = alsps_context_obj;	
-	ps_data_report(cxt->idev,value,3);
-	
-	return 0;
+	ps_data_report(cxt->idev,value,3);	
 }
 /*----------------------------------------------------------------------------*/
 EXPORT_SYMBOL_GPL(ps_report_interrupt_data);

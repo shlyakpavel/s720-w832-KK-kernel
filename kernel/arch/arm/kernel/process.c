@@ -724,7 +724,6 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long stack_page;
 	unsigned long stack_top;
 	unsigned long stack_bottom;
-	int ret;
 	int count = 0;
 	if (!p || p == current || p->state == TASK_RUNNING)
 		return 0;

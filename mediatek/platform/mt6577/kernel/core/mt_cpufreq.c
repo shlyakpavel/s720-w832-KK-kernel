@@ -112,6 +112,7 @@ static struct early_suspend mtk_cpufreq_early_suspend_handler =
 };
 #endif
 
+
 #define DVFS_F1                 (1209000)   // KHz, 1/1
 #define DVFS_F2                 (1001000)   // KHz, 1/1
 #define DVFS_F3                 ( 834166)   // KHz, DVFS_F2 5/6
@@ -120,6 +121,10 @@ static struct early_suspend mtk_cpufreq_early_suspend_handler =
 #define DVFS_F6                 ( 500500)   // KHz, DVFS_F2 1/2
 #define DVFS_F7                 ( 250250)   // KHz, DVFS_F2 1/4
 #define DVFS_F8                 ( 166833)   // KHz, DVFS_F2 1/6
+
+#define DVFS_F1_o     (1201000)
+#define DVFS_F2_o     (1101000)   // KHz, 1/1
+ 
 
 #define DVFS_F1_MT6575_E1       DVFS_F2
 #define DVFS_F2_MT6575_E1       DVFS_F6
@@ -135,6 +140,8 @@ static struct early_suspend mtk_cpufreq_early_suspend_handler =
 #define DVFS_F4_MT6577_E1_1_0   DVFS_F5
 #define DVFS_F5_MT6577_E1_1_0   DVFS_F6
 #define DVFS_F6_MT6577_E1_1_0   DVFS_F7
+//#define DVFS_F7_MT6577_E1_1_0   DVFS_F7
+//#define DVFS_F8_MT6577_E1_1_0   DVFS_F8
 
 #define DVFS_F1_MT6577_E1_1_2   DVFS_F1
 #define DVFS_F2_MT6577_E1_1_2   DVFS_F2
@@ -217,6 +224,8 @@ static struct mtk_cpu_freq_info mt6575_freqs_e2[] = {
 * MT6577 E1 1.0G DVFS Table
 ****************************/
 static struct mtk_cpu_freq_info mt6577_freqs_e1_1_0[] = {
+    //OP(DVFS_F8_MT6577_E1_1_0),
+    //OP(DVFS_F7_MT6577_E1_1_0),
     OP(DVFS_F6_MT6577_E1_1_0),
     OP(DVFS_F5_MT6577_E1_1_0),
     OP(DVFS_F4_MT6577_E1_1_0),

@@ -448,24 +448,20 @@ static int KXTF9_ReadData(struct i2c_client *client, s16 data[KXTF9_AXES_NUM])
 /*----------------------------------------------------------------------------*/
 static int KXTF9_ReadOffset(struct i2c_client *client, s8 ofs[KXTF9_AXES_NUM])
 {    
-	int err;
-
 	ofs[1]=ofs[2]=ofs[0]=0x00;
 
 	printk("offesx=%x, y=%x, z=%x",ofs[0],ofs[1],ofs[2]);
 	
-	return err;    
+	return 0;    
 }
 /*----------------------------------------------------------------------------*/
 static int KXTF9_ResetCalibration(struct i2c_client *client)
 {
 	struct kxtf9_i2c_data *obj = i2c_get_clientdata(client);
 	u8 ofs[4]={0,0,0,0};
-	int err;
-
 	memset(obj->cali_sw, 0x00, sizeof(obj->cali_sw));
 	memset(obj->offset, 0x00, sizeof(obj->offset));
-	return err;    
+	return 0;    
 }
 /*----------------------------------------------------------------------------*/
 static int KXTF9_ReadCalibration(struct i2c_client *client, int dat[KXTF9_AXES_NUM])
@@ -1450,7 +1446,7 @@ static ssize_t store_register_value(struct device_driver *ddri, char *buf, size_
 	memset(databuf, 0, sizeof(u8)*2);    
 
 	input_value = simple_strtoul(buf, NULL, 16);
-	printk("input_value = 0x%2x \n", input_value);
+	printk("input_value = 0x%2lx \n", input_value);
 
 	if(NULL == obj)
 	{
@@ -1528,7 +1524,7 @@ static int kxtf9_create_attr(struct device_driver *driver)
 
 	for(idx = 0; idx < num; idx++)
 	{
-		if(err = driver_create_file(driver, kxtf9_attr_list[idx]))
+		if((err = driver_create_file(driver, kxtf9_attr_list[idx])))
 		{            
 			GSE_ERR("driver_create_file (%s) = %d\n", kxtf9_attr_list[idx]->attr.name, err);
 			break;

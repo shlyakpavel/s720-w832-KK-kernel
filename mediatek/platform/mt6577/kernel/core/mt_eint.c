@@ -41,7 +41,7 @@ eint_func EINT_FUNC;
 static eint_func EINT_FUNC;
 #endif
 struct wake_lock EINT_suspend_lock;
-static unsigned int cur_eint_num;
+//static unsigned int cur_eint_num;
 static int  mt_eint_init(void);
 static void mt_eint_dis_hw_debounce(unsigned int eint_num);
  static void mt_eint_en_hw_debounce(unsigned int eint_num);
@@ -748,7 +748,7 @@ int get_eint_attribute(char *name, unsigned int name_len, unsigned int type, cha
  
     return ERR_SIM_HOT_PLUG_QUERY_STRING;
 }
-#if 1
+#if 0 //reverted by Pavel to avoid "defined but not used" warning
 //This function unmasks Direct External Interrupt
 static void DEINT_Unmask(unsigned int deint_no)
 {
@@ -806,7 +806,7 @@ void mt_eint_registration(unsigned int eint_num, unsigned int flag,
 static int __init mt_eint_init(void)
 {
     unsigned int i;
-    int ret;
+    //int ret;
     unsigned int ap_domain = 0xFFFFFFFF;
 #if defined(CUST_EINT_AST_DATA_INTR_NUM) || defined(CUST_EINT_AST_WAKEUP_INTR_NUM) || defined(CUST_EINT_AST_RFCONFLICT_INTR_NUM)
     unsigned int md_counter = 0;

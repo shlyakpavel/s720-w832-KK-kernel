@@ -41,8 +41,6 @@ static int __devinit tpd_probe(struct i2c_client *client, const struct i2c_devic
 static int tpd_detect (struct i2c_client *client, struct i2c_board_info *info);
 static int __devexit tpd_remove(struct i2c_client *client);
 static int touch_event_handler(void *unused);
- 
-static int boot_mode = 0;
 static int tpd_halt=0; 
 static int tpd_flag = 0;
 static int point_num = 0;
@@ -97,7 +95,6 @@ static int tpd_wb_start_local[TPD_WARP_CNT] = TPD_WARP_START;
 static int tpd_wb_end_local[TPD_WARP_CNT]   = TPD_WARP_END;
 #endif
 #if (defined(TPD_HAVE_CALIBRATION) && !defined(TPD_CUSTOM_CALIBRATION))
-static int tpd_calmat_local[8]     = TPD_CALIBRATION_MATRIX;
 static int tpd_def_calmat_local[8] = TPD_CALIBRATION_MATRIX;
 #endif
 
