@@ -1104,7 +1104,7 @@ static void hp_reset_strategy(void)
 	mutex_unlock(&hp_mutex);
 }
 
-static void hp_work_handler(struct work_struct *work)
+static void __cpuinit hp_work_handler(struct work_struct *work)
 {
 	if (mutex_trylock(&hp_onoff_mutex))
 	{

@@ -858,7 +858,7 @@ static irqreturn_t GPT_LISR(int irq, void *dev_id)
  Initialize GPT Module
 ******************************************************************************/
 
-static void mtk_gpt_init(void);
+static void __init mtk_gpt_init(void);
 
 static void mtk_gpt_debug_function(GPT_NUM numGPT)
 {
@@ -1049,7 +1049,7 @@ static void mtk_gpt_set_mode(enum clock_event_mode mode,
     }
 }
 
-struct mt65xx_clock mtk_gpt =
+struct mt65xx_clock __refdata mtk_gpt =
 {
     .clockevent =
     {
@@ -1081,7 +1081,7 @@ struct mt65xx_clock mtk_gpt =
     .init_func = mtk_gpt_init,
 };
 
-static void mtk_gpt_init(void)
+static void __init mtk_gpt_init(void)
 {
     struct clock_event_device *evt = &mtk_gpt.clockevent;
     struct clocksource *cs = &mtk_gpt.clocksource;

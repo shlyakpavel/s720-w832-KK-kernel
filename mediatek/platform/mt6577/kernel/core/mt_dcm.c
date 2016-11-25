@@ -1284,7 +1284,7 @@ void disable_low_power_settings(void)
 }
 #endif
 
-void factory_cpu0_idle_test(void)
+void __cpuinit factory_cpu0_idle_test(void)
 {
     int cpu = 0;
 #ifdef CONFIG_SMP
@@ -1540,7 +1540,7 @@ static ssize_t idle_state_show(struct kobject *kobj, struct kobj_attribute *attr
     return len;
 }
 
-static ssize_t idle_state_store(struct kobject *kobj, struct kobj_attribute *attr,const char *buf, size_t n)
+static ssize_t __cpuinit idle_state_store(struct kobject *kobj, struct kobj_attribute *attr,const char *buf, size_t n)
 {
     unsigned int test_mode;
 
