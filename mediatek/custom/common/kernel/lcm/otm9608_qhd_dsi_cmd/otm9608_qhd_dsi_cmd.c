@@ -124,6 +124,20 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 #define read_reg(cmd)											lcm_util.dsi_dcs_read_lcm_reg(cmd)
 #define read_reg_v2(cmd, buffer, buffer_size)   				lcm_util.dsi_dcs_read_lcm_reg_v2(cmd, buffer, buffer_size)
 
+//Append by Jieve Liu
+//Begin{
+#define LCM_INIT_TABLE_SIZE_MAX     2048
+#define REGFLAG_DELAY             		0XFE
+#define REGFLAG_END_OF_TABLE      	0xFD   // END OF REGISTERS MARKER
+
+typedef struct _LCM_SETTING_ITEM {
+	unsigned char cmd;
+	unsigned char count;
+	unsigned char params[0];
+}LCM_SETTING_ITEM;
+
+//}Append by Jieve Liu
+//End
 static unsigned char lcm_initialization_setting[LCM_INIT_TABLE_SIZE_MAX] = {
 /*	cmd,		count,	params*/
 	0x00,	1,		0x00,
@@ -655,7 +669,7 @@ LCM_DRIVER otm9608a_dsi_lcm_drv =
 	.update         = lcm_update,
 #endif
 #if !defined(BUILD_UBOOT) && !defined(BUILD_LK)
-    .get_initialization_settings = get_initialization_settings,
-    .set_initialization_settings = set_initialization_settings,
+	//.get_initialization_settings = get_initialization_settings,
+	//.set_initialization_settings = set_initialization_settings,
 #endif
     };
