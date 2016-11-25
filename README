@@ -1,6 +1,6 @@
-=========================================================
-= 3.4.67 kernel source code for Lenovo s720 (MT6577) =
-=========================================================
+=======================================================================
+= 3.4.67 kernel source code for Lenovo s720 and Philips w832 (MT6577) =
+=======================================================================
 
 *************************************
 * NOTE: This kernel is for KK 4.4.2 *
@@ -19,7 +19,8 @@ In order to get kernel compilation working, make sure you follow one of these st
 
 - To begin with the build process:
   -- Go back to project root folder
-  -- Run command: ./makeMtk -o=TARGET_BUILD_VARIANT=user lenovo77_s720 n k
+  -- Run command: ./makeMtk lenovo77_s720 n k to compile lenovo s720 kernel
+  -- Run command: ./makeMtk w832 n k to compile Philips W832 kernel
 
 - Once finished, you will find:
   -- The new kernel file in the folder "/out/Download/flash/"
