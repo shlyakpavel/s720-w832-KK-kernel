@@ -8,7 +8,7 @@ ANDROID_JAVA_HOME=$JAVA_HOME
 export ANDROID_JAVA_HOME
 
 # Overwrite PATH environment setting for JDK & arm-eabi if already exists
-PATH=$JAVA_HOME/bin:$PWD/prebuilts/arm-cortex_a9-linux-gnueabihf-linaro_4.9.3-2015.01/bin/:$PATH
+PATH=$JAVA_HOME/bin:$PWD/prebuilts/gcc-linaro-6.1.1-2016.08-x86_64_arm-linux-gnueabihf/bin/:$PATH
 export PATH
 
 # Add MediaTek developed Python libraries path into PYTHONPATH
