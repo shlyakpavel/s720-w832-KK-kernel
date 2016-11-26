@@ -421,7 +421,7 @@ long kpd_dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	//void __user *uarg = (void __user *)arg;
 
-	unsigned long key_lock = arg;
+	//unsigned long key_lock = arg;
 	
 	switch (cmd) {
 #if KPD_AUTOTEST

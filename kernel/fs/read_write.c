@@ -454,25 +454,6 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
 			}
 		}
 	}
-//#ifdef LIMIT_SDCARD_SIZE
-#if 0
-	//if(!memcmp(mount_data->mnt_mountpoint->d_name.name, "emulated", 8)){
-	if(!memcmp(file->f_path.mnt->mnt_sb->s_type->name, "fuse", 5)){	
-		store -= count;
-		if(store <= (data_free_size_th  + CHECK_1TH*2)){		
-			vfs_statfs(&file->f_path, &stat);
-			store = stat.f_bfree * stat.f_bsize + data_free_size_th;
-			//printk("initialize data free size when acess sdcard0 ,%llx\n",store);
-			store -= count;
-			if (store <= data_free_size_th) {
-				//printk("wite sdcard0 over flow, %llx\n",store);
-				store += count;
-				return -ENOSPC;
-			}
-		}
-		store +=count;
-	}
-#endif
 
 #ifdef MTK_IO_PERFORMANCE_DEBUG 
 	if (g_mtk_mmc_clear == 0){

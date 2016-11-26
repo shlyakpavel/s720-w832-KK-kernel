@@ -26,14 +26,14 @@
 #define TPD_CONDITION_SWITCH
 #define TPD_RESET_ISSUE_WORKAROUND
 #define TPD_MAX_RESET_COUNT 3
-//#define TPD_X_RES (480)
-//#define TPD_Y_RES (800)
+#if 0
 #define TPD_WARP_Y(y) y//( TPD_Y_RES - 1 - y ) zhaoshaopeng 
 #define TPD_WARP_X(x) x
-/*
+#else
 #define TPD_WARP_X(x)  (TPD_X_RES - 1 - x)
 #define TPD_WARP_Y(y)  y
-//(TPD_Y_RES - 1 - y)*/
+//(TPD_Y_RES - 1 - y)
+#endif
 
 #define TPD_HAVE_BUTTON
 #define TPD_BUTTON_HEIGH        (100)//(100)

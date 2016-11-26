@@ -294,7 +294,7 @@ int __init ccci_rpc_init(void)
     return 0;
 }
 
-void __exit ccci_rpc_exit(void)
+void ccci_rpc_exit(void)
 {
 	CCCI_RPC_MSG("deinit\n");
 #if 0

@@ -1565,7 +1565,15 @@ static ssize_t __cpuinit idle_state_store(struct kobject *kobj, struct kobj_attr
 
     return -EINVAL;
 }
-dcm_attr(idle_state);
+//dcm_attr(idle_state);
+static struct kobj_attribute __refdata idle_state_attr = {
+    .attr = {
+        .name = "idle_state",
+        .mode = 0644,
+    },
+    .show = idle_state_show,
+    .store = idle_state_store,
+};
 
 static ssize_t dcm_state_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
