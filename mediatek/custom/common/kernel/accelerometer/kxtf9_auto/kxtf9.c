@@ -155,15 +155,8 @@
 
 /*----------------------------------------------------------------------------*/
 static const struct i2c_device_id kxtf9_i2c_id[] = {{KXTF9_DEV_NAME,0},{}};
-/*the adapter id will be available in customization*/
-#if 0
-static unsigned short kxtf9_force[] = {0x00, KXTF9_I2C_SLAVE_ADDR, I2C_CLIENT_END, I2C_CLIENT_END};
-static const unsigned short *const kxtf9_forces[] = { kxtf9_force, NULL };
-static struct i2c_client_address_data kxtf9_addr_data = { .forces = kxtf9_forces,};
-#else
 static struct i2c_board_info __initdata i2c_kxtf9={ I2C_BOARD_INFO("KXTF9", (0x1E>>1))};
 
-#endif
 /*----------------------------------------------------------------------------*/
 static int kxtf9_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id); 
 static int kxtf9_i2c_remove(struct i2c_client *client);
@@ -244,7 +237,6 @@ static struct i2c_driver kxtf9_i2c_driver = {
     .resume             = kxtf9_resume,
 #endif
 	.id_table = kxtf9_i2c_id,
-	//.address_data = &kxtf9_addr_data,
 };
 
 static struct sensor_init_info kxtf9_init_info = {
@@ -313,7 +305,7 @@ static void KXTF9_power(struct acc_hw *hw, unsigned int on)
 static int KXTF9_SetDataResolution(struct kxtf9_i2c_data *obj)
 {
 	int err;
-	u8  databuf[2], reso;
+	u8  databuf[2];
 
 	KXTF9_SetPowerMode(obj->client, false);
 
@@ -351,16 +343,12 @@ static int KXTF9_ReadData(struct i2c_client *client, s16 data[KXTF9_AXES_NUM])
 	u8 buf[KXTF9_DATA_LEN] = {0};
 	int err = 0;
 	int i;
-	int tmp=0;
-	u8 ofs[3];
-
-
 
 	if(NULL == client)
 	{
 		err = -EINVAL;
 	}
-	else if(err = hwmsen_read_block(client, addr, buf, 0x06))
+	else if((err = hwmsen_read_block(client, addr, buf, 0x06)))
 	{
 		GSE_ERR("error: %d\n", err);
 	}
@@ -458,7 +446,6 @@ static int KXTF9_ReadOffset(struct i2c_client *client, s8 ofs[KXTF9_AXES_NUM])
 static int KXTF9_ResetCalibration(struct i2c_client *client)
 {
 	struct kxtf9_i2c_data *obj = i2c_get_clientdata(client);
-	u8 ofs[4]={0,0,0,0};
 	memset(obj->cali_sw, 0x00, sizeof(obj->cali_sw));
 	memset(obj->offset, 0x00, sizeof(obj->offset));
 	return 0;    
@@ -467,7 +454,6 @@ static int KXTF9_ResetCalibration(struct i2c_client *client)
 static int KXTF9_ReadCalibration(struct i2c_client *client, int dat[KXTF9_AXES_NUM])
 {
     struct kxtf9_i2c_data *obj = i2c_get_clientdata(client);
-    int err;
     int mul;
 
 	#ifdef SW_CALIBRATION
@@ -491,15 +477,12 @@ static int KXTF9_ReadCalibrationEx(struct i2c_client *client, int act[KXTF9_AXES
 {  
 	/*raw: the raw calibration data; act: the actual calibration data*/
 	struct kxtf9_i2c_data *obj = i2c_get_clientdata(client);
-	int err;
 	int mul;
-
- 
 
 	#ifdef SW_CALIBRATION
 		mul = 0;//only SW Calibration, disable HW Calibration
 	#else
-		if(err = KXTF9_ReadOffset(client, obj->offset))
+		if(*err = KXTF9_ReadOffset(client, obj->offset)))
 		{
 			GSE_ERR("read offset fail, %d\n", err);
 			return err;
@@ -523,8 +506,6 @@ static int KXTF9_WriteCalibration(struct i2c_client *client, int dat[KXTF9_AXES_
 	struct kxtf9_i2c_data *obj = i2c_get_clientdata(client);
 	int err;
 	int cali[KXTF9_AXES_NUM], raw[KXTF9_AXES_NUM];
-	int lsb = kxtf9_offset_resolution.sensitivity;
-	int divisor = obj->reso->sensitivity/lsb;
 
 	if(err = KXTF9_ReadCalibrationEx(client, cali, raw))	/*offset will be updated in obj->offset*/
 	{ 
@@ -632,7 +613,6 @@ static int KXTF9_SetPowerMode(struct i2c_client *client, bool enable)
 	u8 databuf[2];    
 	int res = 0;
 	u8 addr = KXTF9_REG_POWER_CTL;
-	struct kxtf9_i2c_data *obj = i2c_get_clientdata(client);
 	
 	
 	if(enable == sensor_power)
@@ -990,23 +970,7 @@ static int KXTF9_InitSelfTest(struct i2c_client *client)
 	else
 		return KXTF9_SUCCESS;
 }
-/*----------------------------------------------------------------------------*/
-static int KXTF9_JudgeTestResult(struct i2c_client *client, s32 prv[KXTF9_AXES_NUM], s32 nxt[KXTF9_AXES_NUM])
-{
 
-    int res=0;
-	u8 test_result=0;
-    if(res = hwmsen_read_byte(client, 0x0c, &test_result))
-        return res;
-
-	printk("test_result = %x \n",test_result);
-    if ( test_result != 0xaa ) 
-	{
-        GSE_ERR("KXTF9_JudgeTestResult failt\n");
-        res = -EINVAL;
-    }
-    return res;
-}
 /*----------------------------------------------------------------------------*/
 static ssize_t show_chipinfo_value(struct device_driver *ddri, char *buf)
 {
@@ -1021,22 +985,6 @@ static ssize_t show_chipinfo_value(struct device_driver *ddri, char *buf)
 	KXTF9_ReadChipInfo(client, strbuf, KXTF9_BUFSIZE);
 	return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);        
 }
-
-static ssize_t gsensor_init(struct device_driver *ddri, char *buf, size_t count)
-	{
-		struct i2c_client *client = kxtf9_i2c_client;
-		char strbuf[KXTF9_BUFSIZE];
-		
-		if(NULL == client)
-		{
-			GSE_ERR("i2c client is null!!\n");
-			return 0;
-		}
-		kxtf9_init_client(client, 1);
-		return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);			
-	}
-
-
 
 /*----------------------------------------------------------------------------*/
 static ssize_t show_sensordata_value(struct device_driver *ddri, char *buf)
@@ -1054,27 +1002,12 @@ static ssize_t show_sensordata_value(struct device_driver *ddri, char *buf)
 	return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);            
 }
 
-static ssize_t show_sensorrawdata_value(struct device_driver *ddri, char *buf, size_t count)
-	{
-		struct i2c_client *client = kxtf9_i2c_client;
-		char strbuf[KXTF9_BUFSIZE];
-		
-		if(NULL == client)
-		{
-			GSE_ERR("i2c client is null!!\n");
-			return 0;
-		}
-		//KXTF9_ReadSensorData(client, strbuf, KXTF9_BUFSIZE);
-		KXTF9_ReadRawData(client, strbuf);
-		return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);			
-	}
-
 /*----------------------------------------------------------------------------*/
 static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
 {
 	struct i2c_client *client = kxtf9_i2c_client;
 	struct kxtf9_i2c_data *obj;
-	int err, len = 0, mul;
+	int len = 0, mul;
 	int tmp[KXTF9_AXES_NUM];
 
 	if(NULL == client)
@@ -1087,11 +1020,11 @@ static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
 
 
 
-	if(err = KXTF9_ReadOffset(client, obj->offset))
+	if(KXTF9_ReadOffset(client, obj->offset))
 	{
 		return -EINVAL;
 	}
-	else if(err = KXTF9_ReadCalibration(client, tmp))
+	else if(KXTF9_ReadCalibration(client, tmp))
 	{
 		return -EINVAL;
 	}
@@ -1122,7 +1055,7 @@ static ssize_t store_cali_value(struct device_driver *ddri, char *buf, size_t co
 
 	if(!strncmp(buf, "rst", 3))
 	{
-		if(err = KXTF9_ResetCalibration(client))
+		if((err = KXTF9_ResetCalibration(client)))
 		{
 			GSE_ERR("reset offset err = %d\n", err);
 		}	
@@ -1132,7 +1065,7 @@ static ssize_t store_cali_value(struct device_driver *ddri, char *buf, size_t co
 		dat[KXTF9_AXIS_X] = x;
 		dat[KXTF9_AXIS_Y] = y;
 		dat[KXTF9_AXIS_Z] = z;
-		if(err = KXTF9_WriteCalibration(client, dat))
+		if((err = KXTF9_WriteCalibration(client, dat)))
 		{
 			GSE_ERR("write calibration err = %d\n", err);
 		}		
@@ -1148,17 +1081,14 @@ static ssize_t store_cali_value(struct device_driver *ddri, char *buf, size_t co
 static ssize_t show_self_value(struct device_driver *ddri, char *buf)
 {
 	struct i2c_client *client = kxtf9_i2c_client;
-	struct kxtf9_i2c_data *obj;
 
 	if(NULL == client)
 	{
 		GSE_ERR("i2c client is null!!\n");
 		return 0;
 	}
-
-	//obj = i2c_get_clientdata(client);
 	
-    return snprintf(buf, 8, "%s\n", selftestRes);
+    	return snprintf(buf, 8, "%s\n", selftestRes);
 }
 /*----------------------------------------------------------------------------*/
 static ssize_t store_self_value(struct device_driver *ddri, char *buf, size_t count)
@@ -1168,10 +1098,8 @@ static ssize_t store_self_value(struct device_driver *ddri, char *buf, size_t co
 	};
 	
 	struct i2c_client *client = kxtf9_i2c_client;  
-	int idx, res, num;
+	int res, num;
 	struct item *prv = NULL, *nxt = NULL;
-	s32 avg_prv[KXTF9_AXES_NUM] = {0, 0, 0};
-	s32 avg_nxt[KXTF9_AXES_NUM] = {0, 0, 0};
 	u8 data;
 
 
@@ -1420,8 +1348,6 @@ static u8 i2c_dev_reg =0 ;
 
 static ssize_t show_register(struct device_driver *pdri, char *buf)
 {
-	int input_value;
-		
 	printk("i2c_dev_reg is 0x%2x \n", i2c_dev_reg);
 
 	return 0;
@@ -1429,8 +1355,6 @@ static ssize_t show_register(struct device_driver *pdri, char *buf)
 
 static ssize_t store_register(struct device_driver *ddri, char *buf, size_t count)
 {
-	unsigned long input_value;
-
 	i2c_dev_reg = simple_strtoul(buf, NULL, 16);
 	printk("set i2c_dev_reg = 0x%2x \n", i2c_dev_reg);
 
@@ -1907,7 +1831,6 @@ static int kxtf9_resume(struct i2c_client *client)
 static void kxtf9_early_suspend(struct early_suspend *h) 
 {
 	struct kxtf9_i2c_data *obj = container_of(h, struct kxtf9_i2c_data, early_drv);   
-	int err;
 	GSE_FUN();    
 
 	if(obj == NULL)
@@ -1916,12 +1839,11 @@ static void kxtf9_early_suspend(struct early_suspend *h)
 		return;
 	}
 	atomic_set(&obj->suspend, 1); 
-	if(err = KXTF9_SetPowerMode(obj->client, false))
+	if(KXTF9_SetPowerMode(obj->client, false))
 	{
 		GSE_ERR("write power control fail!!\n");
 		return;
 	}
-
 	sensor_power = false;
 	
 	KXTF9_power(obj->hw, 0);
@@ -1930,7 +1852,6 @@ static void kxtf9_early_suspend(struct early_suspend *h)
 static void kxtf9_late_resume(struct early_suspend *h)
 {
 	struct kxtf9_i2c_data *obj = container_of(h, struct kxtf9_i2c_data, early_drv);         
-	int err;
 	GSE_FUN();
 
 	if(obj == NULL)
@@ -1940,11 +1861,6 @@ static void kxtf9_late_resume(struct early_suspend *h)
 	}
 
 	KXTF9_power(obj->hw, 1);
-//	if(err = kxtf9_init_client(obj->client, 0))
-//	{
-//		GSE_ERR("initialize client fail!!\n");
-//		return;        
-//	}
 	atomic_set(&obj->suspend, 0);    
 }
 /*----------------------------------------------------------------------------*/
@@ -2008,13 +1924,13 @@ static int kxtf9_i2c_probe(struct i2c_client *client, const struct i2c_device_id
 
 	kxtf9_i2c_client = new_client;	
 
-	if(err = kxtf9_init_client(new_client, 1))
+	if((err = kxtf9_init_client(new_client, 1)))
 	{
 		goto exit_init_failed;
 	}
 	
 
-	if(err = misc_register(&kxtf9_device))
+	if((err = misc_register(&kxtf9_device)))
 	{
 		GSE_ERR("kxtf9_device register failed\n");
 		goto exit_misc_device_register_failed;
