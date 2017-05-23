@@ -778,16 +778,13 @@ static void lcm_get_params(LCM_PARAMS *params)
 
 static void lcm_init(void)
 {
-
-    unsigned char lcd_id =0;
-    SET_RESET_PIN(1);
-    MDELAY(10);	
-    SET_RESET_PIN(0);
-    MDELAY(150);
-    SET_RESET_PIN(1);
-    MDELAY(10);
-
-		push_table(lcm_initialization_setting, sizeof(lcm_initialization_setting) / sizeof(struct LCM_setting_table), 1);
+	SET_RESET_PIN(1);
+	MDELAY(10);	
+	SET_RESET_PIN(0);
+	MDELAY(150);
+	SET_RESET_PIN(1);
+	MDELAY(10);
+	push_table(lcm_initialization_setting, sizeof(lcm_initialization_setting) / sizeof(struct LCM_setting_table), 1);
 }
 
 
@@ -857,58 +854,6 @@ static void lcm_setbacklight(unsigned int level)
 	push_table(lcm_backlight_level_setting, sizeof(lcm_backlight_level_setting) / sizeof(struct LCM_setting_table), 1);
 }
 
-static unsigned int lcm_esd_check(void)
-{
-#ifndef BUILD_UBOOT
-        if(lcm_esd_test)
-        {
-            lcm_esd_test = FALSE;
-            return TRUE;
-        }
-
-        /// please notice: the max return packet size is 1
-        /// if you want to change it, you can refer to the following marked code
-        /// but read_reg currently only support read no more than 4 bytes....
-        /// if you need to read more, please let BinHan knows.
-        /*
-                unsigned int data_array[16];
-                unsigned int max_return_size = 1;
-                
-                data_array[0]= 0x00003700 | (max_return_size << 16);    
-                
-                dsi_set_cmdq(&data_array, 1, 1);
-        */
-
-        if(read_reg(0xB6) == 0x42)
-        {
-            return FALSE;
-        }
-        else
-        {            
-            return TRUE;
-        }
-#endif
-}
-
-static unsigned int lcm_esd_recover(void)
-{
-    unsigned char para = 0;
-
-    SET_RESET_PIN(1);
-    SET_RESET_PIN(0);
-    MDELAY(1);
-    SET_RESET_PIN(1);
-    MDELAY(120);
-	  push_table(lcm_initialization_setting, sizeof(lcm_initialization_setting) / sizeof(struct LCM_setting_table), 1);
-    MDELAY(10);
-	  push_table(lcm_sleep_out_setting, sizeof(lcm_sleep_out_setting) / sizeof(struct LCM_setting_table), 1);
-    MDELAY(10);
-    dsi_set_cmdq_V2(0x35, 1, &para, 1);     ///enable TE
-    MDELAY(10);
-
-    return TRUE;
-}
-
 static unsigned int lcm_compare_id(void)
 {
 	volatile unsigned int id = 0;
@@ -957,10 +902,6 @@ LCM_DRIVER otm9608a_lcm_drv =
 #if (LCM_DSI_CMD_MODE)
 	.update         = lcm_update,
 	.set_backlight	= lcm_setbacklight,
-	//.set_pwm        = lcm_setpwm,
-	//.get_pwm        = lcm_getpwm,
-	//.esd_check   = lcm_esd_check,
-        //.esd_recover   = lcm_esd_recover,
 	.compare_id    = lcm_compare_id,
 #endif
 };
