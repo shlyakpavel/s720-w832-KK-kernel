@@ -415,6 +415,7 @@ static int BMA222E_ReadOffset(struct i2c_client *client, s8 ofs[BMA222E_AXES_NUM
 	int err;
 #ifdef SW_CALIBRATION
 	ofs[0]=ofs[1]=ofs[2]=0x0;
+	err = 0;
 #else
 	if(err = hwmsen_read_block(client, BMA222E_REG_OFSX, ofs, BMA222E_AXES_NUM))
 	{
@@ -429,12 +430,11 @@ static int BMA222E_ReadOffset(struct i2c_client *client, s8 ofs[BMA222E_AXES_NUM
 static int BMA222E_ResetCalibration(struct i2c_client *client)
 {
 	struct bma222E_i2c_data *obj = i2c_get_clientdata(client);
-	u8 ofs[4]={0,0,0,0};
 	int err;
-	
 	#ifdef SW_CALIBRATION
-		
+		err= 0;
 	#else
+		u8 ofs[4]={0,0,0,0};
 		if(err = hwmsen_write_block(client, BMA222E_REG_OFSX, ofs, 4))
 		{
 			GSE_ERR("error: %d\n", err);
@@ -473,14 +473,12 @@ static int BMA222E_ReadCalibrationEx(struct i2c_client *client, int act[BMA222E_
 {  
 	/*raw: the raw calibration data; act: the actual calibration data*/
 	struct bma222E_i2c_data *obj = i2c_get_clientdata(client);
-	int err;
 	int mul;
-
- 
 
 	#ifdef SW_CALIBRATION
 		mul = 0;//only SW Calibration, disable HW Calibration
 	#else
+		int err;
 		if(err = BMA222E_ReadOffset(client, obj->offset))
 		{
 			GSE_ERR("read offset fail, %d\n", err);
@@ -506,7 +504,6 @@ static int BMA222E_WriteCalibration(struct i2c_client *client, int dat[BMA222E_A
 	int err;
 	int cali[BMA222E_AXES_NUM], raw[BMA222E_AXES_NUM];
 	int lsb = bma222E_offset_resolution.sensitivity;
-	int divisor = obj->reso->sensitivity/lsb;
 
 	if(err = BMA222E_ReadCalibrationEx(client, cali, raw))	/*offset will be updated in obj->offset*/
 	{ 
@@ -532,6 +529,7 @@ static int BMA222E_WriteCalibration(struct i2c_client *client, int dat[BMA222E_A
 	obj->cali_sw[BMA222E_AXIS_Y] = obj->cvt.sign[BMA222E_AXIS_Y]*(cali[obj->cvt.map[BMA222E_AXIS_Y]]);
 	obj->cali_sw[BMA222E_AXIS_Z] = obj->cvt.sign[BMA222E_AXIS_Z]*(cali[obj->cvt.map[BMA222E_AXIS_Z]]);	
 #else
+	int divisor = obj->reso->sensitivity/lsb;
 	obj->offset[BMA222E_AXIS_X] = (s8)(obj->cvt.sign[BMA222E_AXIS_X]*(cali[obj->cvt.map[BMA222E_AXIS_X]])/(divisor));
 	obj->offset[BMA222E_AXIS_Y] = (s8)(obj->cvt.sign[BMA222E_AXIS_Y]*(cali[obj->cvt.map[BMA222E_AXIS_Y]])/(divisor));
 	obj->offset[BMA222E_AXIS_Z] = (s8)(obj->cvt.sign[BMA222E_AXIS_Z]*(cali[obj->cvt.map[BMA222E_AXIS_Z]])/(divisor));
@@ -721,8 +719,7 @@ static int BMA222E_SetBWRate(struct i2c_client *client, u8 bwrate)
 }
 /*----------------------------------------------------------------------------*/
 static int BMA222E_SetIntEnable(struct i2c_client *client, u8 intenable)
-{
-			u8 databuf[10];    
+{   
 			int res = 0;
 		
 			res = hwmsen_write_byte(client, BMA222E_INT_REG_1, 0x00);
