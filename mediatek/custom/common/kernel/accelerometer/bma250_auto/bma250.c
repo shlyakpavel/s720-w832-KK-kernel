@@ -472,32 +472,29 @@ static int BMA250_ReadOffset(struct i2c_client *client, s8 ofs[BMA250_AXES_NUM])
 	int err;
 #ifdef SW_CALIBRATION
 	ofs[0]=ofs[1]=ofs[2]=0x0;
+	err=0;
 #else
 	if(err = hwmsen_read_block(client, BMA250_REG_OFSX, ofs, BMA250_AXES_NUM))
 	{
 		GSE_ERR("error: %d\n", err);
 	}
-#endif
-	//printk("offesx=%x, y=%x, z=%x",ofs[0],ofs[1],ofs[2]);
-	
+#endif	
 	return err;    
 }
 /*----------------------------------------------------------------------------*/
 static int BMA250_ResetCalibration(struct i2c_client *client)
 {
 	struct bma250_i2c_data *obj = i2c_get_clientdata(client);
-	u8 ofs[4]={0,0,0,0};
 	int err;
-	
 	#ifdef SW_CALIBRATION
-		
+		err=0;	
 	#else
+		u8 ofs[4]={0,0,0,0};
 		if(err = hwmsen_write_block(client, BMA250_REG_OFSX, ofs, 4))
 		{
 			GSE_ERR("error: %d\n", err);
 		}
 	#endif
-
 	memset(obj->cali_sw, 0x00, sizeof(obj->cali_sw));
 	memset(obj->offset, 0x00, sizeof(obj->offset));
 	return err;    
@@ -562,8 +559,6 @@ static int BMA250_WriteCalibration(struct i2c_client *client, int dat[BMA250_AXE
 	struct bma250_i2c_data *obj = i2c_get_clientdata(client);
 	int err = 0;
 	int cali[BMA250_AXES_NUM], raw[BMA250_AXES_NUM];
-	int lsb = bma250_offset_resolution.sensitivity;
-	int divisor = obj->reso->sensitivity/lsb;
 
 	if(err = BMA250_ReadCalibrationEx(client, cali, raw))	/*offset will be updated in obj->offset*/
 	{ 
@@ -589,6 +584,8 @@ static int BMA250_WriteCalibration(struct i2c_client *client, int dat[BMA250_AXE
 	obj->cali_sw[BMA250_AXIS_Y] = obj->cvt.sign[BMA250_AXIS_Y]*(cali[obj->cvt.map[BMA250_AXIS_Y]]);
 	obj->cali_sw[BMA250_AXIS_Z] = obj->cvt.sign[BMA250_AXIS_Z]*(cali[obj->cvt.map[BMA250_AXIS_Z]]);	
 #else
+	int lsb = bma250_offset_resolution.sensitivity;
+	int divisor = obj->reso->sensitivity/lsb;
 	obj->offset[BMA250_AXIS_X] = (s8)(obj->cvt.sign[BMA250_AXIS_X]*(cali[obj->cvt.map[BMA250_AXIS_X]])/(divisor));
 	obj->offset[BMA250_AXIS_Y] = (s8)(obj->cvt.sign[BMA250_AXIS_Y]*(cali[obj->cvt.map[BMA250_AXIS_Y]])/(divisor));
 	obj->offset[BMA250_AXIS_Z] = (s8)(obj->cvt.sign[BMA250_AXIS_Z]*(cali[obj->cvt.map[BMA250_AXIS_Z]])/(divisor));
@@ -1303,7 +1300,7 @@ static ssize_t show_chipinfo_value(struct device_driver *ddri, char *buf)
 	BMA250_ReadChipInfo(client, strbuf, BMA250_BUFSIZE);
 	return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);        
 }
-
+#if 0
 static ssize_t gsensor_init(struct device_driver *ddri, char *buf, size_t count)
 	{
 		struct i2c_client *client = bma250_i2c_client;
@@ -1317,7 +1314,7 @@ static ssize_t gsensor_init(struct device_driver *ddri, char *buf, size_t count)
 		bma250_init_client(client, 1);
 		return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);			
 	}
-
+#endif
 /*----------------------------------------------------------------------------*/
 /*
 g sensor opmode for compass tilt compensation
@@ -1475,7 +1472,7 @@ static ssize_t show_sensordata_value(struct device_driver *ddri, char *buf)
 	//BMA250_ReadRawData(client, strbuf);
 	return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);            
 }
-
+#if 0
 static ssize_t show_sensorrawdata_value(struct device_driver *ddri, char *buf, size_t count)
 	{
 		struct i2c_client *client = bma250_i2c_client;
@@ -1490,7 +1487,7 @@ static ssize_t show_sensorrawdata_value(struct device_driver *ddri, char *buf, s
 		BMA250_ReadRawData(client, strbuf);
 		return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);			
 	}
-
+#endif
 /*----------------------------------------------------------------------------*/
 static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
 {
@@ -1571,7 +1568,6 @@ static ssize_t store_cali_value(struct device_driver *ddri, char *buf, size_t co
 static ssize_t show_self_value(struct device_driver *ddri, char *buf)
 {
 	struct i2c_client *client = bma250_i2c_client;
-	struct bma250_i2c_data *obj;
 
 	if(NULL == client)
 	{
@@ -1579,9 +1575,7 @@ static ssize_t show_self_value(struct device_driver *ddri, char *buf)
 		return 0;
 	}
 
-	//obj = i2c_get_clientdata(client);
-	
-    return snprintf(buf, 8, "%s\n", selftestRes);
+	return snprintf(buf, 8, "%s\n", selftestRes);
 }
 /*----------------------------------------------------------------------------*/
 static ssize_t store_self_value(struct device_driver *ddri, char *buf, size_t count)
@@ -1591,9 +1585,8 @@ static ssize_t store_self_value(struct device_driver *ddri, char *buf, size_t co
 	};
 	
 	struct i2c_client *client = bma250_i2c_client;  
-	int idx, res, num;
+	int num;
 	struct item *prv = NULL, *nxt = NULL;
-
 
 	if(1 != sscanf(buf, "%d", &num))
 	{
@@ -2242,23 +2235,13 @@ static int bma250_resume(struct i2c_client *client)
 static void bma250_early_suspend(struct early_suspend *h) 
 {
 	struct bma250_i2c_data *obj = container_of(h, struct bma250_i2c_data, early_drv);   
-	int err;
 	GSE_FUN();    
-
 	if(obj == NULL)
 	{
 		GSE_ERR("null pointer!!\n");
 		return;
 	}
 	atomic_set(&obj->suspend, 1); 
-	/*if(err = BMA250_SetPowerMode(obj->client, false))
-	{
-		GSE_ERR("write power control fail!!\n");
-		return;
-	}
-
-	sensor_power = false;*/  // cyy no need setpower
-	
 	BMA250_power(obj->hw, 0);
 }
 /*----------------------------------------------------------------------------*/

@@ -133,7 +133,6 @@ static struct i2c_board_info __initdata i2c_bma222E={ I2C_BOARD_INFO("BMA222E", 
 /*the adapter id will be available in customization*/
 //static unsigned short bma222E_force[] = {0x00, BMA222E_I2C_SLAVE_WRITE_ADDR, I2C_CLIENT_END, I2C_CLIENT_END};
 //static const unsigned short *const bma222E_forces[] = { bma222E_force, NULL };
-//static struct i2c_client_address_data bma222E_addr_data = { .forces = bma222E_forces,};
 
 /*----------------------------------------------------------------------------*/
 static int bma222E_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id); 
@@ -211,19 +210,18 @@ struct bma222E_i2c_data {
 };
 /*----------------------------------------------------------------------------*/
 static struct i2c_driver bma222E_i2c_driver = {
-    .driver = {
-        .owner          = THIS_MODULE,
-        .name           = BMA222E_DEV_NAME,
-    },
-	.probe      		= bma222E_i2c_probe,
-	.remove    			= bma222E_i2c_remove,
-	.detect				= bma222E_i2c_detect,
+	.driver = {
+		.owner          = THIS_MODULE,
+		.name           = BMA222E_DEV_NAME,
+	},
+	.probe      	= bma222E_i2c_probe,
+	.remove    	= bma222E_i2c_remove,
+	.detect		= bma222E_i2c_detect,
 #if !defined(CONFIG_HAS_EARLYSUSPEND)    
-    .suspend            = bma222E_suspend,
-    .resume             = bma222E_resume,
+	.suspend            = bma222E_suspend,
+	.resume             = bma222E_resume,
 #endif
 	.id_table = bma222E_i2c_id,
-	//.address_data = &bma222E_addr_data,
 };
 
 /*----------------------------------------------------------------------------*/
@@ -232,7 +230,7 @@ static struct i2c_client *bma222E_i2c_client = NULL;
 static struct bma222E_i2c_data *obj_i2c_data = NULL;
 static bool sensor_power = true;
 static GSENSOR_VECTOR3D gsensor_gain;
-static char selftestRes[8]= {0}; 
+//static char selftestRes[8]= {0}; 
 
 /*----------------------------------------------------------------------------*/
 #define GSE_TAG                  "[Gsensor] "
@@ -503,7 +501,6 @@ static int BMA222E_WriteCalibration(struct i2c_client *client, int dat[BMA222E_A
 	struct bma222E_i2c_data *obj = i2c_get_clientdata(client);
 	int err;
 	int cali[BMA222E_AXES_NUM], raw[BMA222E_AXES_NUM];
-	int lsb = bma222E_offset_resolution.sensitivity;
 
 	if(err = BMA222E_ReadCalibrationEx(client, cali, raw))	/*offset will be updated in obj->offset*/
 	{ 
@@ -529,6 +526,7 @@ static int BMA222E_WriteCalibration(struct i2c_client *client, int dat[BMA222E_A
 	obj->cali_sw[BMA222E_AXIS_Y] = obj->cvt.sign[BMA222E_AXIS_Y]*(cali[obj->cvt.map[BMA222E_AXIS_Y]]);
 	obj->cali_sw[BMA222E_AXIS_Z] = obj->cvt.sign[BMA222E_AXIS_Z]*(cali[obj->cvt.map[BMA222E_AXIS_Z]]);	
 #else
+	int lsb = bma222E_offset_resolution.sensitivity;
 	int divisor = obj->reso->sensitivity/lsb;
 	obj->offset[BMA222E_AXIS_X] = (s8)(obj->cvt.sign[BMA222E_AXIS_X]*(cali[obj->cvt.map[BMA222E_AXIS_X]])/(divisor));
 	obj->offset[BMA222E_AXIS_Y] = (s8)(obj->cvt.sign[BMA222E_AXIS_Y]*(cali[obj->cvt.map[BMA222E_AXIS_Y]])/(divisor));
@@ -962,6 +960,7 @@ static ssize_t show_chipinfo_value(struct device_driver *ddri, char *buf)
 	return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);        
 }
 
+#if 0
 static ssize_t gsensor_init(struct device_driver *ddri, char *buf, size_t count)
 	{
 		struct i2c_client *client = bma222E_i2c_client;
@@ -975,8 +974,7 @@ static ssize_t gsensor_init(struct device_driver *ddri, char *buf, size_t count)
 		bma222E_init_client(client, 1);
 		return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);			
 	}
-
-
+#endif
 
 /*----------------------------------------------------------------------------*/
 static ssize_t show_sensordata_value(struct device_driver *ddri, char *buf)
@@ -994,6 +992,7 @@ static ssize_t show_sensordata_value(struct device_driver *ddri, char *buf)
 	return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);            
 }
 
+#if 0
 static ssize_t show_sensorrawdata_value(struct device_driver *ddri, char *buf, size_t count)
 	{
 		struct i2c_client *client = bma222E_i2c_client;
@@ -1008,7 +1007,7 @@ static ssize_t show_sensorrawdata_value(struct device_driver *ddri, char *buf, s
 		BMA222E_ReadRawData(client, strbuf);
 		return snprintf(buf, PAGE_SIZE, "%s\n", strbuf);			
 	}
-
+#endif
 /*----------------------------------------------------------------------------*/
 static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
 {
