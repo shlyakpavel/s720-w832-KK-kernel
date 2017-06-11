@@ -387,252 +387,183 @@ void GC0309NightMode(kal_bool bEnable)	//approved
 *	None
 *
 *************************************************************************/
-void GC0309_Sensor_Init(void)	//approved
+void GC0309_Sensor_Init(void)	//Reversed twice by KosBeg and me
 {
-	GC0309_write_cmos_sensor(0xfe,0x80);   // soft reset	
-		
-	GC0309_SET_PAGE0;       // set page0
-	
-	GC0309_write_cmos_sensor(0x1a,0x16);   	
-	GC0309_write_cmos_sensor(0xd2,0x10);   // close AEC
-	GC0309_write_cmos_sensor(0x22,0x55);   // close AWB
-
-	GC0309_write_cmos_sensor(0x5a,0x56); 
-	GC0309_write_cmos_sensor(0x5b,0x40);
-	GC0309_write_cmos_sensor(0x5c,0x4a);			
-
-	GC0309_write_cmos_sensor(0x22,0x57); 
-		
-	GC0309_write_cmos_sensor(0x01,0xFA);  //was 0x26, fixed 	
-	GC0309_write_cmos_sensor(0x02,0x70);  //was 0x98, fixed
-	GC0309_write_cmos_sensor(0x0f,0x03);
-
-	GC0309_write_cmos_sensor(0xe2,0x00); 
-	GC0309_write_cmos_sensor(0xe3,0x64);  //was 0x50, fixed
-
-	GC0309_write_cmos_sensor(0x03,0x01); 
-	GC0309_write_cmos_sensor(0x04,0x2C);  //was 0x40, fixed
-
-	GC0309_write_cmos_sensor(0x05,0x00);
-	GC0309_write_cmos_sensor(0x06,0x00);
-	GC0309_write_cmos_sensor(0x07,0x00); 
-	GC0309_write_cmos_sensor(0x08,0x00); 
-	GC0309_write_cmos_sensor(0x09,0x01); 
-	GC0309_write_cmos_sensor(0x0a,0xe8); 
-	GC0309_write_cmos_sensor(0x0b,0x02); 
-	GC0309_write_cmos_sensor(0x0c,0x88); 
-	GC0309_write_cmos_sensor(0x0d,0x02); 
-	GC0309_write_cmos_sensor(0x0e,0x02); 
-	GC0309_write_cmos_sensor(0x10,0x22); 
-	GC0309_write_cmos_sensor(0x11,0x0d); 
-	GC0309_write_cmos_sensor(0x12,0x2a); 
-	GC0309_write_cmos_sensor(0x13,0x00); 
-	GC0309_write_cmos_sensor(0x14,0x10); // was 0x13, fixed	
-	GC0309_write_cmos_sensor(0x15,0x0a); 
-	GC0309_write_cmos_sensor(0x16,0x05); 
-	GC0309_write_cmos_sensor(0x17,0x01); 
-
-	GC0309_write_cmos_sensor(0x1b,0x03); 
-	GC0309_write_cmos_sensor(0x1c,0xc1); 
-	GC0309_write_cmos_sensor(0x1d,0x08); 
-	GC0309_write_cmos_sensor(0x1e,0x20);
-	GC0309_write_cmos_sensor(0x1f,0x16); 
-
-	GC0309_write_cmos_sensor(0x20,0xff); 
-	GC0309_write_cmos_sensor(0x21,0xf8); 
-	GC0309_write_cmos_sensor(0x24,0xa0); 
-	GC0309_write_cmos_sensor(0x25,0x0f);
-	//output sync_mode
-	GC0309_write_cmos_sensor(0x26,0x02); 
-	GC0309_write_cmos_sensor(0x2f,0x01); //level 1
-	/////////////////////////////////////////////////////////////////////
-	/////////////////////////// grab_t ////////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0x30,0xf7); 
-	GC0309_write_cmos_sensor(0x31,0x40);
-	GC0309_write_cmos_sensor(0x32,0x00); 
-	GC0309_write_cmos_sensor(0x39,0x04); 
-	GC0309_write_cmos_sensor(0x3a,0x20); 
-	GC0309_write_cmos_sensor(0x3b,0x20); 
-	GC0309_write_cmos_sensor(0x3c,0x02); 
-	GC0309_write_cmos_sensor(0x3d,0x02); 
-	GC0309_write_cmos_sensor(0x3e,0x02);
-	GC0309_write_cmos_sensor(0x3f,0x02); 
-	
-	//gain
-	GC0309_write_cmos_sensor(0x50,0x24); 
-	
-	GC0309_write_cmos_sensor(0x53,0x82); 
-	GC0309_write_cmos_sensor(0x54,0x80); 
-	GC0309_write_cmos_sensor(0x55,0x80); 
-	GC0309_write_cmos_sensor(0x56,0x82); 	//level 2
-	
-	/////////////////////////////////////////////////////////////////////
-	/////////////////////////// LSC_t  ////////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0x8b,0x20); 
-	GC0309_write_cmos_sensor(0x8c,0x20); 
-	GC0309_write_cmos_sensor(0x8d,0x20); 
-	GC0309_write_cmos_sensor(0x8e,0x10); 
-	GC0309_write_cmos_sensor(0x8f,0x10); 
-	GC0309_write_cmos_sensor(0x90,0x10); 
-	GC0309_write_cmos_sensor(0x91,0x3c); 
-	GC0309_write_cmos_sensor(0x92,0x50); 
-	GC0309_write_cmos_sensor(0x5d,0x12); 
-	GC0309_write_cmos_sensor(0x5e,0x1a); 
-	GC0309_write_cmos_sensor(0x5f,0x24); 
-	/////////////////////////////////////////////////////////////////////
-	/////////////////////////// DNDD_t  ///////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0x60,0x07); 
-	GC0309_write_cmos_sensor(0x61,0x0e); 
-	GC0309_write_cmos_sensor(0x62,0x0c); //was 08, fixed
-	GC0309_write_cmos_sensor(0x64,0x03); 
-	GC0309_write_cmos_sensor(0x66,0xe8); 
-	GC0309_write_cmos_sensor(0x67,0x86); 
-	GC0309_write_cmos_sensor(0x68,0xa2); 
-	
-	/////////////////////////////////////////////////////////////////////
-	/////////////////////////// asde_t ///////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0x69,0x20); 
-	GC0309_write_cmos_sensor(0x6a,0x0f); 
-	GC0309_write_cmos_sensor(0x6b,0x00); 
-	GC0309_write_cmos_sensor(0x6c,0x53); 
-	GC0309_write_cmos_sensor(0x6d,0x83); 
-	GC0309_write_cmos_sensor(0x6e,0xac); 
-	GC0309_write_cmos_sensor(0x6f,0xac); 
-	GC0309_write_cmos_sensor(0x70,0x15); 
-	GC0309_write_cmos_sensor(0x71,0x33); 	//level 3
-	/////////////////////////////////////////////////////////////////////
-	/////////////////////////// eeintp_t///////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0x72,0xdc);  
-	GC0309_write_cmos_sensor(0x73,0x80);  
-	//for high resolution in light scene
-	GC0309_write_cmos_sensor(0x74,0x02); 
-	GC0309_write_cmos_sensor(0x75,0x3f); 
-	GC0309_write_cmos_sensor(0x76,0x02); 
-	GC0309_write_cmos_sensor(0x77,0x54);	//was 0x66, fixed
-	GC0309_write_cmos_sensor(0x78,0x88); 
-	GC0309_write_cmos_sensor(0x79,0x81); 
-	GC0309_write_cmos_sensor(0x7a,0x81); 
-	GC0309_write_cmos_sensor(0x7b,0x22); 
-	GC0309_write_cmos_sensor(0x7c,0xff);
-	
-	
-	/////////////////////////////////////////////////////////////////////
-	///////////////////////////CC_t///////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0x93,0x45); 
-	GC0309_write_cmos_sensor(0x94,0x00); 
-	GC0309_write_cmos_sensor(0x95,0x00); 
-	GC0309_write_cmos_sensor(0x96,0x00); 
-	GC0309_write_cmos_sensor(0x97,0x45); 
-	GC0309_write_cmos_sensor(0x98,0xf0); 
-	GC0309_write_cmos_sensor(0x9c,0x00); 
-	GC0309_write_cmos_sensor(0x9d,0x03); 
-	GC0309_write_cmos_sensor(0x9e,0x00);	//level 4
-
-	
-	
-	/////////////////////////////////////////////////////////////////////
-	///////////////////////////YCP_t///////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0xb1,0x40); //was 0x4e, fixed
-	GC0309_write_cmos_sensor(0xb2,0x40); //was 0x4e, fixed
-	GC0309_write_cmos_sensor(0xb8,0x20); 
-	GC0309_write_cmos_sensor(0xbe,0x36); 
-	GC0309_write_cmos_sensor(0xbf,0x00); 
-	/////////////////////////////////////////////////////////////////////
-	///////////////////////////AEC_t///////////////////////////////
-	/////////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0xd0,0xc9);  
-	GC0309_write_cmos_sensor(0xd1,0x10);    
-	GC0309_write_cmos_sensor(0xd3,0x80);  
-	GC0309_write_cmos_sensor(0xd5,0xf2); 
-	GC0309_write_cmos_sensor(0xd6,0x16);  
-	GC0309_write_cmos_sensor(0xdb,0x92); 
-	GC0309_write_cmos_sensor(0xdc,0xa5);  
-	GC0309_write_cmos_sensor(0xdf,0x23);   
-	GC0309_write_cmos_sensor(0xd9,0x00);  
-	GC0309_write_cmos_sensor(0xda,0x00);  
-	GC0309_write_cmos_sensor(0xe0,0x09);
-
-	GC0309_write_cmos_sensor(0xec,0x20);  
-	GC0309_write_cmos_sensor(0xed,0x04);  
-	GC0309_write_cmos_sensor(0xee,0xa0);  
-	GC0309_write_cmos_sensor(0xef,0x40);  
-	///////////////////////////////////////////////////////////////////
-	///////////////////////////GAMMA//////////////////////////////////
-	///////////////////////////////////////////////////////////////////
-	//Y_gamma
-	GC0309_write_cmos_sensor(0xc0,0x00);
-	GC0309_write_cmos_sensor(0xc1,0x0B);
-	GC0309_write_cmos_sensor(0xc2,0x15);
-	GC0309_write_cmos_sensor(0xc3,0x27);
-	GC0309_write_cmos_sensor(0xc4,0x39);
-	GC0309_write_cmos_sensor(0xc5,0x49);
-	GC0309_write_cmos_sensor(0xc6,0x5A);
-	GC0309_write_cmos_sensor(0xc7,0x6A);
-	GC0309_write_cmos_sensor(0xc8,0x89);
-	GC0309_write_cmos_sensor(0xc9,0xA8);
-	GC0309_write_cmos_sensor(0xca,0xC6);
-	GC0309_write_cmos_sensor(0xcb,0xE3);
-	GC0309_write_cmos_sensor(0xcc,0xFF);
-
-	/////////////////////////////////////////////////////////////////
-	/////////////////////////// ABS_t ///////////////////////////////
-	/////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0xf0,0x02);
-	GC0309_write_cmos_sensor(0xf1,0x01);
-	GC0309_write_cmos_sensor(0xf2,0x00); 
-	GC0309_write_cmos_sensor(0xf3,0x30); 
-	
-	/////////////////////////////////////////////////////////////////
-	/////////////////////////// Measure Window ///////////////////////
-	/////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0xf7,0x04); 
-	GC0309_write_cmos_sensor(0xf8,0x02); 
-	GC0309_write_cmos_sensor(0xf9,0x9f);
-	GC0309_write_cmos_sensor(0xfa,0x78);	//level 5
-
-	//---------------------------------------------------------------
-	GC0309_SET_PAGE1;
-
-	/////////////////////////////////////////////////////////////////
-	///////////////////////////AWB_p/////////////////////////////////
-	/////////////////////////////////////////////////////////////////
-	GC0309_write_cmos_sensor(0x00,0xf5);   
-	GC0309_write_cmos_sensor(0x02,0x1a); 
-	GC0309_write_cmos_sensor(0x0a,0xa0); 
-	GC0309_write_cmos_sensor(0x0b,0x60); 
-	GC0309_write_cmos_sensor(0x0c,0x08);
-	GC0309_write_cmos_sensor(0x0e,0x4c); 
-	GC0309_write_cmos_sensor(0x0f,0x39); 
-	GC0309_write_cmos_sensor(0x11,0x3f);   /// 3f
-	GC0309_write_cmos_sensor(0x12,0x72); 
-	GC0309_write_cmos_sensor(0x13,0x13); 
-	GC0309_write_cmos_sensor(0x14,0x42);  
-	GC0309_write_cmos_sensor(0x15,0x43); 
-	GC0309_write_cmos_sensor(0x16,0xc2); 
-	GC0309_write_cmos_sensor(0x17,0xa8); 
-	GC0309_write_cmos_sensor(0x18,0x18);  
-	GC0309_write_cmos_sensor(0x19,0x40);  
-	GC0309_write_cmos_sensor(0x1a,0xd0); 
-	GC0309_write_cmos_sensor(0x1b,0xf5);  
-
-	GC0309_write_cmos_sensor(0x70,0x40); 
-	GC0309_write_cmos_sensor(0x71,0x58);  
-	GC0309_write_cmos_sensor(0x72,0x30);  
-	GC0309_write_cmos_sensor(0x73,0x48);  
-	GC0309_write_cmos_sensor(0x74,0x20);  
-	GC0309_write_cmos_sensor(0x75,0x60);  
-	
-	GC0309_SET_PAGE0;
-
-       GC0309_write_cmos_sensor(0xd2,0x90);  // Open AEC at last.  
-
+  GC0309_write_cmos_sensor(0xFE, 0x80);
+  GC0309_write_cmos_sensor(0xFE, 0x00);
+  GC0309_write_cmos_sensor(0x1A, 0x16);
+  GC0309_write_cmos_sensor(0xD2, 0x10);
+  GC0309_write_cmos_sensor(0x22, 0x55);
+  GC0309_write_cmos_sensor(0x5A, 0x56);
+  GC0309_write_cmos_sensor(0x5B, 0x40);
+  GC0309_write_cmos_sensor(0x5C, 0x4A);
+  GC0309_write_cmos_sensor(0x22, 0x57);
+  GC0309_write_cmos_sensor(0x01, 0xFA);
+  GC0309_write_cmos_sensor(0x02, 0x70);
+  GC0309_write_cmos_sensor(0x0F, 0x01);
+  GC0309_write_cmos_sensor(0xE2, 0x00);
+  GC0309_write_cmos_sensor(0xE3, 0x64);
+  GC0309_write_cmos_sensor(0x03, 0x01);
+  GC0309_write_cmos_sensor(0x04, 0x2C);
+  GC0309_write_cmos_sensor(0x05, 0x00);
+  GC0309_write_cmos_sensor(0x06, 0x00);
+  GC0309_write_cmos_sensor(0x07, 0x00);
+  GC0309_write_cmos_sensor(0x08, 0x00);
+  GC0309_write_cmos_sensor(0x09, 0x01);
+  GC0309_write_cmos_sensor(0x0A, 0xE8);
+  GC0309_write_cmos_sensor(0x0B, 0x02);
+  GC0309_write_cmos_sensor(0x0C, 0x88);
+  GC0309_write_cmos_sensor(0x0D, 0x02);
+  GC0309_write_cmos_sensor(0x0E, 0x02);
+  GC0309_write_cmos_sensor(0x10, 0x22);
+  GC0309_write_cmos_sensor(0x11, 0x0D);
+  GC0309_write_cmos_sensor(0x12, 0x2A);
+  GC0309_write_cmos_sensor(0x13, 0x00);
+  GC0309_write_cmos_sensor(0x14, 0x10);
+  GC0309_write_cmos_sensor(0x15, 0x0A);
+  GC0309_write_cmos_sensor(0x16, 0x05);
+  GC0309_write_cmos_sensor(0x17, 0x01);
+  GC0309_write_cmos_sensor(0x1B, 0x03);
+  GC0309_write_cmos_sensor(0x1C, 0xC1);
+  GC0309_write_cmos_sensor(0x1D, 0x08);
+  GC0309_write_cmos_sensor(0x1E, 0x20);
+  GC0309_write_cmos_sensor(0x1F, 0x16);
+  GC0309_write_cmos_sensor(0x20, 0xFF);
+  GC0309_write_cmos_sensor(0x21, 0xF8);
+  GC0309_write_cmos_sensor(0x24, 0xA0);
+  GC0309_write_cmos_sensor(0x25, 0x0F);
+  GC0309_write_cmos_sensor(0x26, 0x02);
+  GC0309_write_cmos_sensor(0x2F, 0x01);
+  GC0309_write_cmos_sensor(0x30, 0xF7);
+  GC0309_write_cmos_sensor(0x31, 0x40);
+  GC0309_write_cmos_sensor(0x32, 0x00);
+  GC0309_write_cmos_sensor(0x39, 0x04);
+  GC0309_write_cmos_sensor(0x3A, 0x20);
+  GC0309_write_cmos_sensor(0x3B, 0x20);
+  GC0309_write_cmos_sensor(0x3C, 0x02);
+  GC0309_write_cmos_sensor(0x3D, 0x02);
+  GC0309_write_cmos_sensor(0x3E, 0x02);
+  GC0309_write_cmos_sensor(0x3F, 0x02);
+  GC0309_write_cmos_sensor(0x50, 0x24);
+  GC0309_write_cmos_sensor(0x53, 0x82);
+  GC0309_write_cmos_sensor(0x54, 0x80);
+  GC0309_write_cmos_sensor(0x55, 0x80);
+  GC0309_write_cmos_sensor(0x56, 0x82);
+  GC0309_write_cmos_sensor(0x8B, 0x20);
+  GC0309_write_cmos_sensor(0x8C, 0x20);
+  GC0309_write_cmos_sensor(0x8D, 0x20);
+  GC0309_write_cmos_sensor(0x8E, 0x10);
+  GC0309_write_cmos_sensor(0x8F, 0x10);
+  GC0309_write_cmos_sensor(0x90, 0x10);
+  GC0309_write_cmos_sensor(0x91, 0x3C);
+  GC0309_write_cmos_sensor(0x92, 0x50);
+  GC0309_write_cmos_sensor(0x5D, 0x12);
+  GC0309_write_cmos_sensor(0x5E, 0x1A);
+  GC0309_write_cmos_sensor(0x5F, 0x24);
+  GC0309_write_cmos_sensor(0x60, 0x07);
+  GC0309_write_cmos_sensor(0x61, 0x0E);
+  GC0309_write_cmos_sensor(0x62, 0x0C);
+  GC0309_write_cmos_sensor(0x64, 0x03);
+  GC0309_write_cmos_sensor(0x66, 0xE8);
+  GC0309_write_cmos_sensor(0x67, 0x86);
+  GC0309_write_cmos_sensor(0x68, 0xA2);
+  GC0309_write_cmos_sensor(0x69, 0x20);
+  GC0309_write_cmos_sensor(0x6A, 0x0F);
+  GC0309_write_cmos_sensor(0x6B, 0x00);
+  GC0309_write_cmos_sensor(0x6C, 0x53);
+  GC0309_write_cmos_sensor(0x6D, 0x83);
+  GC0309_write_cmos_sensor(0x6E, 0xAC);
+  GC0309_write_cmos_sensor(0x6F, 0xAC);
+  GC0309_write_cmos_sensor(0x70, 0x15);
+  GC0309_write_cmos_sensor(0x71, 0x33);
+  GC0309_write_cmos_sensor(0x72, 0xDC);
+  GC0309_write_cmos_sensor(0x73, 0x80);
+  GC0309_write_cmos_sensor(0x74, 0x02);
+  GC0309_write_cmos_sensor(0x75, 0x3F);
+  GC0309_write_cmos_sensor(0x76, 0x02);
+  GC0309_write_cmos_sensor(0x77, 0x54);
+  GC0309_write_cmos_sensor(0x78, 0x88);
+  GC0309_write_cmos_sensor(0x79, 0x81);
+  GC0309_write_cmos_sensor(0x7A, 0x81);
+  GC0309_write_cmos_sensor(0x7B, 0x22);
+  GC0309_write_cmos_sensor(0x7C, 0xFF);
+  GC0309_write_cmos_sensor(0x93, 0x45);
+  GC0309_write_cmos_sensor(0x94, 0x00);
+  GC0309_write_cmos_sensor(0x95, 0x00);
+  GC0309_write_cmos_sensor(0x96, 0x00);
+  GC0309_write_cmos_sensor(0x97, 0x45);
+  GC0309_write_cmos_sensor(0x98, 0xF0);
+  GC0309_write_cmos_sensor(0x9C, 0x00);
+  GC0309_write_cmos_sensor(0x9D, 0x03);
+  GC0309_write_cmos_sensor(0x9E, 0x00);
+  GC0309_write_cmos_sensor(0xB1, 0x40);
+  GC0309_write_cmos_sensor(0xB2, 0x40);
+  GC0309_write_cmos_sensor(0xB8, 0x20);
+  GC0309_write_cmos_sensor(0xBE, 0x36);
+  GC0309_write_cmos_sensor(0xBF, 0x00);
+  GC0309_write_cmos_sensor(0xD0, 0xC9);
+  GC0309_write_cmos_sensor(0xD1, 0x10);
+  GC0309_write_cmos_sensor(0xD3, 0x80);
+  GC0309_write_cmos_sensor(0xD5, 0xF2);
+  GC0309_write_cmos_sensor(0xD6, 0x16);
+  GC0309_write_cmos_sensor(0xDB, 0x92);
+  GC0309_write_cmos_sensor(0xDC, 0xA5);
+  GC0309_write_cmos_sensor(0xDF, 0x23);
+  GC0309_write_cmos_sensor(0xD9, 0x00);
+  GC0309_write_cmos_sensor(0xDA, 0x00);
+  GC0309_write_cmos_sensor(0xE0, 0x09);
+  GC0309_write_cmos_sensor(0xEC, 0x20);
+  GC0309_write_cmos_sensor(0xED, 0x04);
+  GC0309_write_cmos_sensor(0xEE, 0xA0);
+  GC0309_write_cmos_sensor(0xEF, 0x40);
+  GC0309_write_cmos_sensor(0xC0, 0x00);
+  GC0309_write_cmos_sensor(0xC1, 0x0B);
+  GC0309_write_cmos_sensor(0xC2, 0x15);
+  GC0309_write_cmos_sensor(0xC3, 0x27);
+  GC0309_write_cmos_sensor(0xC4, 0x39);
+  GC0309_write_cmos_sensor(0xC5, 0x49);
+  GC0309_write_cmos_sensor(0xC6, 0x5A);
+  GC0309_write_cmos_sensor(0xC7, 0x6A);
+  GC0309_write_cmos_sensor(0xC8, 0x89);
+  GC0309_write_cmos_sensor(0xC9, 0xA8);
+  GC0309_write_cmos_sensor(0xCA, 0xC6);
+  GC0309_write_cmos_sensor(0xCB, 0xE3);
+  GC0309_write_cmos_sensor(0xCC, 0xFF);
+  GC0309_write_cmos_sensor(0xF0, 0x02);
+  GC0309_write_cmos_sensor(0xF1, 0x01);
+  GC0309_write_cmos_sensor(0xF2, 0x00);
+  GC0309_write_cmos_sensor(0xF3, 0x30);
+  GC0309_write_cmos_sensor(0xF7, 0x04);
+  GC0309_write_cmos_sensor(0xF8, 0x02);
+  GC0309_write_cmos_sensor(0xF9, 0x9F);
+  GC0309_write_cmos_sensor(0xFA, 0x78);
+  GC0309_write_cmos_sensor(0xFE, 0x01);
+  GC0309_write_cmos_sensor(0x00, 0xF5);
+  GC0309_write_cmos_sensor(0x02, 0x1A);
+  GC0309_write_cmos_sensor(0x0A, 0xA0);
+  GC0309_write_cmos_sensor(0x0B, 0x60);
+  GC0309_write_cmos_sensor(0x0C, 0x08);
+  GC0309_write_cmos_sensor(0x0E, 0x4C);
+  GC0309_write_cmos_sensor(0x0F, 0x39);
+  GC0309_write_cmos_sensor(0x11, 0x3F);
+  GC0309_write_cmos_sensor(0x12, 0x72);
+  GC0309_write_cmos_sensor(0x13, 0x13);
+  GC0309_write_cmos_sensor(0x14, 0x42);
+  GC0309_write_cmos_sensor(0x15, 0x43);
+  GC0309_write_cmos_sensor(0x16, 0xC2);
+  GC0309_write_cmos_sensor(0x17, 0xA8);
+  GC0309_write_cmos_sensor(0x18, 0x18);
+  GC0309_write_cmos_sensor(0x19, 0x40);
+  GC0309_write_cmos_sensor(0x1A, 0xD0);
+  GC0309_write_cmos_sensor(0x1B, 0xF5);
+  GC0309_write_cmos_sensor(0x70, 0x40);
+  GC0309_write_cmos_sensor(0x71, 0x58);
+  GC0309_write_cmos_sensor(0x72, 0x30);
+  GC0309_write_cmos_sensor(0x73, 0x48);
+  GC0309_write_cmos_sensor(0x74, 0x20);
+  GC0309_write_cmos_sensor(0x75, 0x60);
+  GC0309_write_cmos_sensor(0xFE, 0x00);
+  GC0309_write_cmos_sensor(0xD2, 0x90);
 }
 
 
@@ -689,113 +620,109 @@ UINT32 GC0309GetSensorID(UINT32 *sensorID)
 * GLOBALS AFFECTED
 *
 *************************************************************************/
-
-void GC0309GammaSelect(kal_uint32 GammaLvl)  //approved
+void GC0309GammaSelect(kal_uint32 GammaLvl)	//Reversed twice by KosBeg and me
 {
-	switch(GammaLvl)
-	{
-		case 1:                                             //smallest gamma curve
-			GC0309_write_cmos_sensor( 0x9F, 0x0B ); 
-			GC0309_write_cmos_sensor( 0xA0, 0x16 ); 
-			GC0309_write_cmos_sensor( 0xA1, 0x29 ); 
-			GC0309_write_cmos_sensor( 0xA2, 0x3C ); 
-			GC0309_write_cmos_sensor( 0xA3, 0x4F ); 
-			GC0309_write_cmos_sensor( 0xA4, 0x5F ); 
-			GC0309_write_cmos_sensor( 0xA5, 0x6F ); 
-			GC0309_write_cmos_sensor( 0xA6, 0x8A ); 
-			GC0309_write_cmos_sensor( 0xA7, 0x9F ); 
-			GC0309_write_cmos_sensor( 0xA8, 0xB4 ); 
-			GC0309_write_cmos_sensor( 0xA9, 0xC6 ); 
-			GC0309_write_cmos_sensor( 0xAA, 0xD3 ); 
-			GC0309_write_cmos_sensor( 0xAB, 0xDD );  
-			GC0309_write_cmos_sensor( 0xAC, 0xE5 );  
-			GC0309_write_cmos_sensor( 0xAD, 0xF1 ); 
-			GC0309_write_cmos_sensor( 0xAE, 0xFA ); 
-			GC0309_write_cmos_sensor( 0xAF, 0xFF ); 	
-			break;
-		case 2:			
-			GC0309_write_cmos_sensor( 0x9F, 0x0E ); 
-			GC0309_write_cmos_sensor( 0xA0, 0x1C ); 
-			GC0309_write_cmos_sensor( 0xA1, 0x34 ); 
-			GC0309_write_cmos_sensor( 0xA2, 0x48 ); 
-			GC0309_write_cmos_sensor( 0xA3, 0x5A ); 
-			GC0309_write_cmos_sensor( 0xA4, 0x6B ); 
-			GC0309_write_cmos_sensor( 0xA5, 0x7B ); 
-			GC0309_write_cmos_sensor( 0xA6, 0x95 ); 
-			GC0309_write_cmos_sensor( 0xA7, 0xAB ); 
-			GC0309_write_cmos_sensor( 0xA8, 0xBF );
-			GC0309_write_cmos_sensor( 0xA9, 0xCE ); 
-			GC0309_write_cmos_sensor( 0xAA, 0xD9 ); 
-			GC0309_write_cmos_sensor( 0xAB, 0xE4 );  
-			GC0309_write_cmos_sensor( 0xAC, 0xEC ); 
-			GC0309_write_cmos_sensor( 0xAD, 0xF7 ); 
-			GC0309_write_cmos_sensor( 0xAE, 0xFD ); 
-			GC0309_write_cmos_sensor( 0xAF, 0xFF ); 
-		break;
-		case 3:
-			GC0309_write_cmos_sensor( 0x9F, 0x10 ); 
-			GC0309_write_cmos_sensor( 0xA0, 0x20 ); 
-			GC0309_write_cmos_sensor( 0xA1, 0x38 ); 
-			GC0309_write_cmos_sensor( 0xA2, 0x4E ); 
-			GC0309_write_cmos_sensor( 0xA3, 0x63 ); 
-			GC0309_write_cmos_sensor( 0xA4, 0x76 ); 
-			GC0309_write_cmos_sensor( 0xA5, 0x87 ); 
-			GC0309_write_cmos_sensor( 0xA6, 0xA2 ); 
-			GC0309_write_cmos_sensor( 0xA7, 0xB8 ); 
-			GC0309_write_cmos_sensor( 0xA8, 0xCA ); 
-			GC0309_write_cmos_sensor( 0xA9, 0xD8 ); 
-			GC0309_write_cmos_sensor( 0xAA, 0xE3 ); 
-			GC0309_write_cmos_sensor( 0xAB, 0xEB ); 
-			GC0309_write_cmos_sensor( 0xAC, 0xF0 ); 
-			GC0309_write_cmos_sensor( 0xAD, 0xF8 ); 
-			GC0309_write_cmos_sensor( 0xAE, 0xFD ); 
-			GC0309_write_cmos_sensor( 0xAF, 0xFF ); // \D8\D6\F5\84\D0 Ԡ \B7\E3\E5\D6ᷜ
-
-			break;
-		case 4:
-			GC0309_write_cmos_sensor( 0x9F, 0x14 ); 
-			GC0309_write_cmos_sensor( 0xA0, 0x28 ); 
-			GC0309_write_cmos_sensor( 0xA1, 0x44 ); 
-			GC0309_write_cmos_sensor( 0xA2, 0x5D ); 
-			GC0309_write_cmos_sensor( 0xA3, 0x72 ); 
-			GC0309_write_cmos_sensor( 0xA4, 0x86 ); 
-			GC0309_write_cmos_sensor( 0xA5, 0x95 ); 
-			GC0309_write_cmos_sensor( 0xA6, 0xB1 ); 
-			GC0309_write_cmos_sensor( 0xA7, 0xC6 ); 
-			GC0309_write_cmos_sensor( 0xA8, 0xD5 ); 
-			GC0309_write_cmos_sensor( 0xA9, 0xE1 ); 
-			GC0309_write_cmos_sensor( 0xAA, 0xEA ); 
-			GC0309_write_cmos_sensor( 0xAB, 0xF1 ); 
-			GC0309_write_cmos_sensor( 0xAC, 0xF5 ); 
-			GC0309_write_cmos_sensor( 0xAD, 0xFB ); 
-			GC0309_write_cmos_sensor( 0xAE, 0xFE ); 
-			GC0309_write_cmos_sensor( 0xAF, 0xFF );
-		break;
-		case 5:								// largest gamma curve
-			GC0309_write_cmos_sensor( 0x9F, 0x15 ); 
-			GC0309_write_cmos_sensor( 0xA0, 0x2A ); 
-			GC0309_write_cmos_sensor( 0xA1, 0x4A ); 
-			GC0309_write_cmos_sensor( 0xA2, 0x67 ); 
-			GC0309_write_cmos_sensor( 0xA3, 0x79 ); 
-			GC0309_write_cmos_sensor( 0xA4, 0x8C ); 
-			GC0309_write_cmos_sensor( 0xA5, 0x9A ); 
-			GC0309_write_cmos_sensor( 0xA6, 0xB3 ); 
-			GC0309_write_cmos_sensor( 0xA7, 0xC5 ); 
-			GC0309_write_cmos_sensor( 0xA8, 0xD5 ); 
-			GC0309_write_cmos_sensor( 0xA9, 0xDF ); 
-			GC0309_write_cmos_sensor( 0xAA, 0xE8 ); 
-			GC0309_write_cmos_sensor( 0xAB, 0xEE ); 
-			GC0309_write_cmos_sensor( 0xAC, 0xF3 ); 
-			GC0309_write_cmos_sensor( 0xAD, 0xFA ); 
-			GC0309_write_cmos_sensor( 0xAE, 0xFD ); 
-			GC0309_write_cmos_sensor( 0xAF, 0xFF );
-			break;
-		default:
-		break;
-	}
+  switch ( GammaLvl )
+  {
+    case 1:
+      GC0309_write_cmos_sensor(0x9F, 0x0B);
+      GC0309_write_cmos_sensor(0xA0, 0x16);
+      GC0309_write_cmos_sensor(0xA1, 0x29);
+      GC0309_write_cmos_sensor(0xA2, 0x3C);
+      GC0309_write_cmos_sensor(0xA3, 0x4F);
+      GC0309_write_cmos_sensor(0xA4, 0x5F);
+      GC0309_write_cmos_sensor(0xA5, 0x6F);
+      GC0309_write_cmos_sensor(0xA6, 0x8A);
+      GC0309_write_cmos_sensor(0xA7, 0x9F);
+      GC0309_write_cmos_sensor(0xA8, 0xB4);
+      GC0309_write_cmos_sensor(0xA9, 0xC6);
+      GC0309_write_cmos_sensor(0xAA, 0xD3);
+      GC0309_write_cmos_sensor(0xAB, 0xDD);
+      GC0309_write_cmos_sensor(0xAC, 0xE5);
+      GC0309_write_cmos_sensor(0xAD, 0xF1);
+      GC0309_write_cmos_sensor(0xAE, 0xFA);
+      GC0309_write_cmos_sensor(0xAF, 0xFF);
+      break;
+    case 2:
+      GC0309_write_cmos_sensor(0x9F, 0x0E);
+      GC0309_write_cmos_sensor(0xA0, 0x1C);
+      GC0309_write_cmos_sensor(0xA1, 0x34);
+      GC0309_write_cmos_sensor(0xA2, 0x48);
+      GC0309_write_cmos_sensor(0xA3, 0x5A);
+      GC0309_write_cmos_sensor(0xA4, 0x6B);
+      GC0309_write_cmos_sensor(0xA5, 0x7B);
+      GC0309_write_cmos_sensor(0xA6, 0x95);
+      GC0309_write_cmos_sensor(0xA7, 0xAB);
+      GC0309_write_cmos_sensor(0xA8, 0xBF);
+      GC0309_write_cmos_sensor(0xA9, 0xCE);
+      GC0309_write_cmos_sensor(0xAA, 0xD9);
+      GC0309_write_cmos_sensor(0xAB, 0xE4);
+      GC0309_write_cmos_sensor(0xAC, 0xEC);
+      GC0309_write_cmos_sensor(0xAD, 0xF7);
+      GC0309_write_cmos_sensor(0xAE, 0xFD);
+      GC0309_write_cmos_sensor(0xAF, 0xFF);
+      break;
+    case 3:
+      GC0309_write_cmos_sensor(0x9F, 0x10);
+      GC0309_write_cmos_sensor(0xA0, 0x20);
+      GC0309_write_cmos_sensor(0xA1, 0x38);
+      GC0309_write_cmos_sensor(0xA2, 0x4E);
+      GC0309_write_cmos_sensor(0xA3, 0x63);
+      GC0309_write_cmos_sensor(0xA4, 0x76);
+      GC0309_write_cmos_sensor(0xA5, 0x87);
+      GC0309_write_cmos_sensor(0xA6, 0xA2);
+      GC0309_write_cmos_sensor(0xA7, 0xB8);
+      GC0309_write_cmos_sensor(0xA8, 0xCA);
+      GC0309_write_cmos_sensor(0xA9, 0xD8);
+      GC0309_write_cmos_sensor(0xAA, 0xE3);
+      GC0309_write_cmos_sensor(0xAB, 0xEB);
+      GC0309_write_cmos_sensor(0xAC, 0xF0);
+      GC0309_write_cmos_sensor(0xAD, 0xF8);
+      GC0309_write_cmos_sensor(0xAE, 0xFD);
+      GC0309_write_cmos_sensor(0xAF, 0xFF);
+      break;
+    case 4:
+      GC0309_write_cmos_sensor(0x9F, 0x14);
+      GC0309_write_cmos_sensor(0xA0, 0x28);
+      GC0309_write_cmos_sensor(0xA1, 0x44);
+      GC0309_write_cmos_sensor(0xA2, 0x5D);
+      GC0309_write_cmos_sensor(0xA3, 0x72);
+      GC0309_write_cmos_sensor(0xA4, 0x86);
+      GC0309_write_cmos_sensor(0xA5, 0x95);
+      GC0309_write_cmos_sensor(0xA6, 0xB1);
+      GC0309_write_cmos_sensor(0xA7, 0xC6);
+      GC0309_write_cmos_sensor(0xA8, 0xD5);
+      GC0309_write_cmos_sensor(0xA9, 0xE1);
+      GC0309_write_cmos_sensor(0xAA, 0xEA);
+      GC0309_write_cmos_sensor(0xAB, 0xF1);
+      GC0309_write_cmos_sensor(0xAC, 0xF5);
+      GC0309_write_cmos_sensor(0xAD, 0xFB);
+      GC0309_write_cmos_sensor(0xAE, 0xFE);
+      GC0309_write_cmos_sensor(0xAF, 0xFF);
+      break;
+    case 5:
+      GC0309_write_cmos_sensor(0x9F, 0x15);
+      GC0309_write_cmos_sensor(0xA0, 0x2A);
+      GC0309_write_cmos_sensor(0xA1, 0x4A);
+      GC0309_write_cmos_sensor(0xA2, 0x67);
+      GC0309_write_cmos_sensor(0xA3, 0x79);
+      GC0309_write_cmos_sensor(0xA4, 0x8C);
+      GC0309_write_cmos_sensor(0xA5, 0x9A);
+      GC0309_write_cmos_sensor(0xA6, 0xB3);
+      GC0309_write_cmos_sensor(0xA7, 0xC5);
+      GC0309_write_cmos_sensor(0xA8, 0xD5);
+      GC0309_write_cmos_sensor(0xA9, 0xDF);
+      GC0309_write_cmos_sensor(0xAA, 0xE8);
+      GC0309_write_cmos_sensor(0xAB, 0xEE);
+      GC0309_write_cmos_sensor(0xAC, 0xF3);
+      GC0309_write_cmos_sensor(0xAD, 0xFA);
+      GC0309_write_cmos_sensor(0xAE, 0xFD);
+      GC0309_write_cmos_sensor(0xAF, 0xFF);
+      break;
+    default:
+      return;
+  }
 }
-
-
 
 /*************************************************************************
 * FUNCTION
@@ -814,58 +741,30 @@ void GC0309GammaSelect(kal_uint32 GammaLvl)  //approved
 * GLOBALS AFFECTED
 *
 *************************************************************************/
-void GC0309_Write_More_Registers(void)	//approved
+void GC0309_Write_More_Registers(void)	//Reversed twice by KosBeg and me
 {
-		//  TODO: FAE Modify the Init Regs here!!! 
-/******* 5/11 daemon update for image performance *****************/
-	GC0309_write_cmos_sensor(0x8b,0x22);   // lsc r 
-	GC0309_write_cmos_sensor(0x71,0x43);   // auto sat limit
-	
-	//cc
-	GC0309_write_cmos_sensor(0x93,0x45); // was 0x42, fixed
-	GC0309_write_cmos_sensor(0x94,0x00); 
-	GC0309_write_cmos_sensor(0x95,0x05);  // was 0x04, fixed
-	GC0309_write_cmos_sensor(0x96,0xe8); 
-	GC0309_write_cmos_sensor(0x97,0x40); 
-	GC0309_write_cmos_sensor(0x98,0xf8); 
-	GC0309_write_cmos_sensor(0x9c,0x00); 
-	GC0309_write_cmos_sensor(0x9d,0x00); 
-	GC0309_write_cmos_sensor(0x9e,0x00); 
-/* -----------commented out by Pavel-------------
-	GC0309_write_cmos_sensor(0x57,0x7b); 
-	GC0309_write_cmos_sensor(0x58,0x80); 
-	GC0309_write_cmos_sensor(0x59,0x7e); 
-*/
-	
-	GC0309_write_cmos_sensor(0xd0,0xcb);  // aec before gamma
-	GC0309_write_cmos_sensor(0xd3,0x50);  // ae target
-	
-//	GC0309_SET_PAGE1;
-	// awb update
-//	GC0309_write_cmos_sensor(0x02,0x20); 
-//	GC0309_write_cmos_sensor(0x04,0x06);
-//	GC0309_write_cmos_sensor(0x05,0x20);
-//	GC0309_write_cmos_sensor(0x06,0x20);
-//	GC0309_write_cmos_sensor(0x10,0x41); 
-//	GC0309_write_cmos_sensor(0x13,0x19); 
-//	GC0309_write_cmos_sensor(0x1b,0xe0); 
-	
-//	GC0309_SET_PAGE0;
-	GC0309_write_cmos_sensor(0x31,0x60); 
-
-	GC0309_write_cmos_sensor(0x1c,0x49); 
-	GC0309_write_cmos_sensor(0x1d,0x98); 
-	GC0309_write_cmos_sensor(0x10,0x26); 
-	GC0309_write_cmos_sensor(0x1a,0x26);  
-// by Pavel:
-	GC0309_write_cmos_sensor(0x57,0x80); 
-	GC0309_write_cmos_sensor(0x58,0x80); 
-	GC0309_write_cmos_sensor(0x59,0x80); 
-// end by Pavel
-/**************** Mormo Update End *************************/	
-	
-    /*Customer can adjust GAMMA, MIRROR & UPSIDEDOWN here!*/
-    GC0309GammaSelect(2);
+  GC0309_write_cmos_sensor(0x8B, 0x22);
+  GC0309_write_cmos_sensor(0x71, 0x43);
+  GC0309_write_cmos_sensor(0x93, 0x45);
+  GC0309_write_cmos_sensor(0x94, 0x00);
+  GC0309_write_cmos_sensor(0x95, 0x05);
+  GC0309_write_cmos_sensor(0x96, 0xE8);
+  GC0309_write_cmos_sensor(0x97, 0x40);
+  GC0309_write_cmos_sensor(0x98, 0xF8);
+  GC0309_write_cmos_sensor(0x9C, 0x00);
+  GC0309_write_cmos_sensor(0x9D, 0x00);
+  GC0309_write_cmos_sensor(0x9E, 0x00);
+  GC0309_write_cmos_sensor(0xD0, 0xCB);
+  GC0309_write_cmos_sensor(0xD3, 0x50);
+  GC0309_write_cmos_sensor(0x31, 0x60);
+  GC0309_write_cmos_sensor(0x1C, 0x49);
+  GC0309_write_cmos_sensor(0x1D, 0x98);
+  GC0309_write_cmos_sensor(0x10, 0x26);
+  GC0309_write_cmos_sensor(0x1A, 0x26);
+  GC0309_write_cmos_sensor(0x57, 0x80);
+  GC0309_write_cmos_sensor(0x58, 0x80);
+  GC0309_write_cmos_sensor(0x59, 0x80);
+  GC0309GammaSelect(2);
 }
 
 
