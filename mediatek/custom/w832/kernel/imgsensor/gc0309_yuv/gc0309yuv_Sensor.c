@@ -936,77 +936,58 @@ UINT32 GC0309GetResolution(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *pSensorResolution
 
 UINT32 GC0309GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
         MSDK_SENSOR_INFO_STRUCT *pSensorInfo,
-        MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData)
+        MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData) //reversed partially
 {
-    pSensorInfo->SensorPreviewResolutionX=IMAGE_SENSOR_PV_WIDTH;
-    pSensorInfo->SensorPreviewResolutionY=IMAGE_SENSOR_PV_HEIGHT;
-    pSensorInfo->SensorFullResolutionX=IMAGE_SENSOR_FULL_WIDTH;
-    pSensorInfo->SensorFullResolutionY=IMAGE_SENSOR_FULL_HEIGHT;
-
-    pSensorInfo->SensorCameraPreviewFrameRate=30;
-    pSensorInfo->SensorVideoFrameRate=30;
-    pSensorInfo->SensorStillCaptureFrameRate=10;
-    pSensorInfo->SensorWebCamCaptureFrameRate=15;
-    pSensorInfo->SensorResetActiveHigh=FALSE;
-    pSensorInfo->SensorResetDelayCount=1;
-    pSensorInfo->SensorOutputDataFormat=SENSOR_OUTPUT_FORMAT_YUYV;
-    pSensorInfo->SensorClockPolarity=SENSOR_CLOCK_POLARITY_LOW;
-    pSensorInfo->SensorClockFallingPolarity=SENSOR_CLOCK_POLARITY_LOW;
-    pSensorInfo->SensorHsyncPolarity = SENSOR_CLOCK_POLARITY_LOW;
-    pSensorInfo->SensorVsyncPolarity = SENSOR_CLOCK_POLARITY_LOW;
-    pSensorInfo->SensorInterruptDelayLines = 1;
-    pSensorInfo->SensroInterfaceType=SENSOR_INTERFACE_TYPE_PARALLEL;
-
-#if 0
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].MaxWidth=CAM_SIZE_5M_WIDTH;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].MaxHeight=CAM_SIZE_5M_HEIGHT;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].ISOSupported=TRUE;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].BinningEnable=FALSE;
-
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].MaxWidth=CAM_SIZE_5M_WIDTH;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].MaxHeight=CAM_SIZE_5M_HEIGHT;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].ISOSupported=TRUE;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].BinningEnable=FALSE;
-
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].MaxWidth=CAM_SIZE_5M_WIDTH;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].MaxHeight=CAM_SIZE_5M_HEIGHT;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].ISOSupported=TRUE;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].BinningEnable=FALSE;
-
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].MaxWidth=CAM_SIZE_1M_WIDTH;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].MaxHeight=CAM_SIZE_1M_HEIGHT;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].ISOSupported=TRUE;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].BinningEnable=FALSE;
-
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].MaxWidth=CAM_SIZE_1M_WIDTH;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].MaxHeight=CAM_SIZE_1M_HEIGHT;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].ISOSupported=TRUE;
-    pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].BinningEnable=FALSE;
- #endif
-    pSensorInfo->CaptureDelayFrame = 1;
-    pSensorInfo->PreviewDelayFrame = 0;
-    pSensorInfo->VideoDelayFrame = 4;
-    pSensorInfo->SensorMasterClockSwitch = 0;
-    pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_2MA;
-
-    switch (ScenarioId)
-    {
-    case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
-    case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
-   // case MSDK_SCENARIO_ID_VIDEO_CAPTURE_MPEG4:
-    case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
-    //case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:
-    default:
-        pSensorInfo->SensorClockFreq=24;
-        pSensorInfo->SensorClockDividCount= 3;
-        pSensorInfo->SensorClockRisingCount=0;
-        pSensorInfo->SensorClockFallingCount=2;
-        pSensorInfo->SensorPixelClockCount=3;
-        pSensorInfo->SensorDataLatchCount=2;
-        pSensorInfo->SensorGrabStartX = IMAGE_SENSOR_VGA_GRAB_PIXELS;
-        pSensorInfo->SensorGrabStartY = IMAGE_SENSOR_VGA_GRAB_LINES;
-        break;
-    }
+      pSensorInfo->SensorPreviewResolutionX = 632;
+  pSensorInfo->SensorFullResolutionX = 632;
+  pSensorInfo->SensorFullResolutionY = 632;
+  pSensorInfo->SensorVideoFrameRate = 30;
+  pSensorInfo->SensorResetDelayCount = 1;
+  pSensorInfo->SensorClockPolarity = 1;
+  pSensorInfo->SensorCameraPreviewFrameRate = 30;
+  pSensorInfo->SensorClockFallingPolarity = 1;
+  pSensorInfo->SensorPreviewResolutionY = 474;
+  pSensorInfo->SensorHsyncPolarity = 1;
+  pSensorInfo->SensorStillCaptureFrameRate = 10;
+  pSensorInfo->SensorVsyncPolarity = 1;
+  pSensorInfo->SensorWebCamCaptureFrameRate = 15;
+  pSensorInfo->SensorInterruptDelayLines = 1;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[0].ISOSupported = 1;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[1].ISOSupported = 1;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[2].ISOSupported = 1;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[3].ISOSupported = 1;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[2].MaxWidth = 2592;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[2].MaxHeight = 1944;
+  pSensorInfo->SensorResetActiveHigh = 0;
+  pSensorInfo->SensorOutputDataFormat = 6;
+  pSensorInfo->SensroInterfaceType = 0;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[0].MaxWidth = 2592;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[0].MaxHeight = 1944;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[0].BinningEnable = 0;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[1].MaxWidth = 2592;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[1].MaxHeight = 1944;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[1].BinningEnable = 0;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[2].BinningEnable = 0;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[3].MaxWidth = 1280;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[3].MaxHeight = 960;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[3].BinningEnable = 0;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[4].MaxWidth = 1280;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[4].ISOSupported = 1;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[4].MaxHeight = 960;
+  pSensorInfo->PreviewDelayFrame = 2;
+  pSensorInfo->VideoDelayFrame = 4;
+  pSensorInfo->SensorDrivingCurrent = 0;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[4].BinningEnable = 0;
+  pSensorInfo->CaptureDelayFrame = 2;
+  pSensorInfo->SensorMasterClockSwitch = 0;
+  pSensorInfo->SensorGrabStartY = 1;
+  pSensorInfo->SensorDataLatchCount = 2;
+  pSensorInfo->SensorClockFallingCount = 2;
+  pSensorInfo->SensorClockFreq = 24;
+  pSensorInfo->SensorGrabStartX = 0;
+  pSensorInfo->SensorClockRisingCount = 0;
+  pSensorInfo->SensorPixelClockCount = 3;
+  pSensorInfo->SensorClockDividCount = 3;
     GC0309PixelClockDivider=pSensorInfo->SensorPixelClockCount;
     memcpy(pSensorConfigData, &GC0309SensorConfigData, sizeof(MSDK_SENSOR_CONFIG_STRUCT));
     return ERROR_NONE;
