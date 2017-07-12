@@ -374,38 +374,22 @@ static void kpd_factory_mode_handler(void)
 /********************************************************************/
 void kpd_auto_test_for_factorymode(void)
 {
-	unsigned int COL_REG[8];
-	int i;
-	int time = 500;
 	kpd_print("Enter kpd_auto_test_for_factorymode! \n");
-
 	mdelay(1000);
-
 	kpd_factory_mode_handler();
 	kpd_print("begin kpd_auto_test_for_factorymode! \n");
 	if(upmu_status_chr_pwrkey_deb()==1){
 	kpd_print("power key release\n");
-	//kpd_pwrkey_pmic_handler(1);
-	//mdelay(time);
-	//kpd_pwrkey_pmic_handler(0);}
 	}else{
 	kpd_print("power key press\n");
 	kpd_pwrkey_pmic_handler(1);
-	//mdelay(time);
-	//kpd_pwrkey_pmic_handler(0);
 	}
 	
 #ifdef KPD_PMIC_RSTKEY_MAP
 	if(upmu_status_oc_homekey_deb()==1){
-	//kpd_print("home key release\n");
-	//kpd_pmic_rstkey_handler(1);
-	//mdelay(time);
-	//kpd_pmic_rstkey_handler(0);
 	}else{
 	kpd_print("home key press\n");
 	kpd_pmic_rstkey_handler(1);
-	//mdelay(time);
-	//kpd_pmic_rstkey_handler(0);
 	}
 #endif
 
