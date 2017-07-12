@@ -89,7 +89,7 @@ enum accdet_status
     STAND_BY =5
 };
 
-char *accdet_status_string[5]=
+char *accdet_status_string[6]=
 {
     "Plug_out",
     "Headset_plug_in",
