@@ -10,6 +10,8 @@
 #include <asm/uaccess.h>
 #include "aed.h"
 
+#define PARTIAL_BUILD
+
 #ifndef PARTIAL_BUILD
 
 #define BUFSIZE 128

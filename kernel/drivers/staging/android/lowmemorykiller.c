@@ -41,6 +41,8 @@
 #include <linux/sched.h>
 #include <linux/notifier.h>
 
+#define PARTIAL_BUILD
+
 #if defined(CONFIG_MT_ENG_BUILD) && defined(CONFIG_ION)
 #include <linux/ion_drv.h>
 #endif

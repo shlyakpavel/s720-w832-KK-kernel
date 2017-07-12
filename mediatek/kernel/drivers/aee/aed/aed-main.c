@@ -32,6 +32,8 @@
 #include "../ipanic/ipanic.h"
 #include <mach/mt_boot.h>
 
+#define PARTIAL_BUILD
+
 static LIST_HEAD(ke_request_list);
 static struct work_struct work;
 
