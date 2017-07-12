@@ -102,7 +102,7 @@ static unsigned int fb_mva_m4u = 0;
 struct fb_overlay_buffer_list *overlay_buffer_head = NULL;
 EXPORT_SYMBOL(overlay_buffer_head);
 
-static const struct timeval FRAME_INTERVAL = {0, 30000};  // 33ms
+//static const struct timeval FRAME_INTERVAL = {0, 30000};  // 33ms
 
 atomic_t has_pending_update = ATOMIC_INIT(0);
 struct fb_overlay_layer video_layerInfo;
@@ -375,7 +375,7 @@ unsigned int _m4u_lcd_init(void)
 {
 	if(fb_va_m4u == 0){
 		printk("[ERROR]FB not probe, so M4U can not init LCD\n");
-		return;
+		return 1;
 	}
     MTKFB_LOG("[FB driver] call _m4u_lcd_init()\n");
 	DISP_AllocUILayerMva(fb_va_m4u, &fb_mva_m4u, fb_size_m4u);
@@ -1361,6 +1361,7 @@ static struct fb_overlay_buffer_list* mtkfb_search_overlayList(struct fb_overlay
 	}
     return c;
 }
+#if 0
 static unsigned int mtkfb_user_v2p(unsigned int va)
 {
     unsigned int pageOffset = (va & (PAGE_SIZE - 1));
@@ -1378,6 +1379,7 @@ static unsigned int mtkfb_user_v2p(unsigned int va)
 
     return pa;
 }
+#endif
 
 static int mtkfb_set_overlay_layer(struct fb_info *info, struct fb_overlay_layer* layerInfo)
 {
