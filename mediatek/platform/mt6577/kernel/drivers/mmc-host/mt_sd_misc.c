@@ -824,7 +824,7 @@ static int simple_mmc_erase_func(unsigned int start, unsigned int size)
     {
         arg = __MMC_DISCARD_ARG; 
     }else if (host->mmc->card->ext_csd.sec_feature_support & EXT_CSD_SEC_GB_CL_EN){
-        /* for Hynix eMMC chip£¬do trim even if it is  MMC_QUIRK_TRIM_UNSTABLE */
+        /* for Hynix eMMC chip, do trim even if it is  MMC_QUIRK_TRIM_UNSTABLE */
         arg = __MMC_TRIM_ARG; 
     }else if(mmc_can_erase(host->mmc->card)){
         /* mmc_erase() will remove the erase group un-aligned part, 
@@ -836,7 +836,7 @@ static int simple_mmc_erase_func(unsigned int start, unsigned int size)
         goto end;
     }
     
-    printk("[%s]: start=0x%x, size=%d, arg=0x%x, can_trim=(0x%x),EXT_CSD_SEC_GB_CL_EN=0x%x\n", 
+    printk("[%s]: start=0x%x, size=%d, arg=0x%x, can_trim=(0x%x),EXT_CSD_SEC_GB_CL_EN=0x%lu\n", 
                     __func__, start, size, arg, host->mmc->card->ext_csd.sec_feature_support, EXT_CSD_SEC_GB_CL_EN); 
     mmc_erase(host->mmc->card, start, size, arg);
 
