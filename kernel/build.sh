@@ -10,7 +10,7 @@ makedefs="V=0"
 makejobs=${MAKEJOBS}
 curdir=`pwd`
 
-export CROSS_COMPILE=`pwd`/../prebuilts/gcc-linaro-6.1.1-2016.08-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+export CROSS_COMPILE=arm-linux-gnueabihf-
 
 if [ "${KBUILD_OUTPUT_SUPPORT}" == "yes" ];then
   outdir=../${MTK_ROOT_OUT}/KERNEL_OBJ

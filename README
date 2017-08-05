@@ -11,11 +11,14 @@ In order to get kernel compilation working, make sure you follow one of these st
 - You have 3 folders: kernel, mediatek and prebuilts.
   - kernel folder is the basic one, with the linux kernel sources.
   - mediatek folder contains dependences that are necessary to build for MTK platform.
-  - prebuilts folder contains the appropriate cross-compiler.
+  - prebuilts folder should contain the appropriate cross-compiler. I use the one from Linaro http://releases.linaro.org/components/toolchain/binaries/7.1-2017.05/arm-linux-gnueabihf/gcc-linaro-7.1.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz
 
 
 - In Terminal, cd to kernel folder:
-  -- Edit build.sh (line 13) and set the path to your CROSS_COMPILE if different
+  -- Edit mbldenv.sh to set the path to your toolchain if different
+
+- Make sure you have ccache installed
+  -- You can install it with dnf or apt. The another option is to disable it in kernel Makefile
 
 - To begin with the build process:
   -- Go back to project root folder

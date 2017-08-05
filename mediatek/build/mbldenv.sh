@@ -3,12 +3,15 @@
 # ALPS(Android4.1 based) build environment profile setting
 # ##########################################################
 
+# Dirty hack for Fedora
+unset module scl
+
 # Overwrite ANDROID_JAVA_HOME environment variable setting if already exists
 ANDROID_JAVA_HOME=$JAVA_HOME
 export ANDROID_JAVA_HOME
 
 # Overwrite PATH environment setting for JDK & arm-eabi if already exists
-PATH=$JAVA_HOME/bin:$PWD/prebuilts/gcc-linaro-6.1.1-2016.08-x86_64_arm-linux-gnueabihf/bin/:$PATH
+PATH=$JAVA_HOME/bin:$PWD/prebuilts/gcc-linaro-7.1.1-2017.05-x86_64_arm-linux-gnueabihf/bin/:$PATH
 export PATH
 
 # Add MediaTek developed Python libraries path into PYTHONPATH
