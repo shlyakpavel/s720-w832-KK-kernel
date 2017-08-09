@@ -141,6 +141,7 @@
 #define S5K4ECGX_SENSOR_ID                      0x4EC0
 #define S5K3H2YX_SENSOR_ID                      0x382b
 #define S5K8AAYX_SENSOR_ID			0x08aa
+#define S5K8AAYX_MIPI_SENSOR_ID			0x08aa
 
 //zhaoshaopeng add
 #define S5K4E1FX_SENSOR_ID                      0x4E10
@@ -253,7 +254,12 @@
 #define SENSOR_DRVNAME_OV3660_YUV "ov3660yuv"
 #define SENSOR_DRVNAME_OV9740_MIPI_YUV     "ov9740mipiyuv"
 #define SENSOR_DRVNAME_S5K8AAYX_YUV          "s5k8aayxyuv"
+#define SENSOR_DRVNAME_S5K8AAYX_MIPI_YUV     "s5k8aayxmipiyuv"
 
+#define SENSOR_DRVNAME_IMX135_MIPI_RAW   "imx135mipiraw"
+#define SENSOR_DRVNAME_IMX135TRULY_MIPI_RAW   "imx135trulymipiraw"
+#define SENSOR_DRVNAME_IMX135SUNWIN_MIPI_RAW   "imx135sunwinmipiraw"
+#define SENSOR_DRVNAME_IMX135BLX_MIPI_RAW   	"imx135blxmipiraw"
 
 /*******************************************************************************
 *

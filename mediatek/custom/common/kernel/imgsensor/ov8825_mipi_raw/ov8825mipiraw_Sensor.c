@@ -711,7 +711,7 @@ static void OV8825_SetDummy( const kal_uint32 iPixels, const kal_uint32 iLines )
 	
 }   /*  OV8825_SetDummy */
 
-void OV8825PreviewSetting(void)
+void OV8825PreviewSetting(void) //Approved by Pavel
 {	
     OV8825DB("OV8825PreviewSetting enter :\n ");
 	
@@ -733,9 +733,7 @@ void OV8825PreviewSetting(void)
 	OV8825_write_cmos_sensor(0x3013,0x39);			//SC_PLL CTRL_S1         
 	OV8825_write_cmos_sensor(0x3104,0x20);			//SCCB_PLL               
 	OV8825_write_cmos_sensor(0x3106,0x11);//0x11);//15		//SRB_CTRL    
-	if(ov8825.sensorMode == SENSOR_MODE_PREVIEW) 
-		{}
-	else{
+	if(ov8825.sensorMode != SENSOR_MODE_PREVIEW) {
 	OV8825_write_cmos_sensor(0x3501,0x4e);			//AEC_HIGH               
 	OV8825_write_cmos_sensor(0x3502,0xa0);			//AEC_LOW                
 	OV8825_write_cmos_sensor(0x350b,0x1f);			//AGC 
@@ -777,11 +775,7 @@ void OV8825PreviewSetting(void)
 	
 	OV8825_write_cmos_sensor(0x380c,0x0d);//HTS = 3516               
 	OV8825_write_cmos_sensor(0x380d,0xbc);//HTS        
-	if(ov8825.sensorMode == SENSOR_MODE_PREVIEW) 
-		{}
-	else{
-	//OV8825_write_cmos_sensor(0x380e,0x04);//VTS = 1264               
-	//OV8825_write_cmos_sensor(0x380f,0xf0);//VTS   
+	if(ov8825.sensorMode == SENSOR_MODE_PREVIEW) { 
 	OV8825_write_cmos_sensor(0x380e,0x05);//VTS = 1264               
 	OV8825_write_cmos_sensor(0x380f,0x1e);//VTS   
 		}
@@ -813,12 +807,12 @@ void OV8825PreviewSetting(void)
 	OV8825_write_cmos_sensor(0x6900,0x61);//CADC CTRL00  
 	OV8825_write_cmos_sensor(0x3602,0xc2);////////////////////add by tony
 	OV8825_write_cmos_sensor(0x0100,0x01);// wake up
-	mDELAY(10);
+	//mDELAY(10); doesnt exist in stock, probably not needed
 	
     OV8825DB("OV8825PreviewSetting exit :\n ");
 }
 
-void OV8825CaptureSetting(void)
+void OV8825CaptureSetting(void) //Approved by Pavel for s720
 {	
     OV8825DB("OV8825CaptureSetting enter :\n ");
 	//;//OV8830_3264*2448_setting_2lanes_710.66Mbps/72.22M SCLKlane_15fps
@@ -841,13 +835,7 @@ void OV8825CaptureSetting(void)
 	OV8825_write_cmos_sensor(0x3013, 0x39);////SC_PLL, 0xCTRL_S1
 	OV8825_write_cmos_sensor(0x3104, 0x20);////SCCB_PLL
 
-	//??????????????
 	OV8825_write_cmos_sensor(0x3106, 0x11);////SRB_CTRL
-	
-	//OV8825_write_cmos_sensor(0x3501, 0x9a);//AEC_HIGH
-	//OV8825_write_cmos_sensor(0x3502, 0xa0);//AEC_LOW
-	//OV8825_write_cmos_sensor(0x350b, 0x1f);////AGC
-
 	
 	OV8825_write_cmos_sensor(0x3600, 0x07);//ANACTRL0
 	OV8825_write_cmos_sensor(0x3601, 0x33);//ANACTRL1
@@ -886,17 +874,8 @@ void OV8825CaptureSetting(void)
 	OV8825_write_cmos_sensor(0x380c, 0x0e);//HTS, 0x=, 0x3584
 	OV8825_write_cmos_sensor(0x380d, 0x30);//HTS
 	
-	#if defined(ZSD15FPS)
 	OV8825_write_cmos_sensor(0x380e, 0x09);//VTS
 	OV8825_write_cmos_sensor(0x380f, 0xf0);//VTS
-	#else
-	//Add dummy lines for 13fps
-	OV8825_write_cmos_sensor(0x380e, 0x0b);//VTS
-	OV8825_write_cmos_sensor(0x380f, 0x78);//VTS
-	#endif
-	
-	//OV8825_write_cmos_sensor(0x380e, 0x0a);//VTS
-	//OV8825_write_cmos_sensor(0x380f, 0x0c);//VTS
 	
 	OV8825_write_cmos_sensor(0x3810, 0x00);//HOFF
 	OV8825_write_cmos_sensor(0x3811, 0x10);//HOFF,
@@ -928,7 +907,7 @@ void OV8825CaptureSetting(void)
 	OV8825_write_cmos_sensor(0x3602, 0x42);////////////////////add by tony
 	OV8825_write_cmos_sensor(0x0100, 0x01);//, 0xwake, 0xup
 	
-	mDELAY(20);
+	// mDELAY(20); doesnt extst in stock kernel, probably not needed
 	OV8825DB("OV8825CaptureSetting exit :\n ");
 }
 

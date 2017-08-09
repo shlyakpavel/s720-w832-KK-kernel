@@ -1002,7 +1002,7 @@ rsnPerformPolicySelection (
     else {
         fgSuiteSupported = FALSE;
 
-        DBGLOG(RSN, TRACE, ("eEncStatus %d %d 0x%x\n", prAdapter->rWifiVar.rConnSettings.eEncStatus,
+        DBGLOG(RSN, TRACE, ("eEncStatus %d %d 0x%lu\n", prAdapter->rWifiVar.rConnSettings.eEncStatus,
             prBssRsnInfo->u4PairwiseKeyCipherSuiteCount,
             prBssRsnInfo->au4PairwiseKeyCipherSuite[0]));
         /* Select pairwise/group ciphers */
@@ -1537,7 +1537,7 @@ rsnGenerateRSNIE (
                 RSN_IE(pucBuffer)->ucLength = 38;
                 WLAN_SET_FIELD_16(cp, 1); // PMKID count
                 cp += 2;
-                DBGLOG(RSN, TRACE, ("BSSID "MACSTR" ind=%d\n", MAC2STR(prStaRec->aucMacAddr), u4Entry));
+                DBGLOG(RSN, TRACE, ("BSSID "MACSTR" ind=%lu\n", MAC2STR(prStaRec->aucMacAddr), u4Entry));
                 DBGLOG(RSN, TRACE, ("use PMKID "MACSTR"\n", MAC2STR(prAdapter->rWifiVar.rAisSpecificBssInfo.arPmkidCache[u4Entry].rBssidInfo.arPMKID)));
                 kalMemCopy(cp, (PVOID)prAdapter->rWifiVar.rAisSpecificBssInfo.arPmkidCache[u4Entry].rBssidInfo.arPMKID,
                     sizeof(PARAM_PMKID_VALUE));

@@ -230,15 +230,11 @@ DAL_STATUS DAL_SetColor(unsigned int fgColor, unsigned int bgColor)
 
 DAL_STATUS DAL_Clean(void)
 {
-    const UINT32 BG_COLOR = MAKE_TWO_RGB565_COLOR(DAL_BG_COLOR, DAL_BG_COLOR);
+    //const UINT32 BG_COLOR = MAKE_TWO_RGB565_COLOR(DAL_BG_COLOR, DAL_BG_COLOR);
 	DAL_STATUS ret = DAL_STATUS_OK;
-    UINT32 i, *ptr;
-    
+
     if (NULL == mfc_handle) 
         return DAL_STATUS_NOT_READY;
-
-//    if (LCD_STATE_POWER_OFF == LCD_GetState())
-//        return DAL_STATUS_LCD_IN_SUSPEND;
 
     DAL_LOCK();
 
