@@ -47,42 +47,6 @@ function m()
     fi
 }
 
-#EMAKE start
-if [ ! "$JAVA_HOME" ]; then
-    export JAVA_HOME=/usr/lib/jvm/java-6-oracle
-fi
-export ECLOUD_BIN=/opt/ecloud/i686_Linux/64/bin
-export PATH=$ECLOUD_BIN:$PATH
-
-function EMAKE()
-{
-    export "EMAKEFLAGS=--emake-build-label=mt6577_${TARGET_PRODUCT}_android --emake-class=U1004_ICS --emake-autodepend=1 --emake-root=../:/usr/:/etc/alternatives/:/opt/bms/bin/ --emake-cm=10.168.176.194 --emake-emulation=gmake3.81 --emake-historyfile=./build/mt6577_android.hist --emake-annofile=mt6577_${TARGET_PRODUCT}_@ECLOUD_BUILD_ID@.anno --emake-annodetail=basic --emake-optimize-deps=1 --emake-parse-avoidance=1 --emake-suppress-include=*.d --emake-suppress-include=*.P"
-}
-
-function em()
-{
-    export MY_BUILD_CMD="em $@"
-    local HERE=$PWD
-    EMAKE
-    T=$(gettop)
-    if [ "$T" ]; then
-        local LOG_FILE=$T/build_log.txt
-        cd $T
-        time ./emakeMtk -t -o=TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT,TARGET_BUILD_TYPE=$TARGET_BUILD_TYPE,$@ \
-            $TARGET_PRODUCT r | tee -a $LOG_FILE
-        if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            cd $HERE > /dev/null
-            echo -e "\nE-Build log was written to '$LOG_FILE'."
-            echo "Error: E-Building failed"
-            return 1
-        fi
-        cd $HERE > /dev/null
-        echo -e "\nE-Build log was written to '$LOG_FILE'."
-    else
-        echo "Couldn't locate the top of the tree.  Try setting TOP."
-    fi
-}
-
 function mm()
 {
     local HERE=$PWD
