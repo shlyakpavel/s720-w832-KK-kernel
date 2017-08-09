@@ -540,7 +540,7 @@ Actions:
   update-api    : Android default build action
                   (be executed if system setting or anything removed from API).
   check-modem   : Check modem image consistency.
-  upadte-modem  : Update modem image located in system.img.
+  update-modem  : Update modem image located in system.img.
   modem-info    : Show modem version
   gen-relkey    : Generate releasekey for application signing.
   check-appres  : Check unused application resource.
