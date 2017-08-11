@@ -6,10 +6,6 @@
 # Dirty hack for Fedora
 unset module scl
 
-# Overwrite ANDROID_JAVA_HOME environment variable setting if already exists
-ANDROID_JAVA_HOME=$JAVA_HOME
-export ANDROID_JAVA_HOME
-
 # Overwrite PATH environment setting for JDK & arm-eabi if already exists
 PATH=$JAVA_HOME/bin:$PWD/prebuilts/gcc-linaro-7.1.1-2017.05-x86_64_arm-linux-gnueabihf/bin/:$PATH
 export PATH
@@ -47,78 +43,7 @@ function m()
     fi
 }
 
-function mm()
-{
-    local HERE=$PWD
-    # If we're sitting in the root of the build tree, just do a
-    # normal make.
-    if [ -f build/core/envsetup.mk -a -f Makefile ]; then
-        ./makeMtk -t -o=TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT,TARGET_BUILD_TYPE=$TARGET_BUILD_TYPE,$@ \
-            $TARGET_PRODUCT new
-    else
-        # Find the closest Android.mk file.
-        T=$(gettop)
-        local M=$(findmakefile)
-        # Remove the path to top as the makefilepath needs to be relative
-        local M=`echo $M|sed 's:'$T'/::'`
-        local P=`echo $M|sed 's:'/Android.mk'::'`
-        if [ ! "$T" ]; then
-            echo "Couldn't locate the top of the tree. Try setting TOP."
-        elif [ ! "$M" ]; then
-            echo "Couldn't locate a makefile from the current directory."
-        else
-            (cd $T;./makeMtk -t -o=TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT,TARGET_BUILD_TYPE=$TARGET_BUILD_TYPE \
-                $TARGET_PRODUCT mm $P)
-            cd $HERE > /dev/null
-        fi
-    fi
-}
 
-function mmm()
-{
-    T=$(gettop)
-    if [ "$T" ]; then
-        local MAKEFILE=
-        local ARGS=
-        local DIR TO_CHOP
-        local DASH_ARGS=$(echo "$@" | awk -v RS=" " -v ORS=" " '/^-.*$/')
-        local DIRS=$(echo "$@" | awk -v RS=" " -v ORS=" " '/^[^-].*$/')
-        local SNOD=
-        for DIR in $DIRS ; do
-            DIR=`echo $DIR | sed -e 's:/$::'`
-            if [ -f $DIR/Android.mk ]; then
-                TO_CHOP=`(cd -P -- $T && pwd -P) | wc -c | tr -d ' '`
-                TO_CHOP=`expr $TO_CHOP + 1`
-                START=`PWD= /bin/pwd`
-                MFILE=`echo $START | cut -c${TO_CHOP}-`
-                if [ "$MFILE" = "" ] ; then
-                    MFILE=$DIR/Android.mk
-                else
-                    MFILE=$MFILE/$DIR/Android.mk
-                fi
-                MAKEFILE="$MAKEFILE $MFILE"
-            else
-                if [ "$DIR" = snod ]; then
-                    ARGS="$ARGS snod"
-                    SNOD=snod
-                elif [ "$DIR" = showcommands ]; then
-                    ARGS="$ARGS showcommands"
-                elif [ "$DIR" = dist ]; then
-                    ARGS="$ARGS dist"
-                elif [ "$DIR" = incrementaljavac ]; then
-                    ARGS="$ARGS incrementaljavac"
-                else
-                    echo "No Android.mk in $DIR."
-                    return 1
-                fi
-            fi
-            (cd $T; ./makeMtk -t -o=TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT,TARGET_BUILD_TYPE=$TARGET_BUILD_TYPE,SNOD=$SNOD \
-                $TARGET_PRODUCT mm $DIR)           
-        done
-    else
-        echo "Couldn't locate the top of the tree.  Try setting TOP."
-    fi
-}
 
 function create_link
 {
@@ -144,17 +69,6 @@ function create_link
     fi
 }
 
-function snod()
-{
-    T=$(gettop)
-    if [ "$T" ]; then
-        ./makeMtk -t -o=TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT,TARGET_BUILD_TYPE=$TARGET_BUILD_TYPE,$@ \
-            $TARGET_PRODUCT snod
-    else
-        echo "Couldn't locate the top of the tree.  Try setting TOP."
-    fi
-}
-
 function mtk_custgen()
 {
     T=$(gettop)
@@ -163,67 +77,5 @@ function mtk_custgen()
         ./makeMtk -o=TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT,TARGET_BUILD_TYPE=$TARGET_BUILD_TYPE $TARGET_PRODUCT custgen
     else
         echo "Couldn't locate the top of the tree.  Try setting TOP."
-    fi
-}
-
-function m_sync_lge_chrome()
-{
-    PWD=$(pwd)
-
-    if [ "${PWD##*android}" != "" ]; then
-        echo 'Do it in android/ folder'
-        exit 1
-    fi
-
-    BRANCH_NAME=$(echo $(repo manifest) | tr -d '\"' | grep -m 1 -o 'revision=[a-z0-9_]*' | cut -d '=' -f 2)
-    MISSING_PROJECTS="vendor/lge/external/chromium_lge/src/chrome/test/data/perf/third_party/octane \
-        vendor/lge/external/chromium_lge/src/chrome/tools/test/reference_build/chrome_linux \
-        vendor/lge/external/chromium_lge/src/swe/android/support/src \
-        vendor/lge/external/chromium_lge/src/third_party/eyesfree/src/android/java/src/com/googlecode/eyesfree/braille \
-        vendor/lge/external/chromium_lge/src/third_party/jsoncpp/source/include \
-        vendor/lge/external/chromium_lge/src/third_party/jsoncpp/source/src/lib_json \
-        vendor/lge/external/chromium_lge/src/third_party/libjingle/source/talk \
-        vendor/lge/external/chromium_lge/src/third_party/sfntly/cpp/src"
-
-    echo "BRANCH NAME : $BRANCH_NAME"
-    for project in $MISSING_PROJECTS
-    do
-        echo "PROJECT NAME : $project"
-        repo sync -qc $project
-        repo start $BRANCH_NAME $project
-    done
-
-}
-
-function m_clean()
-{
-    PWD=$(pwd)
-
-    if [ "${PWD##*android}" != "" ]; then
-        echo 'Do it in android/ folder'
-        exit 1
-    fi
-
-    repo forall -c 'git clean -xdf; git checkout -f'
-
-    m_sync_lge_chrome
-}
-
-function m_md5sum()
-{
-    if [ "$1" == "--help" ]; then
-        echo "msa_md5sum"
-        echo "msa_md5sum --detail [OUT FILE NAME]"
-        return 0
-    fi
-    if [ "$1" == "--detail" ]; then
-        if [ "$2" != "" ]; then
-            MD5SUM_OUTFILENAME=$2
-        else    
-            MD5SUM_OUTFILENAME=$(date +%Y%m%d)
-        fi
-        repo forall -pc 'git log -1 --pretty=format:%H' > md5sum_${MD5SUM_OUTFILENAME}.txt
-    else
-        echo -e "\e[1;35m$(repo forall -c 'git log -1 --pretty=format:%H' | md5sum | sed "s/ -//g" | tr -d ' ')\e[00m"
     fi
 }

@@ -38,7 +38,7 @@ export KERNEL_SOURCE
 # Set PHONY
 # *************************************************************************
 .PHONY : new newall remake remakeall clean cleanall \
-         preloader trustonic md32 kernel android \
+         preloader trustonic md32 kernel \
          check-modem update-modem sign-image encrypt-image sign-modem check-dep \
          dump-memusage gen-relkey check-appres \
          codegen btcodegen javaoptgen clean-javaoptgen emigen nandgen custgen drvgen ptgen \
@@ -60,7 +60,6 @@ TRUST_TEE_WD  =  mediatek/trustzone/vendor/trustonic
 LK_WD         =  bootable/bootloader/lk
 MD32_WD       =  md32/md32 
 KERNEL_WD     =  kernel
-ANDROID_WD    =  .
 ALL_MODULES   =
 MAKE_DEBUG    =  --no-print-directory
 hide         :=  @
@@ -101,31 +100,6 @@ ifeq ($(strip $(KBUILD_OUTPUT_SUPPORT)),yes)
   KERNEL_IMAGES    := $(MTK_ROOT_OUT)/KERNEL_OBJ/kernel_$(PROJECT).bin
 else
   KERNEL_IMAGES    := $(KERNEL_WD)/kernel_$(PROJECT).bin
-endif
-ANDROID_IMAGES   := $(LOGDIR)/$(PROJECT)/system.img \
-                    $(LOGDIR)/$(PROJECT)/boot.img \
-                    $(LOGDIR)/$(PROJECT)/recovery.img \
-                    $(LOGDIR)/$(PROJECT)/secro.img \
-                    $(LOGDIR)/$(PROJECT)/userdata.img
-ifeq (true,$(BUILD_TINY_ANDROID))
-  ANDROID_IMAGES := $(filter-out %recovery.img,$(ANDROID_IMAGES))
-endif
-ifneq ($(ACTION),)
-  ANDROID_TARGET_IMAGES :=$(filter %/$(patsubst %image,%.img,$(ACTION)),$(ANDROID_IMAGES))
-  ifeq (${ACTION},otapackage)
-    ANDROID_TARGET_IMAGES :=$(ANDROID_IMAGES)
-  endif
-  ifeq (${ACTION},snod)
-    ANDROID_TARGET_IMAGES :=$(filter %/system.img,$(ANDROID_IMAGES))
-  endif
-  ifeq (${ACTION},bootimage-nodeps)
-    ANDROID_TARGET_IMAGES :=$(filter %/boot.img,$(ANDROID_IMAGES))
-endif
-endif
-ifeq (MT6573, $(MTK_PLATFORM))
-  ifeq (android, $(CUR_MODULE))
-    ANDROID_IMAGES += $(LOGDIR)/$(PROJECT)/DSP_BL
-  endif
 endif
 
 SCATTER_FILE := $(OUT_DIR)/target/product/$(PROJECT)/$(MTK_PLATFORM)_Android_scatter.txt
@@ -225,8 +199,6 @@ ifeq ($(BUILD_KERNEL),yes)
   KERNEL_ARG = kernel_$(PROJECT).config
 endif
 
-ALL_MODULES += android
-
 include $(MTK_ROOT_BUILD)/libs/pack_dep_gen.mk
 -include $(MTK_ROOT_BUILD)/tools/preprocess/preprocess.mk
 include $(MTK_ROOT_BUILD)/libs/pregen.mk
@@ -294,34 +266,15 @@ ifeq ($(LEGACY_DFO_GEN), yes)
 endif
   MTK_DEPENDENCY_PRECLEAN_BEFORE_KERNEL  := $(filter %/Makefile,$(mtk-custom-files))
 endif
-ifeq ($(filter generic banyan_addon banyan_addon_x86,$(PROJECT)),)
-  MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID   := codegen ptgen
-  ifneq ($(MTK_SKIP_KERNEL_IN_ANDROID),yes)
-     MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID   += nandgen
-     MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID   += $(if $(filter yes,$(strip $(KBUILD_OUTPUT_SUPPORT))),$(MTK_ROOT_OUT)/KERNEL_OBJ,$(KERNEL_WD))/include/mach/dfo_boot.h \
-                      			    $(if $(filter yes,$(strip $(KBUILD_OUTPUT_SUPPORT))),$(MTK_ROOT_OUT)/KERNEL_OBJ,$(KERNEL_WD))/include/mach/dfo_boot_default.h
-endif
-else
-  MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID   :=
-endif
-  MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID   += $(OUT_DIR)/target/product/$(PROJECT)/obj/include/dfo/CFG_Dfo_File.h \
-                                            $(OUT_DIR)/target/product/$(PROJECT)/obj/include/dfo/CFG_Dfo_Default.h \
-                                            $(OUT_DIR)/target/product/$(PROJECT)/obj/include/dfo/DfoDefines.h \
-                                            $(OUT_DIR)/target/product/$(PROJECT)/obj/include/dfo/DfoBootDefault.h
-ifeq ($(LEGACY_DFO_GEN), yes)
-  MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID   += $(OUT_DIR)/target/product/$(PROJECT)/obj/include/dfo/DfoBoot.h
-endif
-  MTK_DEPENDENCY_PRECLEAN_BEFORE_ANDROID := $(MTK_ROOT_CONFIG_OUT)/BoardConfig.mk
+
 
 ifneq ($(filter %all pregen,$(MAKECMDGOALS)),)
   MTK_DEPENDENCY_PREGEN_LIST := $(MTK_DEPENDENCY_PREGEN_BEFORE_PRELOADER) \
                                 $(MTK_DEPENDENCY_PREGEN_BEFORE_LK) \
-                                $(MTK_DEPENDENCY_PREGEN_BEFORE_KERNEL) \
-                                $(MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID)
+                                $(MTK_DEPENDENCY_PREGEN_BEFORE_KERNEL)
   MTK_DEPENDENCY_PRECLEAN_LIST := $(MTK_DEPENDENCY_PRECLEAN_BEFORE_PRELOADER) \
                                   $(MTK_DEPENDENCY_PRECLEAN_BEFORE_LK) \
-                                  $(MTK_DEPENDENCY_PRECLEAN_BEFORE_KERNEL) \
-                                  $(MTK_DEPENDENCY_PRECLEAN_BEFORE_ANDROID)
+                                  $(MTK_DEPENDENCY_PRECLEAN_BEFORE_KERNEL)
 else ifneq ($(filter preloader,$(CUR_MODULE)),)
   MTK_DEPENDENCY_PREGEN_LIST := $(MTK_DEPENDENCY_PREGEN_BEFORE_PRELOADER)
   MTK_DEPENDENCY_PRECLEAN_LIST := $(MTK_DEPENDENCY_PRECLEAN_BEFORE_PRELOADER)
@@ -331,9 +284,6 @@ else ifneq ($(filter lk,$(CUR_MODULE)),)
 else ifneq ($(filter kernel,$(CUR_MODULE)),)
   MTK_DEPENDENCY_PREGEN_LIST := $(MTK_DEPENDENCY_PREGEN_BEFORE_KERNEL)
   MTK_DEPENDENCY_PRECLEAN_LIST := $(MTK_DEPENDENCY_PRECLEAN_BEFORE_KERNEL)
-else ifneq ($(filter android,$(CUR_MODULE)),)
-  MTK_DEPENDENCY_PREGEN_LIST := $(MTK_DEPENDENCY_PREGEN_BEFORE_ANDROID)
-  MTK_DEPENDENCY_PRECLEAN_LIST := $(MTK_DEPENDENCY_PRECLEAN_BEFORE_ANDROID)
 endif
 
 
@@ -404,12 +354,11 @@ endif
 ANDROID_NATIVE_TARGETS := \
          update-api \
          cts sdk win_sdk otapackage banyan_addon banyan_addon_x86 dist updatepackage \
-         snod bootimage systemimage recoveryimage secroimage target-files-package \
+         snod bootimage recoveryimage secroimage target-files-package \
          factoryimage userdataimage userdataimage-nodeps custimage dump-comp-build-info \
 	 dump-products bootimage-nodeps ramdisk-nodeps javaoptgen
 .PHONY: $(ANDROID_NATIVE_TARGETS)
 
-systemimage: check-modem
 
 custimage: clean-custimage
 
@@ -453,33 +402,6 @@ $(ANDROID_NATIVE_TARGETS): $(PRJ_MF) custgen $(filter $(OUT_DIR)/target/product/
 ifeq ($(TARGET_PRODUCT),emulator)
    TARGET_PRODUCT := generic
 endif
-
-.PHONY: mm
-mm: $(PRJ_MF) $(MTK_ALL_CUSTGEN_FILES)
-ifeq ($(HAVE_PREPROCESS_FLOW),true)
-mm: run-preprocess
-endif
-mm:
-	$(hide) echo $(SHOWTIME) $@ing...
-	$(hide) echo -e \\t\\t\\t\\b\\b\\b\\bLOG: $(S_LOG)$@.log
-	$(hide) rm -f $(LOG)$@.log $(LOG)$@.log_err
-	$(hide) (source build/envsetup.sh;cd $(MM_PATH);TARGET_PRODUCT=$(TARGET_PRODUCT) FLAVOR=$(FLAVOR) org_mm $(MAKEJOBS) $(SNOD) $(DEAL_STDOUT_MM);exit $${PIPESTATUS[0]})  && \
-          $(SHOWRSLT) $$? $(LOG)$@.log || \
-          $(SHOWRSLT) $$? $(LOG)$@.log
-
-.PHONY: mma
-mma: pregen custgen
-ifeq ($(HAVE_PREPROCESS_FLOW),true)
-mma: run-preprocess
-endif
-mma:
-	 $(hide) echo $(SHOWTIME) $@ing...
-	$(hide) echo -e \\t\\t\\t\\b\\b\\b\\bLOG: $(S_LOG)$@.log
-	$(hide) rm -f $(LOG)$@.log $(LOG)$@.log_err
-	$(hide) (source build/envsetup.sh;TARGET_PRODUCT=$(TARGET_PRODUCT) FLAVOR=$(FLAVOR) mmma $(MM_PATH) $(MAKEJOBS) $(SNOD) $(DEAL_STDOUT_MMA);exit $${PIPESTATUS[0]})  && \
-          $(SHOWRSLT) $$? $(LOG)$@.log || \
-          $(SHOWRSLT) $$? $(LOG)$@.log
-
 
 .PHONY: trustzone
 TRUSTZONE_PROTECT_PRIVATE_SECURITY_PATH := $(wildcard mediatek/protect-private/security/Android.mk)
@@ -758,7 +680,6 @@ ifeq ($(BUILD_PRELOADER),yes)
 	$(hide) cd $(PRELOADER_WD) && \
 	  (./build.sh $(PROJECT) $(ACTION) $(DEAL_STDOUT) && \
 	  cd $(MKTOPDIR) && \
-          $(call chkImgSize,$(ACTION),$(PROJECT),$(SCATTER_FILE),$(PRELOADER_IMAGES),$(DEAL_STDOUT),&&) \
           $(if $(strip $(ACTION)),:,$(call copytoout,$(PRELOADER_IMAGES),$(LOGDIR)/$(PROJECT))) && \
 	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG) || \
 	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG))
@@ -777,7 +698,6 @@ ifeq ($(TRUSTONIC_TEE_SUPPORT),yes)
 	$(hide) cd $(TRUST_TEE_WD)/t-base && \
 	  (./build.sh $(PROJECT) $(ACTION) $(DEAL_STDOUT) && \
 	  cd $(MKTOPDIR) && \
-          $(call chkImgSize,$(ACTION),$(PROJECT),$(SCATTER_FILE),$(TRUST_TEE_IMAGES),$(DEAL_STDOUT),&&) \
           $(if $(strip $(ACTION)),:,$(call copytoout,$(TRUST_TEE_IMAGES),$(LOGDIR)/$(PROJECT))) && \
 	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG) || \
 	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG))
@@ -806,7 +726,6 @@ ifeq ($(BUILD_LK),yes)
 	$(hide) cd $(LK_WD) && \
 	  (FULL_PROJECT=$(FULL_PROJECT) make $(MAKEJOBS) $(PROJECT) $(ACTION) $(DEAL_STDOUT) && \
 	  cd $(MKTOPDIR) && \
-          $(call chkImgSize,$(ACTION),$(PROJECT),$(SCATTER_FILE),$(LK_IMAGES),$(DEAL_STDOUT) &&) \
           $(if $(strip $(ACTION)),:,$(call copytoout,$(LK_IMAGES),$(LOGDIR)/$(PROJECT))) && \
           $(if $(strip $(ACTION)),:,$(call copytoout,$(LOGO_IMAGES),$(LOGDIR)/$(PROJECT))) && \
 	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG) || \
@@ -854,7 +773,6 @@ ifeq ($(BUILD_KERNEL),yes)
 	$(hide) cd $(KERNEL_WD) && \
 	  (MAKEJOBS=$(MAKEJOBS) ./build.sh $(ACTION) $(PROJECT) $(DEAL_STDOUT) && \
 	   cd $(MKTOPDIR) && \
-	   $(call chkImgSize,$(ACTION),$(PROJECT),$(SCATTER_FILE),$(if $(strip $(ACTION)),,$(KERNEL_IMAGES)),$(DEAL_STDOUT),&&) \
            $(if $(strip $(ACTION)),:,$(call copytoout,$(KERNEL_IMAGES),$(LOGDIR)/$(PROJECT))) && \
 	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG) $(ACTION) || \
 	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG) $(ACTION))
@@ -869,77 +787,6 @@ else
 endif
 
 
-ifneq ($(ACTION),clean)
-android: check-modem sign-modem
-else
-android: clean-javaoptgen
-endif
-ifeq ($(HAVE_PREPROCESS_FLOW),true)
-  ifeq ($(ACTION),clean)
-android: clean-preprocessed
-  else
-android: run-preprocess
-  endif
-endif
-ifneq ($(strip $(MTK_SKIP_KERNEL_IN_ANDROID)), yes)
-   ifeq ($(filter generic banyan_addon banyan_addon_x86,$(PROJECT)),)
-     ifeq ($(ACTION),)
-android: kernel
-     endif
-   endif
-endif 
-android: CHECK_IMAGE := $(ANDROID_TARGET_IMAGES)
-android:
-ifeq ($(ACTION), )
-	$(hide) /usr/bin/perl $(MTK_ROOT_BUILD)/tools/mtkBegin.pl $(PROJECT)
-endif
-ifneq ($(DR_MODULE),)
-   ifneq ($(ACTION), clean)
-	$(hide) echo building android module MODULE=$(DR_MODULE)
-	$(MAKECMD) $(DR_MODULE)
-   else
-	$(hide) echo cleaning android module MODULE=$(DR_MODULE)
-	$(hide) $(MAKECMD) clean-$(DR_MODULE)
-   endif
-else
-	$(hide) echo $(SHOWTIME) $(SHOWBUILD)ing $@...
-	$(hide) echo -e \\t\\t\\t\\b\\b\\b\\bLOG: $(S_MODULE_LOG)
-	$(hide) rm -f $(MODULE_LOG) $(MODULE_LOG)_err
-  ifeq ($(ACTION),clean)
-	$(hide) ($(MAKECMD) $(ACTION) $(DEAL_STDOUT_CLEAN);exit $${PIPESTATUS[0]}) && \
-	$(SHOWRSLT) $${PIPESTATUS[0]} $(S_CLEAN_LOG) $(ACTION) || \
-	$(SHOWRSLT) $${PIPESTATUS[0]} $(S_CLEAN_LOG) $(ACTION)
-  else
-	$(hide) ($(MAKECMD) $(ACTION) $(DEAL_STDOUT);exit $${PIPESTATUS[0]}) && \
-	$(if $(filter clean,$(ACTION)),,$(call chkImgSize,$(ACTION),$(PROJECT),$(SCATTER_FILE),$(if $(strip $(ACTION)),$(CHECK_IMAGE),$(ANDROID_IMAGES)),$(DEAL_STDOUT),&&)) \
-          $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG) $(ACTION) || \
-	  $(SHOWRSLT) $${PIPESTATUS[0]} $(MODULE_LOG) $(ACTION)
-  endif
-endif
-
-
-define chkImgSize
-$(if $(filter no,$(MTK_CHKIMGSIZE_SUPPORT)), \
-     echo "Check Img size process disabled due to MTK_CHKIMGSIZE_SUPPORT is set to no" $(5) $(6),\
-     $(call chkImgSize1,$(1),$(2),$(3),$(4),$(5),$(6)) \
-)
-endef
-##############################################################
-# function:  chkImgSize1
-# arguments: $(ACTION) $(PROJECT) $(SCATTER_FILE) $(IMAGES) $(DEAL_STDOUT) &&
-#############################################################
-define chkImgSize1
-$(if $(strip $(1)), \
-     $(if $(strip $(4)), \
-          $(if $(filter generic, $(2)),, \
-               perl $(MTK_ROOT_BUILD)/tools/chkImgSize.pl $(3) $(2) $(4) $(5) $(6) \
-           ) \
-      ), \
-     $(if $(filter generic, $(2)),, \
-         perl $(MTK_ROOT_BUILD)/tools/chkImgSize.pl $(3) $(2) $(4) $(5) $(6) \
-      ) \
- )
-endef
 
 #############################################################
 # function: copytoout

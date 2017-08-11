@@ -106,16 +106,16 @@ qw(
 
 my @ABSNativeActions = 
 qw(
-   customimage bootimage systemimage recoveryimage secroimage cacheimage factoryimage
+   customimage bootimage recoveryimage secroimage cacheimage factoryimage
    userdataimage userdataimage-nodeps target-files-package
-   sdk win_sdk banyan_addon banyan_addon_x86 cts otapackage dist updatepackage
-   update-api mm mma snod dump-comp-build-info dump-products bootimage-nodeps
+   sdk win_sdk banyan_addon banyan_addon_x86 cts
+   update-api dump-comp-build-info dump-products bootimage-nodeps
    ramdisk-nodeps
   );
 
 push(@actions, @ABSNativeActions);
 
-@modules = qw(android kernel dr k preloader pl lk tz md32);
+@modules = qw(kernel k preloader pl lk tz md32);
 @orgARGV = @ARGV;
 
 my $productMakefile = "";
@@ -325,20 +325,14 @@ else
       }
       die "Unknown the module: $uMod.\n"
         . "It should be one of (@modules)\nOr try $myCmd -h\n"
-      if ( ($isFound == 0) && ($arguments[$i - 1] !~ /[k|kernel|dr|android]/) );
+      if ( ($isFound == 0) && ($arguments[$i - 1] !~ /[k|kernel]/) );
       ($uMod = "preloader") if ($uMod eq "pl");
       ($uMod = "trustzone") if ($uMod eq "tz");
       ($uMod = "kernel") if ($uMod eq "k");  
-      ($uMod = "android") if ($uMod eq "dr");
       if (($uMod eq "kernel") && ($arguments[$i + 1] =~ /^(.*)\//))
       {
         $KMOD_PATH = $arguments[$i + 1];
         $KMOD_PATH =~ s/^kernel\///;
-        last;
-      }
-      if ($uMod eq "android")
-      {
-        $DR_MODULE = $arguments[$i + 1];
         last;
       }
       $i += $i + 1;
@@ -346,7 +340,7 @@ else
   }
   else
   {
-    @default_arguments = qw(preloader lk md32 tz kernel android);
+    @default_arguments = qw(preloader lk md32 tz kernel);
   }
 }
 
@@ -437,27 +431,16 @@ foreach $uAct (@acts)
   {
     $result += &p_system("$makeCmd $uAct");
   }
-  elsif (($uAct eq "mm")||($uAct eq "mma"))
-  {
-    $result += &p_system("$makeCmd $uAct SNOD=$snod MM_PATH=$MM_PATH");
-  }
   else
   {
     if ($#arguments < 0)
     {
-      if (${uAct} =~ /(new|remake|clean)/)
-      {
         if ($uAct =~ /(new|remake)/)
         {
           &chkMustEnv;
           &chkDep;
         }
         $result += &p_system("$makeCmd ${uAct}all");
-      }
-      else
-      {
-        $result += &p_system("$makeCmd $uAct CUR_MODULE=android");
-      }
     }
     else
     {
@@ -467,11 +450,6 @@ foreach $uAct (@acts)
         if ( ($KMOD_PATH ne "") && ($uMod eq "kernel") )
         {
           $result += &p_system("$makeCmd $uAct CUR_MODULE=$uMod KMOD_PATH=$KMOD_PATH");
-          last;
-        }
-        elsif ( ($DR_MODULE ne "") && ($uMod eq "android") )
-        {
-          $result += &p_system("$makeCmd $uAct CUR_MODULE=$uMod DR_MODULE=$DR_MODULE");
           last;
         }
         else
@@ -523,8 +501,6 @@ Actions:
   mrproper      : Remove all generated files + config + various backup files in Kbuild process.
   bm_new        : "new" + GNU make's "-k"(keep going when encounter error) feature.
   bm_remake     : "remake" + GNU make's "-k"(keep going when encounter error) feature.
-  mm            : Build module through Android native command "mm"
-  mma           : Build module through Android native command "mma"
 
   emigen        : Generate EMI setting source code.
   nandgen       : Generate supported NAND flash device list.
@@ -537,8 +513,6 @@ Actions:
 
   sign-image    : Sign all the image generated.
   encrypt-image : Encrypt all the image generated.
-  update-api    : Android default build action
-                  (be executed if system setting or anything removed from API).
   check-modem   : Check modem image consistency.
   update-modem  : Update modem image located in system.img.
   modem-info    : Show modem version
@@ -552,9 +526,6 @@ Actions:
   cts           : Build cts package.
   bootimage     : Build boot image(boot.img).
   cacheimage    : Build cache image(cache.img).
-  systemimage   : Build system image(system.img).
-  snod          : Build system image without dependency.
-                  (that is, ONLY pack the system image, NOT checking its dependencies.)
   recoveryimage : Build recovery image(recovery.img).
   secroimage    : Build secro image(secro.img).
   factoryimage  : Build factory image(factory.img).
@@ -568,8 +539,6 @@ Actions:
                   (A zip of the directories that map to the target filesystem.
                    This zip can be used to create an OTA package or filesystem image
                    as a post-build step.)
-  updatepackage : Build the update package.
-  dist          : Build distribution package.
 
 Modules:
   pl, preloader : Specify to build preloader.
@@ -577,12 +546,9 @@ Modules:
   md32          : Specify to build DSP md32.
   tz, trustzone : Specify to build trusted execution environment.
   k,  kernel    : Specify to build kernel.
-  dr, android   : Specify to build android.
   NULL          : Specify to build all components/modules in default.
   k <module path>
                 : Specify to build kernel component/module with the source path.
-  dr <module name>
-                : Specify to build android component/module with module name.
 
 Other tools:
   prebuilts/misc/linux-x86/ccache/ccache -M 10G
@@ -602,13 +568,7 @@ Example:
                 : Clean & Build preloader and kernel for e1k project. 
   ./makeMtk e1k n k kernel/xxx/xxx
                 : Build(full build) kernel component/module 
-                  under the path "kernel/xxx/xxx" for e1k project.
-  ./makeMtk e1k r dr Gallery
-                : Rebuild android module named Gallery for e1k project.
-  ./makeMtk e1k mm packages/apps/Settings
-    : Change Directory to packages/apps/Settings and execute "mm"
-  ./makeMtk e1k mma packages/apps/Settings
-    : Change Directory to packages/apps/Settings and execute "mma"
+                  under the path "kernel/xxx/xxx" for e1k project
 
 
 __END_OF_USAGE
