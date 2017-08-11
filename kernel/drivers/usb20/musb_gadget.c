@@ -1458,26 +1458,13 @@ static void fifo_setup(struct musb *musb, struct musb_ep *musb_ep)
 	size = ffs(max(maxpacket, (u16) 8)) - 1;
 	maxpacket = 1 << size;
 
-	DBG(0,"musb type=%s\n", (musb_ep->type==USB_ENDPOINT_XFER_BULK?"BULK": \
-		(musb_ep->type==USB_ENDPOINT_XFER_INT?"INT": \
-		(musb_ep->type==USB_ENDPOINT_XFER_ISOC?"ISO":"CONTROL"))));
-
 	c_size = size - 3;
-	/* Set double buffer, if the transfer type is bulk or isoc.*/
-	/* So user need to take care the fifo buffer is enough or not.*/
-	if (musb_ep->fifo_mode == MUSB_BUF_DOUBLE && (musb_ep->type==USB_ENDPOINT_XFER_BULK || musb_ep->type==USB_ENDPOINT_XFER_ISOC)) {
-		if ((musb->fifo_addr + (maxpacket << 1)) >(musb->fifo_size)) {
-			DBG(0,"MUSB_BUF_DOUBLE USB FIFO is not enough!!! (%d>%d), fifo_addr=%d\n",
-				(musb->fifo_addr + (maxpacket << 1)), (musb->fifo_size), musb->fifo_addr);
+	if (musb_ep->fifo_mode == MUSB_BUF_DOUBLE) {
+		if ((musb->fifo_addr + (maxpacket << 1)) >(musb->fifo_size))
 			return ;
-		}
-		DBG(0,"EP%d supports DBBUF\n", musb_ep->current_epnum);
 		c_size |= MUSB_FIFOSZ_DPB;
-	} else if ((musb->fifo_addr + maxpacket) > (musb->fifo_size)) {
-		DBG(0,"MUSB_BUF_SINGLE USB FIFO is not enough!!! (%d>%d)\n",
-			(musb->fifo_addr + maxpacket), (musb->fifo_size));
+	}else if ((musb->fifo_addr + maxpacket) >(musb->fifo_size))
 		return ;
-	}
 
 	/* configure the FIFO */
 	// musb_writeb(mbase, MUSB_INDEX, musb_ep->hw_ep->epnum);
@@ -2236,17 +2223,12 @@ static void musb_pullup(struct musb *musb, int is_on, bool usb_in)
 
 	if (!usb_in && is_on) {
 		DBG(0, "no USB cable, don't need to turn on USB\n");
-        #ifdef MTK_ALPS_BOX_SUPPORT    //because 8127 box have no charger IC
-        musb_start(musb);    //default usb device mode
-        #endif
 	} else if (musb->is_host) {
 		DBG(0, "USB is host, don't need to control USB\n");
 	} else if (is_on) {
 		musb_start(musb);
 	} else {
-        #ifndef MTK_ALPS_BOX_SUPPORT    //because 8127 box have no charger IC
-        musb_stop(musb);
-        #endif
+		musb_stop(musb);
 	}
 
 	DBG(0,"MUSB: gadget pull up %d end\n", is_on);
@@ -2338,12 +2320,11 @@ static const struct usb_gadget_ops musb_gadget_operations = {
  * all peripheral ports are external...
  */
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 static void musb_gadget_release(struct device *dev)
 {
 	/* kref_put(WHAT) */
 }
-#endif
+
 
 static void
 init_peripheral_ep(struct musb *musb, struct musb_ep *ep, u8 epnum, int is_in)
@@ -2359,17 +2340,9 @@ init_peripheral_ep(struct musb *musb, struct musb_ep *ep, u8 epnum, int is_in)
 
 	INIT_LIST_HEAD(&ep->req_list);
 
-	snprintf(ep->name, sizeof(ep->name), "ep%d%s-%s", epnum,
+	sprintf(ep->name, "ep%d%s", epnum,
 			(!epnum || hw_ep->is_shared_fifo) ? "" : (
-				is_in ? "in" : "out"),({ char *mode;
-		switch (hw_ep->ep_mode) {
-		case EP_CONT:	mode = "control"; break;
-		case EP_ISO:	mode = "iso"; break;
-		case EP_INT:	mode = "int"; break;
-		case EP_BULK:	mode = "bulk"; break;
-		default:		mode = "unknown"; break;
-		} ; mode; }));
-	DBG(0,"EP %d name is %s\n",epnum,ep->name);
+				is_in ? "in" : "out"));
 	ep->end_point.name = ep->name;
 	INIT_LIST_HEAD(&ep->end_point.ep_list);
 	if (!epnum) {
@@ -2437,12 +2410,10 @@ int musb_gadget_setup(struct musb *musb)
 	musb->g.speed = USB_SPEED_UNKNOWN;
 
 	/* this "gadget" abstracts/virtualizes the controller */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 	dev_set_name(&musb->g.dev, "gadget");
 	musb->g.dev.parent = musb->controller;
 	musb->g.dev.dma_mask = musb->controller->dma_mask;
 	musb->g.dev.release = musb_gadget_release;
-#endif
 	musb->g.name = musb_driver_name;
 
 	musb->g.is_otg = 1;
@@ -2451,13 +2422,12 @@ int musb_gadget_setup(struct musb *musb)
 
 	musb->is_active = 0;
 	musb_platform_try_idle(musb, 0);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
+
 	status = device_register(&musb->g.dev);
 	if (status != 0) {
 		put_device(&musb->g.dev);
 		return status;
 	}
-#endif
 	status = usb_add_gadget_udc(musb->controller, &musb->g);
 	if (status)
 		goto err;
@@ -2472,10 +2442,8 @@ err:
 void musb_gadget_cleanup(struct musb *musb)
 {
 	usb_del_gadget_udc(&musb->g);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 	if (musb->g.dev.parent)
 		device_unregister(&musb->g.dev);
-#endif
 }
 
 /*
@@ -2744,7 +2712,7 @@ __acquires(musb->lock)
 	u8		devctl = musb_readb(mbase, MUSB_DEVCTL);
 	u8		power;
 
-	DBG(2, "<== %s driver '%s'\n",
+	DBG(0, "<== %s driver '%s'\n",
 			(devctl & MUSB_DEVCTL_BDEVICE)
 				? "B-Device" : "A-Device",
 			musb->gadget_driver

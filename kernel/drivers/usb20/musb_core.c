@@ -967,7 +967,7 @@ b_host:
 				musb_writeb(musb->mregs, MUSB_DEVCTL, 0);
 			}
 		} else {
-			DBG(2, "BUS RESET as %s\n",
+			DBG(0, "BUS RESET as %s\n",
 				otg_state_string(musb->xceiv->state));
 			switch (musb->xceiv->state) {
 			case OTG_STATE_A_SUSPEND:
@@ -1152,9 +1152,22 @@ static void gadget_stop(struct musb *musb)
 	musb_writeb(musb->mregs, MUSB_POWER, power);
 
 	/* notify gadget driver */
+#if 0
 	if (musb->g.speed != USB_SPEED_UNKNOWN) {
+#else
+	/*
+	 * ALPS01276178: race confition issue
+	 * There are two ways to stop usb: 
+	 *    (1)usb cable out called by battery thread
+	 *    (2)enable_store function
+	 * STOP USB form enable_store will cause g.speed == USB_SPEED_UNKNOWN, but disconnect notify skiped.
+	 * Only real USB cable out trigger disconnect. Use mtk_musb->power to replace g.speed.
+	 */
+	if (mtk_musb->power) {
+#endif
 		if (musb->gadget_driver && musb->gadget_driver->disconnect) {
-			musb->gadget_driver->disconnect(&musb->g);
+			//if(!usb_cable_connected()) //ALPS01261850 //ALPS01329459
+				musb->gadget_driver->disconnect(&musb->g);
 		}
 		musb->g.speed = USB_SPEED_UNKNOWN;
 	}
@@ -1200,13 +1213,7 @@ static void musb_shutdown(struct platform_device *pdev)
 	musb_generic_disable(musb);
 	musb_platform_disable(musb);
 	spin_unlock_irqrestore(&musb->lock, flags);
-#ifdef CONFIG_USB_MTK_HDRC_HCD
-    if (musb->is_host)
-    {
-        printk(KERN_ERR"%s, line %d. \n", __func__, __LINE__);
-        musb_platform_set_vbus(mtk_musb, 0);
-    }
-#endif
+
 	musb_writeb(musb->mregs, MUSB_DEVCTL, 0);
 	musb_platform_exit(musb);
 

@@ -23,7 +23,6 @@ obj-$(CONFIG_MTK_FLIPER)   +=  fliper/
 ifneq ($(MTK_BATTERY_NO_HAL),yes)
 obj-y   += power/
 endif
-obj-y   +=  usb20/
 obj-y   +=  usb11/
 obj-y   +=  mu3d/
 obj-$(CONFIG_MTK_SYSTRACKER) 	+=  systracker/
