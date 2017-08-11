@@ -5,7 +5,3 @@ ccflags-y += -I$(MTK_PATH_PLATFORM)/drivers/video/  \
 ccflags-y += -I$(MTK_PATH_PLATFORM)/drivers/videox/  \
            -I$(MTK_PATH_SOURCE)/drivers/videox/
 obj-n := dummy.o
-
-ifeq ($(MTK_ALPS_BOX_SUPPORT), yes)
-ccflags-y += -DMTK_ALPS_BOX_SUPPORT
-endif

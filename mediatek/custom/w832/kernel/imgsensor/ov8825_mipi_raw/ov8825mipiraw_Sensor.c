@@ -1520,7 +1520,7 @@ UINT32 OV8825Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	spin_lock(&ov8825mipiraw_drv_lock);
 	ov8825.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov8825mipiraw_drv_lock);
-	OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
+	OV8825SetFlipMirror(IMAGE_NORMAL);
 	
 	OV8825DBSOFIA("[OV8825Preview]frame_len=%x\n", ((OV8825_read_cmos_sensor(0x380e)<<8)+OV8825_read_cmos_sensor(0x380f)));
 	
@@ -1561,7 +1561,7 @@ UINT32 OV8825Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	ov8825.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov8825mipiraw_drv_lock);
 	//OV8825DB("[OV8825Capture] mirror&flip: %d\n",sensor_config_data->SensorImageMirror);
-	OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
+	OV8825SetFlipMirror(IMAGE_NORMAL);
 
 	
 	// set dummy

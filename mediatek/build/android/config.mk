@@ -26,7 +26,7 @@ endif
 ARTIFACT_TARGET_FILE := $(ARTIFACT_DIR)/target.txt
 ARTIFACT_COPY_FILE := $(ARTIFACT_DIR)/copy.txt
 ARTIFACT_DEFAULT_INSTALLED_HEADERS := 
-PARTIAL_BUILD :=
+PARTIAL_BUILD := true
 
 define make-private-dependency
 $(eval LOCAL_ADDITIONAL_DEPENDENCIES:=$(call exist-config,$(1)))
@@ -44,11 +44,6 @@ ifeq (,$(call wildcard2,$(BUILD_SYSTEM_MTK_EXTENSION)/full/config.mk))
 ifeq (,$(DO_PUT_ARTIFACTS))
   DO_GET_ARTIFACTS := yes
 endif
-endif
-
-# define partial build flag
-ifeq (,$(call wildcard2,$(BUILD_SYSTEM_MTK_EXTENSION)/full/config.mk.custrel))
-PARTIAL_BUILD := true
 endif
 
 ifeq ($(PARTIAL_BUILD),true)

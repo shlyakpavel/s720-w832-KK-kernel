@@ -403,11 +403,7 @@ int musbfsh_hub_control(
 			musbfsh_port_suspend(musbfsh, false);//here is clearing the suspend
 			break;
 		case USB_PORT_FEAT_POWER:
-			#ifndef MTK_ALPS_BOX_SUPPORT
 			musbfsh_set_vbus(musbfsh, 0);//only power off the vbus
-			#else
-			musbfsh_platform_set_vbus(musbfsh, 0);//only power off the vbus
-			#endif
 			break;
 		case USB_PORT_FEAT_C_CONNECTION:
 		case USB_PORT_FEAT_C_ENABLE:

@@ -150,7 +150,6 @@ extern LCM_DRIVER r69429_wuxga_dsi_vdo_lcm_drv;
 extern LCM_DRIVER r69429_wuxga_dsi_cmd_lcm_drv;
 extern LCM_DRIVER rm68210_hd720_dsi_ufoe_cmd_lcm_drv;
 extern LCM_DRIVER r63311_fhd_dsi_vedio_lcm_drv;
-extern LCM_DRIVER cpt_clap070wp03xg_lvds_lcm_drv;
 extern LCM_DRIVER otm8018b_dsi_vdo_lcsh72_lcm_drv;
 extern LCM_DRIVER hx8369_dsi_cmd_6571_lcm_drv;
 extern LCM_DRIVER hx8369_dsi_vdo_6571_lcm_drv;
@@ -800,7 +799,7 @@ static unsigned char lcd_id_pins_value = 0xFF;
 
 /******************************************************************************
 Function:       which_lcd_module_triple
-  Description:    read LCD ID PIN status,could identify three status:high¡¢low¡¢float
+  Description:    read LCD ID PIN status,could identify three status:high, low or float
   Input:           none
   Output:         none
   Return:         LCD ID1|ID0 value

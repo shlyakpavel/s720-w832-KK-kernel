@@ -1193,7 +1193,7 @@ static long MTK_M4U_ioctl(struct file * a_pstFile,
             printk("\n"); 
 
 
-            M4UMSG("=========  compare these automaticly =======>\n");
+            /*M4UMSG("=========  compare these automaticly =======>\n");
             for(i=0; i<page_num; i++)
             {
                 unsigned int pa, entry;
@@ -1205,7 +1205,7 @@ static long MTK_M4U_ioctl(struct file * a_pstFile,
                     M4UMSG("warning warning!! va=0x%x,mva=0x%x, pa=0x%x,entry=0x%x\n",
                         va+i*M4U_PAGE_SIZE, mva+i*M4U_PAGE_SIZE, pa, entry);
                 }
-            }
+            }*/
 
         }while(0);
             
