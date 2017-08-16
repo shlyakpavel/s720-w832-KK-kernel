@@ -1,0 +1,16 @@
+ubuntu:
+ image: ubuntu:xenial
+ script:
+  - apt-get -qq update -yy > /dev/null
+  - apt-get -qq install -o=Dpkg::Use-Pty=0 -yy axel curl bc make git build-essential python lib32stdc++6 ccache > /dev/null
+  - mkdir -p prebuilds/
+  - cd prebuilds
+  - axel --quiet http://releases.linaro.org/components/toolchain/binaries/7.1-2017.05/arm-linux-gnueabihf/gcc-linaro-7.1.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz
+  - tar xf gcc-linaro-7.1.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz
+  - export PATH=$PATH:$PWD/gcc-linaro-7.1.1-2017.05-x86_64_arm-linux-gnueabihf/bin/
+  - cd ../
+  - export KBUILD_BUILD_USER=pavel
+  - export KBUILD_BUILD_HOST=4pda
+  - ./makeMtk lenovo77_s720 n k
+  - curl --upload-file out/target/product/lenovo77_s720_kernel.log https://transfer.sh/builds.log |grep transfer
+
